@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In – Ace Hardware</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* Remove browser tap highlight and focus outlines globally */
+    * { -webkit-tap-highlight-color: transparent; outline: none; }
+    *:focus-visible { outline: none; }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #fafafa;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ─── Header ─────────────────────────────────────────── */
+    .header {
+      background: #fff;
+      border-bottom: 1px solid #d1d1d1;
+      width: 100%;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .header-container {
+      width: 100%;
+      max-width: 1248px;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 4px;
+      color: rgba(18, 18, 18, 0.93);
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: 0.15px;
+      line-height: 24px;
+      text-decoration: none;
+    }
+
+    .back-btn:hover { background: rgba(18, 18, 18, 0.06); }
+
+    .back-btn svg { flex-shrink: 0; }
+
+    .ace-logo {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      height: 40px;
+      width: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ace-logo svg { width: 90px; height: 40px; }
+
+    /* ─── Card ────────────────────────────────────────────── */
+    .card-wrapper {
+      padding: 36px 0;
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #d1d1d1;
+      border-radius: 8px;
+      width: 346px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    /* ─── Hero / Icon block ───────────────────────────────── */
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .key-icon {
+      width: 46px;
+      height: 46px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* When key-icon is a direct card child (hoisted out of animation) */
+    .card > .key-icon {
+      margin-bottom: -16px; /* card gap=24px, hero gap=8px → offset by 16px */
+    }
+
+    .hero h1 {
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 32px;
+      letter-spacing: 0.18px;
+      color: #121212;
+      text-align: center;
+    }
+
+    .hero p {
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 20px;
+      letter-spacing: 0.25px;
+      color: #121212;
+      text-align: center;
+    }
+
+    /* ─── Tab Toggle ──────────────────────────────────────── */
+    .tabs {
+      background: #eeeeee;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      height: 40px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    /* Sliding pill that moves under the active button */
+    .tab-pill {
+      position: absolute;
+      top: 0;
+      height: 40px;
+      background: #d40029;
+      border-radius: 30px;
+      box-shadow: -1px 1px 0.5px #f5f5f5;
+      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                  width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+      z-index: 0;
+      will-change: left, width;
+    }
+
+    .tab-btn {
+      position: relative;
+      z-index: 1;
+      height: 40px;
+      padding: 0 24px;
+      font-family: 'Roboto', sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: 0.15px;
+      line-height: 40px;
+      white-space: nowrap;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: rgba(18, 18, 18, 0.93);
+      transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 30px;
+    }
+
+    .tab-btn[aria-selected="true"] {
+      color: #fff;
+    }
+
+    /* ─── Hidden utility ────────────────────────────────────── */
+    .sr-only {
+      position: absolute;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+
+    [hidden] { display: none !important; }
+
+    /* ─── Form fields ─────────────────────────────────────── */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      width: 100%;
+    }
+
+    /* ─── OTP delivery field & helper ─────────────────────── */
+    .otp-delivery-input {
+      width: 100%;
+      height: 40px;
+      border: 1px solid #8a8a8a;
+      border-radius: 4px;
+      padding: 0 16px;
+      font-family: 'Roboto', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: 0.25px;
+      color: #1f1f1f;
+      background: #fff;
+      box-sizing: border-box;
+      outline: none;
+    }
+    .otp-delivery-input:focus {
+      border-color: #1f1f1f;
+    }
+    .otp-delivery-helper {
+      margin: 4px 0 0;
+      padding: 0 16px;
+      font-family: 'Roboto', sans-serif;
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 16px;
+      letter-spacing: 0.4px;
+      color: #1e1e1e;
+    }
+
+    /* ─── OTP panel ──────────────────────────────────────── */
+    .otp-group {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+    }
+
+    .send-to-label {
+      font-size: 16px;
+      font-weight: 500;
+      line-height: 16px;
+      letter-spacing: 0.15px;
+      color: #121212;
+      text-align: center;
+      width: 100%;
+    }
+
+    .delivery-tiles {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .tile {
+      flex: 1;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 16px 8px;
+      border: 1px solid rgba(18, 18, 18, 0.12);
+      border-radius: 4px;
+      background: #fff;
+      cursor: pointer;
+      font-family: 'Roboto', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 20px;
+      letter-spacing: 0.25px;
+      color: #121212;
+      transition: border-color 0.15s;
+    }
+
+    .tile:hover { border-color: rgba(18, 18, 18, 0.4); }
+
+    .tile.tile-selected {
+      border: 2px solid rgba(18, 18, 18, 0.93);
+    }
+
+    .tile-badge {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      display: none;
+    }
+
+    .tile.tile-selected .tile-badge { display: block; }
+
+    .text-field-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      width: 100%;
+    }
+
+    .field-hint {
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 16px;
+      letter-spacing: 0.4px;
+      color: #1e1e1e;
+      padding: 0 16px;
+    }
+
+    .fields {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+    }
+
+    .text-field {
+      position: relative;
+      width: 100%;
+      height: 40px;
+      background: #fff;
+      border: 1px solid #8a8a8a;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 8px;
+    }
+
+    .text-field input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-family: 'Roboto', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 20px;
+      letter-spacing: 0.25px;
+      color: #1f1f1f;
+      background: transparent;
+    }
+
+    .text-field input::placeholder { color: transparent; }
+
+    /* ─── RDS 2.0 floating label ────────────────────────── */
+    .text-field-label {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'Roboto', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 20px;
+      letter-spacing: 0.25px;
+      color: #1f1f1f;
+      background: #fff;
+      padding: 0;
+      pointer-events: none;
+      transition: top 0.15s ease, font-size 0.15s ease,
+                  letter-spacing 0.15s ease, padding 0.15s ease,
+                  left 0.15s ease;
+      white-space: nowrap;
+      z-index: 1;
+    }
+
+    .text-field:focus-within .text-field-label,
+    .text-field input:not(:placeholder-shown) ~ .text-field-label {
+      top: 0;
+      left: 12px;
+      font-size: 12px;
+      line-height: 16px;
+      letter-spacing: 0.4px;
+      padding: 0 4px;
+    }
+
+    /* ─── RDS 2.0 clear button ──────────────────────────── */
+    .text-field-clear {
+      display: none;
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .text-field input:not(:placeholder-shown) ~ .text-field-clear {
+      display: flex;
+    }
+
+    .forgot-link {
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 20px;
+      letter-spacing: 0.25px;
+      color: #121212;
+      text-decoration: underline;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      text-align: left;
+      width: 100%;
+    }
+
+    /* ─── Shared action block ──────────────────────────────── */
+    .action-block {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      width: 100%;
+    }
+
+    .captcha-widget {
+      width: 100%;
+      border: 1px solid #d1d1d1;
+      border-radius: 4px;
+      background: #fff;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .captcha-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .captcha-checkbox {
+      width: 20px;
+      height: 20px;
+      border: 1px solid #8a8a8a;
+      border-radius: 2px;
+      background: #fff;
+      flex-shrink: 0;
+    }
+
+    .captcha-label {
+      font-size: 14px;
+      font-weight: 400;
+      color: #1f1f1f;
+      letter-spacing: 0.25px;
+    }
+
+    .captcha-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+    }
+
+    .cloudflare-logo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .cloudflare-name {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      color: #404040;
+      text-transform: uppercase;
+    }
+
+    .cloudflare-links {
+      font-size: 7px;
+      color: #666;
+      display: flex;
+      gap: 4px;
+    }
+
+    .cloudflare-links a { color: #666; text-decoration: none; }
+    .cloudflare-links a:hover { text-decoration: underline; }
+
+    /* Cloudflare flame SVG placeholder */
+    .cf-flame {
+      width: 28px;
+      height: 28px;
+    }
+
+    .keep-signed-in {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    /* ─── RDS 2.0 Checkbox icons ──────────────────────────── */
+    .ds-checkbox-icon {
+      flex-shrink: 0;
+      display: block;
+    }
+
+    .ds-checkbox-checked { display: none; }
+
+    #keep-cb:checked + .keep-signed-in .ds-checkbox-unchecked { display: none; }
+    #keep-cb:checked + .keep-signed-in .ds-checkbox-checked  { display: block; }
+    #keep-cb-pwd:checked + .keep-signed-in .ds-checkbox-unchecked { display: none; }
+    #keep-cb-pwd:checked + .keep-signed-in .ds-checkbox-checked  { display: block; }
+
+    .keep-signed-in-label {
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+      letter-spacing: 0.5px;
+      color: #1f1f1f;
+      white-space: nowrap;
+    }
+
+    /* ─── CTA Button ─────────────────────────────────────── */
+    .sign-in-btn {
+      width: 100%;
+      height: 48px;
+      background: #d40029;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      font-family: 'Roboto', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 1.25px;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .sign-in-btn:hover { background: #b8001f; }
+    .sign-in-btn:active { background: #9c0019; }
+    .sign-in-btn:disabled,
+    .sign-in-btn:disabled:hover,
+    .sign-in-btn:disabled:active { background: #e4617a; cursor: not-allowed; pointer-events: none; }
+
+    /* ─── Resend / outlined button ────────────────────────── */
+    .resend-btn {
+      width: 100%;
+      height: 48px;
+      background: #fff;
+      border: 1px solid #8a8a8a;
+      border-radius: 4px;
+      font-family: 'Roboto', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 1.25px;
+      text-transform: uppercase;
+      color: #1f1f1f;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .resend-btn:hover { border-color: rgba(18,18,18,0.4); }
+
+    /* ─── Sign in another way / text-only link ───────────── */
+    .sign-in-another-way-btn {
+      width: 100%;
+      background: none;
+      border: none;
+      padding: 8px;
+      font-family: 'Roboto', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 1.25px;
+      text-transform: uppercase;
+      color: #d40029;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .sign-in-another-way-btn:hover { opacity: 0.7; }
+
+    /* ─── Legal text ──────────────────────────────────────── */
+    .legal {
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 16px;
+      letter-spacing: 0.4px;
+      color: #121212;
+      text-align: center;
+      width: 100%;
+    }
+
+    .legal a {
+      color: #121212;
+      text-decoration: underline;
+      text-underline-offset: 1px;
+    }
+
+    .legal a:hover { opacity: 0.7; }
+
+    /* ─── Divider ─────────────────────────────────────────── */
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: #d1d1d1;
+      flex-shrink: 0;
+    }
+
+    /* ─── Create Account ──────────────────────────────────── */
+    .create-account {
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 20px;
+      letter-spacing: 0.25px;
+      color: #121212;
+      text-align: center;
+      width: 100%;
+    }
+
+    .create-account a {
+      color: #d40029;
+      text-decoration: underline;
+      text-underline-offset: 1px;
+      cursor: pointer;
+    }
+
+    .create-account a:hover { opacity: 0.8; }
+    /* ─── Responsive: mobile (≤ 420px) ───────────────────────────── */
+    @media (max-width: 420px) {
+      body {
+        background: #fff;
+      }
+
+      .header {
+        height: 64px;
+      }
+
+      .back-btn-text {
+        display: none;
+      }
+
+      .ace-logo {
+        height: 32px;
+        width: 72px;
+      }
+
+      .ace-logo img {
+        width: 72px;
+        height: 32px;
+      }
+
+      .card-wrapper {
+        padding: 24px 16px;
+      }
+
+      .card {
+        width: 100%;
+        border: none;
+        border-radius: 0;
+        padding: 0;
+        background: transparent;
+      }
+    }
+    /* ─── Panel container + transition animations ─────────── */
+    .panels-container {
+      position: relative;
+      width: 100%;
+      overflow: visible;
+    }
+
+    @keyframes panelOutLeft {
+      from { transform: translateX(0);    opacity: 1; }
+      to   { transform: translateX(-48px); opacity: 0; }
+    }
+    @keyframes panelOutRight {
+      from { transform: translateX(0);   opacity: 1; }
+      to   { transform: translateX(48px); opacity: 0; }
+    }
+    @keyframes panelInRight {
+      from { transform: translateX(48px); opacity: 0; }
+      to   { transform: translateX(0);    opacity: 1; }
+    }
+    @keyframes panelInLeft {
+      from { transform: translateX(-48px); opacity: 0; }
+      to   { transform: translateX(0);     opacity: 1; }
+    }
+
+    /* ─── Screen transition container ────────────────────── */
+    #screens-container {
+      position: relative;
+      width: 100%;
+      overflow: visible;
+    }
+
+    #screen-main,
+    #screen-verify {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      align-items: center;
+      width: 100%;
+    }
+
+    /* ─── OTP 6-digit inputs ─────────────────────────────── */
+    .otp-inputs {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .otp-inputs input {
+      flex: 1;
+      min-width: 0;
+      height: 40px;
+      border: 1px solid #8a8a8a;
+      border-radius: 4px;
+      background: #fff;
+      font-family: 'Roboto', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 20px;
+      letter-spacing: 0.25px;
+      color: #1f1f1f;
+      text-align: center;
+      outline: none;
+      padding: 0;
+      caret-color: #1f1f1f;
+    }
+
+    .otp-inputs input:focus {
+      border-color: #1f1f1f;
+      border-width: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── Header ───────────────────────────────────────────── -->
+  <header class="header">
+    <div class="header-container">
+      <a href="#" class="back-btn" id="back-btn" aria-label="Go back">
+        <!-- Back arrow icon -->
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" fill="#121212"/>
+        </svg>
+        <span class="back-btn-text">Back</span>
+      </a>
+
+      <!-- Ace Hardware Logo (centered) -->
+      <div class="ace-logo">
+        <img src="data:image/png;base64,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" alt="Ace Hardware" width="90" height="40" style="object-fit:contain;" />
+      </div>
+    </div>
+  </header>
+
+  <!-- ─── Main Content ─────────────────────────────────────── -->
+  <main class="card-wrapper">
+    <div class="card" role="main">
+      <div id="screens-container">
+
+        <!-- ─── Screen: Sign In ──────────────────────────── -->
+        <div id="screen-main">
+
+      <!-- Hero -->
+      <div class="hero">
+        <div class="key-icon" aria-hidden="true">
+          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAC4AAAAuCAYAAABXuSs3AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAOdEVYdFNvZnR3YXJlAEZpZ21hnrGWYwAAA+tJREFUeAHNmj9L+0AYxy/9Fdx8AyoITiq4quDioKCzgrOCs6Cz/nB20NXBWdFNKLTdSod2LbRzoX0DbV9A7efgCde0Se7Sps0XQkx6Sb73zfPvnugNR1AzoN/vq3K5rFqtlup0OnrPOTbBzs6OWl1dVbu7u+rg4EDt7+/r41ngJSEOqZ+fH1UqlVStVlNJwAQuLi70lgROxCH88fGhN1PRWbC+vq7u7u6cJ2BNHGUfHh5Ut9tVacB1ArHEUfb19VWrvAhcX1/rCcT5QCRx1L29vdUOt0ig/ufnp96HIZQ4pK+urlIzjTjEkc9NO7ls0jYcJhTHps/Pz5dK2gQ5AOWDNj+hOI6YFdIA/4JTEGPESSqLih4ugFO9Xh87N2YqR0dHmVLbBE5aKBR8k/EVR+2skgZwM63BVzzLagtQu1qt6r1WPOtqC6S4Az5xGzDTm5sbHZ4ajYZqt9t6z/Hl5WVkppsXqEiB1+v1hnt7e7EXUIa+vLxEkuOtvb29qe/vb5UmEOvf8fHx/9/f38iBVGzv7+9jSYD4WqlU1GAw0OdXVlb0/vT0VP+etE63wdbWlsrHPQCFHx8f/WM8m4Rg1uOMYXJUdYA9902LPKLl4yq/p6cnX2kIT8timIhkXMwJYPcucKmPGOOdnZ0Nw8ijJOFHBhMyBTgpdcTIR8beAMSTLsdsycMrUnGICXA6AaZDwS/AcSnMAKbkeZ5yAYtnyEgpG0cekfJRNzSJs4IHmI1JWsaxIQLb/f29cgH3hDD3sCEP8ZyaE1zaDfOI93keGLZiN2eMGkQJWembqqOyRBDGYf8m+E1iu6wpuYbFN/cTteWZNnbujRxuKGYQBJMi2MvDuaEABzw8PNQmZLYrwpyT7GzGeSHJda6kGe+NFsPDYrEYOujr60s7DwgLhwLUNGO+C1zCIcEgt7a2FjkIRxM1ecXT0j5KQtgkTXdgc3NzYhnI35wzBXBd42rFR7Y3xNaiwKuXxCIQe4e09AYFwTcjEwPPz8++ENKCc200UX7MtciCEMRsq82kwO/0QoLXZFtXoBAl7Pb2tpKIJFFlnj3FMCAgUUgnIDzdljhqpq1oFCRiacVRiTokbbVmhVk76cw5LY1nEVI2A3+xnLUOVhCm2sCvVVA9GPKyBFNtMFZk4bFZNBk4BcuIqU1PwuOie+JhCHawBBNlLQPITItoNcRBavNpJXMu6oJlkk/U2Le5ME1ITzzq2ZErILGvRTosz7IRzPpzIWk+zaY/RAnHRDYbOH9ZnvcEJGuzuaxbE30SB1JszfJJnOKO+Jzku35i4gLiPuT51NFsNv0yVwApWWxsbGzo/cnJycz/hPAH6oPAskRDyGQAAAAASUVORK5CYII=" alt="" width="46" height="46" />
+        </div>
+        <h1>Welcome Back</h1>
+        <p>Choose your preferred sign-in method</p>
+      </div>
+
+      <!-- Tab Toggle -->
+      <div class="tabs" role="tablist" aria-label="Sign-in method" id="tabs">
+        <div class="tab-pill" id="tab-pill" aria-hidden="true"></div>
+        <button class="tab-btn" role="tab" aria-selected="true" id="tab-password" aria-controls="panel-password">Password</button>
+        <button class="tab-btn" role="tab" aria-selected="false" id="tab-otp" aria-controls="panel-otp">One-Time Code</button>
+      </div>
+
+      <!-- ─── Panels (animated) ──────────────────────────── -->
+      <div class="panels-container" id="panels-container">
+
+      <!-- ─── Password panel ──────────────────────────────── -->
+      <div class="form-group" id="panel-password" role="tabpanel" aria-labelledby="tab-password">
+        <div class="fields">
+          <div class="text-field">
+            <input type="email" id="email" name="email" placeholder=" "
+              autocomplete="email" aria-label="Email address" />
+            <label class="text-field-label" for="email">Email</label>
+            <button class="text-field-clear" type="button" aria-label="Clear email" tabindex="-1">
+              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="#1f1f1f"/></svg>
+            </button>
+          </div>
+          <div class="text-field">
+            <input type="password" id="password" name="password" placeholder=" "
+              autocomplete="current-password" aria-label="Password" />
+            <label class="text-field-label" for="password">Password</label>
+            <button class="text-field-clear" type="button" aria-label="Clear password" tabindex="-1">
+              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="#1f1f1f"/></svg>
+            </button>
+          </div>
+        </div>
+        <button class="forgot-link" type="button">Forgot Password?</button>
+
+        <!-- Cloudflare Turnstile widget (mockup) -->
+        <div class="captcha-widget" aria-label="CAPTCHA verification">
+          <div class="captcha-left">
+            <div class="captcha-checkbox" role="checkbox" aria-checked="false"
+              aria-label="Verify you are human" tabindex="0"></div>
+            <span class="captcha-label">Verify you are human</span>
+          </div>
+          <div class="cloudflare-logo" aria-label="Cloudflare">
+            <svg class="cf-flame" viewBox="0 0 51 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M33.2 42.1c.6-2.1 2.4-3.6 4.5-3.7h.1l13.7-.5s.1 0 .2-.1c.1-.1 0-.2 0-.3-2.2-7.7-8.3-13.9-16-16.3a25.9 25.9 0 0 0-7.2-1c-2.7 0-5.4.4-7.9 1.3C10.9 24.4 4 32.4 3 42c0 .1.1.2.2.2l11.5-.4c1.9-.1 3.6-1.3 4.4-3 1.2-2.7 3.9-4.5 7-4.5 1 0 2 .2 2.9.6 1.9.8 3.3 2.5 3.8 4.4 0 .1.1.2.2.2l.2-.4z" fill="#F6821F"/>
+              <path d="M33.9 42.5c-.2.1-.4.1-.6.1l-11.2.4c-.2 0-.4-.1-.5-.3-.1-.2-.1-.4 0-.6 1.7-4.1 5.8-7 10.6-7 1.3 0 2.6.2 3.7.7 2.6 1 4.5 3.1 5.3 5.8 0 .1.1.2.2.2l-7.5.7z" fill="#FBAD41"/>
+              <path d="M50.5 38.5c-.3-1-.7-2-1.1-3C46.7 27.4 39 21 30 21c-1.3 0-2.6.1-3.9.3C19.9 22.3 14.6 26 11.2 31c-3 4.4-4.6 9.6-4.7 14.9H0c.1-7.3 2.3-14.4 6.5-20.4C12 17.6 20.2 12.7 29.5 12c1-.1 2-.1 3-.1 10.3 0 19.9 4.5 26.5 12.3 2.9 3.4 5.1 7.3 6.4 11.5l.1.4c.2.6.4 1.2.5 1.9v.1c.1.3.2.6.2.9.1.4.2.8.2 1.2l-4.4.3c-.1-.3-.1-.6-.2-.8l-.3-1.2z" fill="#F6821F"/>
+            </svg>
+            <span class="cloudflare-name">Cloudflare</span>
+            <div class="cloudflare-links">
+              <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">Privacy</a>
+              <span>·</span>
+              <a href="https://www.cloudflare.com/website-terms/" target="_blank" rel="noopener noreferrer">Terms</a>
+            </div>
+          </div>
+        </div>
+
+      <!-- Keep signed in (password flow) -->
+      <input type="checkbox" id="keep-cb-pwd" class="sr-only" name="keep-signed-in" />
+      <label class="keep-signed-in" for="keep-cb-pwd">
+        <svg class="ds-checkbox-icon ds-checkbox-unchecked" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" fill="#1f1f1f"/>
+        </svg>
+        <svg class="ds-checkbox-icon ds-checkbox-checked" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="#1f1f1f"/>
+        </svg>
+        <span class="keep-signed-in-label">Keep me signed in for 30 days</span>
+      </label>
+      </div>
+
+      <!-- ─── One-Time Code panel (hidden by default) ─────── -->
+      <div class="otp-group" id="panel-otp" role="tabpanel" aria-labelledby="tab-otp" hidden>
+        <p class="send-to-label">Send verification code to</p>
+
+        <!-- Delivery tiles -->
+        <div class="delivery-tiles" role="group" aria-label="Delivery method">
+          <!-- Email tile (selected by default) -->
+          <button class="tile tile-selected" id="tile-email" data-tile="email"
+            aria-pressed="true" aria-label="Send to Email">
+            <span class="tile-badge" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <circle cx="8" cy="8" r="8" fill="#1f1f1f"/>
+                <path d="M4.5 8.5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" fill="#1f1f1f"/>
+            </svg>
+            Email
+          </button>
+
+          <!-- Text tile -->
+          <button class="tile" id="tile-phone" data-tile="phone"
+            aria-pressed="false" aria-label="Send via Text">
+            <span class="tile-badge" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <circle cx="8" cy="8" r="8" fill="#1f1f1f"/>
+                <path d="M4.5 8.5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z" fill="#1f1f1f"/>
+            </svg>
+            Text
+          </button>
+        </div>
+
+        <!-- Destination input fields (hidden until tile clicked) -->
+        <div id="otp-field-email">
+          <div class="text-field">
+            <input type="email" id="otp-email" name="otp-email" placeholder=" "
+              autocomplete="email" aria-label="Email address" />
+            <label class="text-field-label" for="otp-email">Email</label>
+            <button class="text-field-clear" type="button" aria-label="Clear email" tabindex="-1">
+              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="#1f1f1f"/></svg>
+            </button>
+          </div>
+          <p class="otp-delivery-helper">We'll send a 6-digit code to your email</p>
+        </div>
+        <div id="otp-field-phone" hidden>
+          <div class="text-field">
+            <input type="tel" id="otp-phone" name="otp-phone" placeholder=" "
+              autocomplete="tel" aria-label="Phone number" />
+            <label class="text-field-label" for="otp-phone">Phone number</label>
+            <button class="text-field-clear" type="button" aria-label="Clear phone" tabindex="-1">
+              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="#1f1f1f"/></svg>
+            </button>
+          </div>
+          <p class="otp-delivery-helper">We'll text a 6-digit code to your phone</p>
+        </div>
+      </div>
+
+      </div><!-- /panels-container -->
+
+      <!-- ─── Shared: button ───────────────────────────────── -->
+      <div class="action-block">
+        <!-- CTA button — label swaps via JS -->
+        <button class="sign-in-btn" id="cta-btn" type="submit">SIGN IN</button>
+      </div>
+
+      <!-- Legal -->
+      <p class="legal">
+        By choosing to continue, I confirm I have read and agree to the
+        <a href="https://www.acehardware.com/customer-service?page=ace-rewards" target="_blank" rel="noopener noreferrer">Ace Rewards® Terms</a>,
+        <a href="https://www.acehardware.com/customer-service?page=terms-of-use" target="_blank" rel="noopener noreferrer">TERMS OF USE</a>,
+        and <a href="https://www.acehardware.com/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy.</a>
+      </p>
+
+      <!-- Divider -->
+      <div class="divider" role="separator"></div>
+
+      <!-- Create Account -->
+      <p class="create-account">
+        Don't have an account? <a href="#">Create an Account</a>
+      </p>
+
+        </div><!-- /screen-main -->
+
+        <!-- ─── Screen: Verify OTP ───────────────────────── -->
+        <div id="screen-verify" hidden>
+
+      <!-- Hero -->
+      <div class="hero">
+        <h1>Welcome Back</h1>
+        <div style="display:flex;flex-direction:column;gap:16px;width:100%;text-align:center;">
+          <p id="verify-destination-text" style="font-size:14px;line-height:20px;letter-spacing:0.25px;color:#121212;">
+            Please enter the verification code we sent to (***)***-*924 to verify your identity.
+          </p>
+          <p style="font-size:14px;line-height:20px;letter-spacing:0.25px;color:rgba(18,18,18,0.93);">
+            The code expires in <strong>3 minutes</strong>.
+          </p>
+        </div>
+      </div>
+
+      <!-- Verification Code Input (6 individual fields) -->
+      <div class="otp-inputs" aria-label="6-digit verification code">
+        <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 1" autocomplete="one-time-code" />
+        <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 2" />
+        <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 3" />
+        <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 4" />
+        <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 5" />
+        <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 6" />
+      </div>
+
+      <!-- Keep signed in -->
+      <input type="checkbox" id="keep-cb" class="sr-only" name="keep-signed-in" />
+      <label class="keep-signed-in" for="keep-cb">
+        <!-- Unchecked: check_box_outline_blank -->
+        <svg class="ds-checkbox-icon ds-checkbox-unchecked" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" fill="#1f1f1f"/>
+        </svg>
+        <!-- Checked: check_box -->
+        <svg class="ds-checkbox-icon ds-checkbox-checked" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="#1f1f1f"/>
+        </svg>
+        <span class="keep-signed-in-label">Keep me signed in for 30 days</span>
+      </label>
+
+      <!-- Actions -->
+      <div style="display:flex;flex-direction:column;gap:16px;width:100%;">
+        <button class="sign-in-btn" id="verify-btn" type="button" disabled>VERIFY</button>
+        <button class="resend-btn" type="button">RESEND CODE</button>
+        <button class="sign-in-another-way-btn" type="button">SIGN IN ANOTHER WAY</button>
+      </div>
+
+        </div><!-- /screen-verify -->
+
+      </div><!-- /screens-container -->
+    </div><!-- /card -->
+  </main>
+
+  <script>
+    const tabPassword   = document.getElementById('tab-password');
+    const tabOtp        = document.getElementById('tab-otp');
+    const tabPill       = document.getElementById('tab-pill');
+    const panelPassword = document.getElementById('panel-password');
+    const panelOtp      = document.getElementById('panel-otp');
+    const ctaBtn        = document.getElementById('cta-btn');
+    const screenMain    = document.getElementById('screen-main');
+    const screenVerify  = document.getElementById('screen-verify');
+    const backBtn       = document.getElementById('back-btn');
+    let selectedDelivery = 'email';
+
+    // ── Hoist key icon out of animated screens so it stays stationary ──
+    const keyIconEl = document.querySelector('#screen-main .key-icon');
+    const screensContainer = document.getElementById('screens-container');
+    if (keyIconEl && screensContainer) {
+      screensContainer.parentElement.insertBefore(keyIconEl, screensContainer);
+    }
+
+    // ── Sliding pill ──────────────────────────────────────────
+    function movePill(btn) {
+      tabPill.style.left  = btn.offsetLeft + 'px';
+      tabPill.style.width = btn.offsetWidth + 'px';
+    }
+
+    // Position pill instantly (no transition) on init
+    function initPill(btn) {
+      tabPill.style.transition = 'none';
+      movePill(btn);
+      // Re-enable transition after layout settles
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => { tabPill.style.transition = ''; });
+      });
+    }
+
+    // ── Panel transition ──────────────────────────────────────
+    const ANIM_DUR = 280;
+    let animating = false;
+
+    function switchPanel(fromEl, toEl, direction) {
+      if (animating) return;
+      animating = true;
+
+      const outKey = direction === 'forward' ? 'panelOutLeft'  : 'panelOutRight';
+      const inKey  = direction === 'forward' ? 'panelInRight'  : 'panelInLeft';
+      const container = document.getElementById('panels-container');
+
+      // Lock container height to current panel's height
+      container.style.height = fromEl.offsetHeight + 'px';
+
+      // Pull exiting panel out of flow so it overlaps during exit
+      fromEl.style.cssText =
+        `position:absolute;top:0;left:0;width:100%;` +
+        `animation:${outKey} ${ANIM_DUR}ms ease forwards;` +
+        `pointer-events:none;z-index:1;`;
+
+      // Reveal incoming panel invisibly to measure it
+      toEl.style.opacity = '0';
+      toEl.removeAttribute('hidden');
+      const newH = toEl.scrollHeight;
+      toEl.style.opacity = '';
+
+      // Start entrance + height transition on next frame
+      requestAnimationFrame(() => {
+        toEl.style.cssText = `animation:${inKey} ${ANIM_DUR}ms ease forwards;`;
+        container.style.transition = `height ${ANIM_DUR}ms ease`;
+        container.style.height = newH + 'px';
+      });
+
+      setTimeout(() => {
+        fromEl.setAttribute('hidden', '');
+        fromEl.style.cssText  = '';
+        toEl.style.cssText    = '';
+        container.style.cssText = '';
+        animating = false;
+      }, ANIM_DUR + 40);
+    }
+
+    // ── Screen transition ──────────────────────────────────────
+    function switchScreen(fromScreen, toScreen, direction) {
+      if (animating) return;
+      animating = true;
+
+      const outKey    = direction === 'forward' ? 'panelOutLeft'  : 'panelOutRight';
+      const inKey     = direction === 'forward' ? 'panelInRight'  : 'panelInLeft';
+      const container = document.getElementById('screens-container');
+
+      container.style.height = fromScreen.offsetHeight + 'px';
+
+      fromScreen.style.cssText =
+        `position:absolute;top:0;left:0;width:100%;` +
+        `animation:${outKey} ${ANIM_DUR}ms ease forwards;` +
+        `pointer-events:none;z-index:1;`;
+
+      toScreen.style.opacity = '0';
+      toScreen.removeAttribute('hidden');
+      const newH = toScreen.scrollHeight;
+      toScreen.style.opacity = '';
+
+      requestAnimationFrame(() => {
+        toScreen.style.cssText = `animation:${inKey} ${ANIM_DUR}ms ease forwards;`;
+        container.style.transition = `height ${ANIM_DUR}ms ease`;
+        container.style.height = newH + 'px';
+      });
+
+      setTimeout(() => {
+        fromScreen.setAttribute('hidden', '');
+        fromScreen.style.cssText = '';
+        toScreen.style.cssText   = '';
+        container.style.cssText  = '';
+        animating = false;
+      }, ANIM_DUR + 40);
+    }
+
+    // ── Tab switching ──────────────────────────────────────────
+    function setPasswordActive(animated) {
+      tabPassword.setAttribute('aria-selected', 'true');
+      tabOtp.setAttribute('aria-selected', 'false');
+      movePill(tabPassword);
+      ctaBtn.textContent = 'SIGN IN';
+      if (animated) {
+        switchPanel(panelOtp, panelPassword, 'backward');
+      } else {
+        panelOtp.setAttribute('hidden', '');
+        panelPassword.removeAttribute('hidden');
+      }
+    }
+
+    function setOtpActive(animated) {
+      tabOtp.setAttribute('aria-selected', 'true');
+      tabPassword.setAttribute('aria-selected', 'false');
+      movePill(tabOtp);
+      ctaBtn.textContent = 'SEND CODE';
+      if (animated) {
+        switchPanel(panelPassword, panelOtp, 'forward');
+      } else {
+        panelPassword.setAttribute('hidden', '');
+        panelOtp.removeAttribute('hidden');
+      }
+    }
+
+    tabPassword.addEventListener('click', () => { if (tabPassword.getAttribute('aria-selected') !== 'true') setPasswordActive(true); });
+    tabOtp.addEventListener('click',      () => { if (tabOtp.getAttribute('aria-selected') !== 'true') setOtpActive(true); });
+
+    // ── Screen navigation ─────────────────────────────────────
+    function showVerifyScreen() {
+      const destEl = document.getElementById('verify-destination-text');
+      if (destEl) {
+        const dest = selectedDelivery === 'phone'
+          ? (document.getElementById('otp-phone').value.trim() || 'your phone')
+          : (document.getElementById('otp-email').value.trim() || 'your email');
+        destEl.innerHTML = `Please enter the verification code we sent to <strong>${dest}</strong> to verify your identity.`;
+      }
+      switchScreen(screenMain, screenVerify, 'forward');
+    }
+
+    function showOtpScreen() {
+      setOtpActive(false);
+      otpFields.forEach(f => { f.value = ''; });
+      verifyBtn.disabled = true;
+      switchScreen(screenVerify, screenMain, 'backward');
+      setTimeout(() => initPill(tabOtp), ANIM_DUR + 40);
+    }
+
+    ctaBtn.addEventListener('click', () => {
+      if (ctaBtn.textContent.trim() === 'SEND CODE') showVerifyScreen();
+    });
+
+    document.querySelector('.sign-in-another-way-btn').addEventListener('click', () => {
+      otpFields.forEach(f => { f.value = ''; });
+      verifyBtn.disabled = true;
+      setPasswordActive(false);
+      switchScreen(screenVerify, screenMain, 'backward');
+      setTimeout(() => initPill(tabPassword), ANIM_DUR + 40);
+    });
+
+    backBtn.addEventListener('click', (e) => {
+      if (!screenVerify.hasAttribute('hidden')) {
+        e.preventDefault();
+        showOtpScreen();
+      }
+    });
+
+    // ── Delivery tile selection ────────────────────────────────
+    document.querySelectorAll('.tile').forEach(tile => {
+      tile.addEventListener('click', () => {
+        document.querySelectorAll('.tile').forEach(t => {
+          t.classList.remove('tile-selected');
+          t.setAttribute('aria-pressed', 'false');
+        });
+        tile.classList.add('tile-selected');
+        tile.setAttribute('aria-pressed', 'true');
+
+        selectedDelivery = tile.dataset.tile;
+        const otpFieldEmail = document.getElementById('otp-field-email');
+        const otpFieldPhone = document.getElementById('otp-field-phone');
+        if (tile.dataset.tile === 'phone') {
+          otpFieldEmail.setAttribute('hidden', '');
+          otpFieldPhone.removeAttribute('hidden');
+        } else {
+          otpFieldPhone.setAttribute('hidden', '');
+          otpFieldEmail.removeAttribute('hidden');
+        }
+      });
+    });
+
+    // ── Clear button handler ────────────────────────────────
+    document.addEventListener('click', (e) => {
+      const clearBtn = e.target.closest('.text-field-clear');
+      if (!clearBtn) return;
+      const input = clearBtn.closest('.text-field').querySelector('input');
+      if (input) { input.value = ''; input.focus(); }
+    });
+
+    // ── OTP input behavior ────────────────────────────────────
+    const otpContainer = document.querySelector('.otp-inputs');
+    const otpFields = otpContainer.querySelectorAll('input');
+    const verifyBtn = document.getElementById('verify-btn');
+
+    function updateVerifyBtn() {
+      verifyBtn.disabled = ![...otpFields].every(f => f.value.length === 1);
+    }
+
+    otpContainer.addEventListener('input', (e) => {
+      const input = e.target;
+      // Allow only digits
+      input.value = input.value.replace(/[^0-9]/g, '');
+      if (input.value && input.nextElementSibling) {
+        input.nextElementSibling.focus();
+      }
+      updateVerifyBtn();
+    });
+
+    otpContainer.addEventListener('keydown', (e) => {
+      const input = e.target;
+      if (e.key === 'Backspace') {
+        if (!input.value && input.previousElementSibling) {
+          input.previousElementSibling.focus();
+          input.previousElementSibling.value = '';
+          updateVerifyBtn();
+        }
+      } else if (e.key === 'ArrowLeft' && input.previousElementSibling) {
+        input.previousElementSibling.focus();
+      } else if (e.key === 'ArrowRight' && input.nextElementSibling) {
+        input.nextElementSibling.focus();
+      }
+    });
+
+    // Handle paste of full code
+    otpContainer.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const paste = (e.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g, '');
+      otpFields.forEach((field, i) => {
+        field.value = paste[i] || '';
+      });
+      const focusIdx = Math.min(paste.length, otpFields.length - 1);
+      otpFields[focusIdx].focus();
+      updateVerifyBtn();
+    });
+
+    // Select content on focus for easy overwrite
+    otpFields.forEach(field => {
+      field.addEventListener('focus', () => field.select());
+    });
+
+    // ── Init pill position ────────────────────────────────────
+    initPill(tabPassword);
+  </script>
+
+</body>
+</html>
