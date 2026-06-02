@@ -1074,6 +1074,201 @@
     .passkey-action-remove { color: #B71C1C; border-color: rgba(183,28,28,0.25); }
     .passkey-action-remove:hover { background: rgba(183,28,28,0.04); border-color: #B71C1C; }
 
+    /* ─── Account Settings — Security Hub ──────────────────────────── */
+    .security-section {
+      width: 100%;
+      margin-bottom: 20px;
+    }
+    .security-section:last-child { margin-bottom: 0; }
+    .security-section-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .security-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.7px;
+      text-transform: uppercase;
+      color: rgba(18,18,18,0.45);
+      margin: 0 0 8px;
+    }
+    .security-section-header .security-section-title { margin: 0; }
+    .security-section-hint {
+      font-size: 11px;
+      color: rgba(18,18,18,0.35);
+    }
+    .security-manage-link {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: 'Roboto', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: #E65100;
+      padding: 0;
+      letter-spacing: 0.2px;
+    }
+    .security-manage-link:hover { text-decoration: underline; }
+
+    /* Passkeys row (tappable card) */
+    .security-row-card {
+      border: 1px solid rgba(18,18,18,0.12);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .security-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 14px 16px;
+      background: #fff;
+      border: none;
+      cursor: pointer;
+      font-family: 'Roboto', sans-serif;
+      text-align: left;
+      transition: background 0.15s;
+    }
+    .security-row:hover { background: rgba(18,18,18,0.03); }
+    .security-row-icon {
+      flex-shrink: 0;
+      color: rgba(18,18,18,0.5);
+      display: flex;
+      align-items: center;
+    }
+    .security-row-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+    .security-row-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(18,18,18,0.93);
+    }
+    .security-row-meta {
+      font-size: 12px;
+      color: rgba(18,18,18,0.45);
+    }
+    .security-row-badge {
+      flex-shrink: 0;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      padding: 2px 8px;
+      border-radius: 99px;
+    }
+    .security-row-badge--success {
+      background: rgba(30,136,30,0.1);
+      color: #1E881E;
+    }
+    .security-row-chevron {
+      flex-shrink: 0;
+      color: rgba(18,18,18,0.25);
+    }
+
+    /* Sign-in activity list */
+    .security-activity-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      border: 1px solid rgba(18,18,18,0.12);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .security-activity-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: #fff;
+      border-bottom: 1px solid rgba(18,18,18,0.07);
+    }
+    .security-activity-item:last-child { border-bottom: none; }
+    .security-activity-dot {
+      flex-shrink: 0;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #E65100;
+    }
+    .security-activity-dot--muted { background: rgba(18,18,18,0.2); }
+    .security-activity-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+    .security-activity-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(18,18,18,0.87);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .security-activity-meta {
+      font-size: 11px;
+      color: rgba(18,18,18,0.45);
+    }
+    .security-activity-tag {
+      flex-shrink: 0;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      background: rgba(230,81,0,0.08);
+      color: #E65100;
+      padding: 2px 7px;
+      border-radius: 99px;
+    }
+
+    /* Trusted devices list */
+    .security-devices-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      border: 1px solid rgba(18,18,18,0.12);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .security-device-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: #fff;
+      border-bottom: 1px solid rgba(18,18,18,0.07);
+    }
+    .security-device-item:last-child { border-bottom: none; }
+    .security-device-icon {
+      flex-shrink: 0;
+      color: rgba(18,18,18,0.45);
+      display: flex;
+      align-items: center;
+    }
+    .security-device-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+    .security-device-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(18,18,18,0.87);
+    }
+    .security-device-meta {
+      font-size: 11px;
+      color: rgba(18,18,18,0.45);
+    }
+
     /* Rename / confirm panels */
     .settings-panel-intro {
       font-size: 14px;
@@ -1994,6 +2189,114 @@
 
         </div><!-- /screen-passkey-enroll -->
 
+        <!-- ══ Account Settings — Sign-In & Security Hub ══════════════ -->
+        <div id="screen-settings-security" hidden>
+
+          <div class="settings-topbar">
+            <span class="settings-breadcrumb">Account Settings</span>
+            <h2 class="settings-section-heading">Sign-In &amp; Security</h2>
+          </div>
+
+          <!-- Passkeys row -->
+          <div class="security-section">
+            <h3 class="security-section-title">Passkeys</h3>
+            <div class="security-row-card">
+              <button class="security-row" id="security-passkeys-btn" type="button" aria-label="Manage passkeys">
+                <span class="security-row-icon" aria-hidden="true">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                    <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h6m-6 0v18m6-18h4a2 2 0 0 1 2 2v4m-6-6v18M3 9v6m0 0v4a2 2 0 0 0 2 2h4m-6-6h18M21 9v6m0 0v4a2 2 0 0 1-2 2h-4m6-6H3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <circle cx="9" cy="10" r="1" fill="currentColor"/>
+                    <circle cx="15" cy="10" r="1" fill="currentColor"/>
+                    <path d="M9 15c.83 1.2 2.17 2 3 2s2.17-.8 3-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                </span>
+                <span class="security-row-info">
+                  <span class="security-row-label">Face ID &amp; Passkeys</span>
+                  <span class="security-row-meta">2 passkeys saved</span>
+                </span>
+                <span class="security-row-badge security-row-badge--success">Active</span>
+                <svg class="security-row-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Recent sign-in activity -->
+          <div class="security-section">
+            <div class="security-section-header">
+              <h3 class="security-section-title">Recent Sign-In Activity</h3>
+              <span class="security-section-hint">Last 30 days</span>
+            </div>
+            <ul class="security-activity-list" aria-label="Recent sign-in activity">
+              <li class="security-activity-item security-activity-item--current">
+                <span class="security-activity-dot" aria-hidden="true"></span>
+                <span class="security-activity-info">
+                  <span class="security-activity-label">iPhone 15 Pro &middot; Face ID</span>
+                  <span class="security-activity-meta">Today, 9:14 AM &middot; Chicago, IL</span>
+                </span>
+                <span class="security-activity-tag" aria-label="Current session">Current</span>
+              </li>
+              <li class="security-activity-item">
+                <span class="security-activity-dot" aria-hidden="true"></span>
+                <span class="security-activity-info">
+                  <span class="security-activity-label">MacBook Pro &middot; Face ID</span>
+                  <span class="security-activity-meta">May 30, 2:47 PM &middot; Chicago, IL</span>
+                </span>
+              </li>
+              <li class="security-activity-item">
+                <span class="security-activity-dot security-activity-dot--muted" aria-hidden="true"></span>
+                <span class="security-activity-info">
+                  <span class="security-activity-label">Chrome &middot; One-time code</span>
+                  <span class="security-activity-meta">May 28, 11:02 AM &middot; Chicago, IL</span>
+                </span>
+              </li>
+              <li class="security-activity-item">
+                <span class="security-activity-dot security-activity-dot--muted" aria-hidden="true"></span>
+                <span class="security-activity-info">
+                  <span class="security-activity-label">iPhone 15 Pro &middot; Face ID</span>
+                  <span class="security-activity-meta">May 26, 6:30 PM &middot; Oak Park, IL</span>
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Trusted devices -->
+          <div class="security-section">
+            <div class="security-section-header">
+              <h3 class="security-section-title">Trusted Devices</h3>
+              <button class="security-manage-link" type="button" id="security-manage-devices-btn">Manage</button>
+            </div>
+            <ul class="security-devices-list" aria-label="Trusted devices">
+              <li class="security-device-item">
+                <span class="security-device-icon" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <rect x="5" y="2" width="14" height="20" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <circle cx="12" cy="17" r="1" fill="currentColor"/>
+                  </svg>
+                </span>
+                <span class="security-device-info">
+                  <span class="security-device-label">iPhone 15 Pro</span>
+                  <span class="security-device-meta">Added May 12, 2026 &middot; iOS 18.3</span>
+                </span>
+              </li>
+              <li class="security-device-item">
+                <span class="security-device-icon" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <rect x="2" y="4" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M8 20h8M12 18v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                </span>
+                <span class="security-device-info">
+                  <span class="security-device-label">MacBook Pro</span>
+                  <span class="security-device-meta">Added Apr 3, 2026 &middot; macOS 15.2</span>
+                </span>
+              </li>
+            </ul>
+          </div>
+
+        </div><!-- /screen-settings-security -->
+
         <!-- ══ Account Settings — Passkey Management ══════════════════ -->
         <div id="screen-settings-passkeys" data-settings-state="list" hidden>
 
@@ -2371,6 +2674,12 @@
       </li>
       <li><p class="proto-nav-section">Account Settings</p></li>
       <li>
+        <button class="proto-nav-item" data-nav-target="screen-settings-security">
+          <span class="proto-nav-dot" aria-hidden="true"></span>
+          Security hub
+        </button>
+      </li>
+      <li>
         <button class="proto-nav-item" data-nav-target="screen-settings-passkeys" data-nav-state="list">
           <span class="proto-nav-dot" aria-hidden="true"></span>
           Passkeys list
@@ -2466,6 +2775,7 @@
     const screenEnroll   = document.getElementById('screen-passkey-enroll');
     const screenRecovery = document.getElementById('screen-recovery');
     const screenSettings = document.getElementById('screen-settings-passkeys');
+    const screenSecurity = document.getElementById('screen-settings-security');
     const backBtn        = document.getElementById('back-btn');
     const ANIM_DUR = 280;
     let animating = false;
@@ -2996,11 +3306,16 @@
           currentScreen = screenChooser;
         }
       } else if (currentScreen === screenSettings) {
-        // Settings sub-panel → back to list (if not already); list → prototype has nowhere to go
+        // Settings sub-panel → back to list; list → back to security hub
         const ss = screenSettings.getAttribute('data-settings-state') || 'list';
         if (ss !== 'list') {
           setSettingsState('list');
+        } else {
+          switchScreen(screenSettings, screenSecurity, 'backward');
+          currentScreen = screenSecurity;
         }
+      } else if (currentScreen === screenSecurity) {
+        // Security hub is a top-level settings screen; no back destination in prototype
       } else if (currentScreen === screenPasskey) {
         // Passkey → Chooser
         setPasskeyState('idle');
@@ -3033,6 +3348,7 @@
       const NAV_SCREENS = {
         'screen-chooser':           screenChooser,
         'screen-passkey-enroll':    screenEnroll,
+        'screen-settings-security': screenSecurity,
         'screen-settings-passkeys': screenSettings,
         'screen-passkey':           screenPasskey,
         'screen-password':          screenPassword,
@@ -3132,6 +3448,22 @@
       switchScreen(currentScreen, screenChooser, 'backward');
       currentScreen = screenChooser;
     });
+    // ── Security hub → Passkeys screen ─────────────────────────────
+    document.getElementById('security-passkeys-btn').addEventListener('click', () => {
+      setSettingsState('list');
+      switchScreen(screenSecurity, screenSettings, 'forward');
+      currentScreen = screenSettings;
+    });
+
+    // ── Security hub → Manage devices (prototype no-op) ─────────────
+    document.getElementById('security-manage-devices-btn').addEventListener('click', () => {
+      const el = document.getElementById('security-manage-devices-btn');
+      const orig = el.textContent;
+      el.textContent = 'Coming soon';
+      el.disabled = true;
+      setTimeout(() => { el.textContent = orig; el.disabled = false; }, 1500);
+    });
+
   </script>
 
 </body>
