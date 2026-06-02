@@ -1035,7 +1035,15 @@
     }
 
     /* State routing */
-    .settings-panel { display: none; width: 100%; }
+    /* ─── Post-Recovery Re-Enrollment ───────────────────────────────── */
+    .reenroll-panel { display: none; width: 100%; flex-direction: column; gap: 16px; align-items: center; }
+    #screen-reenroll[data-reenroll-state="prompt"]  .reenroll-panel-prompt,
+    #screen-reenroll[data-reenroll-state="success"] .reenroll-panel-success,
+    #screen-reenroll[data-reenroll-state="error"]   .reenroll-panel-error {
+      display: flex;
+    }
+
+        .settings-panel { display: none; width: 100%; }
     #screen-settings-passkeys[data-settings-state="list"]        .settings-panel-list,
     #screen-settings-passkeys[data-settings-state="rename"]      .settings-panel-rename,
     #screen-settings-passkeys[data-settings-state="remove"]      .settings-panel-remove,
@@ -2780,6 +2788,60 @@
 
         </div><!-- /screen-recovery -->
 
+        <!-- ══ Post-Recovery Re-Enrollment ══════════════════════════════ -->
+        <div id="screen-reenroll" data-reenroll-state="prompt" hidden>
+
+          <!-- ① Prompt panel -->
+          <div class="reenroll-panel reenroll-panel-prompt">
+            <div class="enroll-hero-icon enroll-hero-icon--setup" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 -960 960 960" fill="currentColor">
+                <path d="M701-701q91 91 91 221t-91 221q-91 91-221 91t-221-91q-91-91-91-221t91-221q91-91 221-91t221 91Zm-43 399q74-74 74-178t-74-178q-74-74-178-74t-178 74q-74 74-74 178t74 178q74 74 178 74t178-74Zm-93-67q38-26 57-70H338q18 44 56.5 70t85.5 26q47 0 85-26ZM349-536q11 11 28 11t28-11q11-11 11-28t-11-28q-11-11-28-11t-28 11q-11 11-11 28t11 28Zm206 0q11 11 28 11t28-11q11-11 11-28t-11-28q-11-11-28-11t-28 11q-11 11-11 28t11 28ZM480-480Z"/>
+              </svg>
+            </div>
+            <h2 class="enroll-heading">Restore Face ID sign-in</h2>
+            <p class="enroll-subtext">You&#8217;re back in. Set up Face ID now so you can sign in quickly and securely next time &#8212; no password needed.</p>
+            <ul class="enroll-benefits" aria-label="Benefits">
+              <li class="enroll-benefit-item">
+                <svg class="enroll-benefit-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M8 12l3 3 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>Skip this recovery step next time</span>
+              </li>
+              <li class="enroll-benefit-item">
+                <svg class="enroll-benefit-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M8 12l3 3 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>Works with Face ID or Touch ID</span>
+              </li>
+              <li class="enroll-benefit-item">
+                <svg class="enroll-benefit-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M8 12l3 3 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>Syncs across your Apple devices</span>
+              </li>
+            </ul>
+            <button class="sign-in-btn" id="reenroll-setup-btn" type="button">SET UP FACE ID SIGN-IN</button>
+            <button class="enroll-skip-btn" id="reenroll-skip-btn" type="button">Skip for now</button>
+          </div>
+
+          <!-- ② Success panel -->
+          <div class="reenroll-panel reenroll-panel-success">
+            <div class="enroll-hero-icon enroll-hero-icon--success" aria-hidden="true">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M7 12l4 4 6-7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <h2 class="enroll-heading">Face ID restored</h2>
+            <p class="enroll-subtext">You&#8217;re all set. You&#8217;ll use Face ID to sign in from now on &#8212; faster and more secure.</p>
+            <p class="enroll-device-label">Saved to: iPhone (this device)</p>
+            <button class="sign-in-btn" id="reenroll-continue-btn" type="button">CONTINUE SHOPPING</button>
+          </div>
+
+          <!-- ③ Error / cancelled panel -->
+          <div class="reenroll-panel reenroll-panel-error">
+            <div class="enroll-hero-icon enroll-hero-icon--error" aria-hidden="true">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 7v5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="16" r="1" fill="currentColor"/></svg>
+            </div>
+            <h2 class="enroll-heading">Setup Didn&#8217;t Complete</h2>
+            <p class="enroll-subtext">Face ID enrollment was cancelled or didn&#8217;t finish. You can set it up anytime from Account Settings.</p>
+            <button class="sign-in-btn" id="reenroll-retry-btn" type="button">TRY AGAIN</button>
+            <button class="enroll-skip-btn" id="reenroll-later-btn" type="button">Do this later</button>
+          </div>
+
+        </div><!-- /screen-reenroll -->
+
         <div id="screen-password" hidden>
 
           <!-- Screen heading -->
@@ -3134,6 +3196,24 @@
           Recovery entry
         </button>
       </li>
+      <li>
+        <button class="proto-nav-item" data-nav-target="screen-reenroll" data-nav-state="prompt">
+          <span class="proto-nav-dot" aria-hidden="true"></span>
+          Re-enroll prompt
+        </button>
+      </li>
+      <li>
+        <button class="proto-nav-item" data-nav-target="screen-reenroll" data-nav-state="success">
+          <span class="proto-nav-dot" aria-hidden="true"></span>
+          Re-enroll success
+        </button>
+      </li>
+      <li>
+        <button class="proto-nav-item" data-nav-target="screen-reenroll" data-nav-state="error">
+          <span class="proto-nav-dot" aria-hidden="true"></span>
+          Re-enroll failed
+        </button>
+      </li>
 
     </ul>
 
@@ -3167,6 +3247,7 @@
     const screenOtp      = document.getElementById('screen-otp');
     const screenEnroll   = document.getElementById('screen-passkey-enroll');
     const screenRecovery = document.getElementById('screen-recovery');
+    const screenReenroll = document.getElementById('screen-reenroll');
     const screenSettings = document.getElementById('screen-settings-passkeys');
     const screenSecurity      = document.getElementById('screen-settings-security');
     const screenActivity      = document.getElementById('screen-activity');
@@ -3677,6 +3758,28 @@
       currentScreen = screenRecovery;
     });
 
+    // ── Post-Recovery Re-Enrollment ──────────────────────────────────────
+    function setReenrollState(s) {
+      screenReenroll.setAttribute('data-reenroll-state', s);
+    }
+
+    document.getElementById('reenroll-setup-btn').addEventListener('click', () => {
+      setReenrollState('success');
+    });
+    document.getElementById('reenroll-skip-btn').addEventListener('click', () => {
+      // Skip → treat as signed in, go home (no-op in prototype)
+      alert('Continuing to shop. Face ID can be set up later in Account Settings. (prototype)');
+    });
+    document.getElementById('reenroll-continue-btn').addEventListener('click', () => {
+      alert('Proceeding to shop. (prototype)');
+    });
+    document.getElementById('reenroll-retry-btn').addEventListener('click', () => {
+      setReenrollState('success');
+    });
+    document.getElementById('reenroll-later-btn').addEventListener('click', () => {
+      alert('Continuing to shop. Face ID can be set up later in Account Settings. (prototype)');
+    });
+
     // ── Recovery screen → OTP / Password / Help ───────────────
     document.getElementById('recovery-otp-btn').addEventListener('click', () => {
       switchScreen(screenRecovery, screenOtp, 'forward');
@@ -3743,6 +3846,10 @@
         // OTP screen → Chooser
         switchScreen(screenOtp, screenChooser, 'backward');
         currentScreen = screenChooser;
+      } else if (currentScreen === screenReenroll) {
+        setReenrollState('prompt');
+        switchScreen(screenReenroll, screenRecovery, 'backward');
+        currentScreen = screenRecovery;
       } else if (currentScreen === screenRecovery) {
         // Recovery → Chooser
         switchScreen(screenRecovery, screenChooser, 'backward');
@@ -3771,6 +3878,7 @@
         'screen-otp':               screenOtp,
         'screen-verify':            screenVerify,
         'screen-recovery':          screenRecovery,
+        'screen-reenroll':          screenReenroll,
       };
 
       function openNav() {
@@ -3845,6 +3953,7 @@
           if (target === screenEnroll)   setEnrollState(navState    || 'prompt');
           if (target === screenSettings) setSettingsState(navState  || 'list');
           if (target === screenChooser)  setChooserState(navState   || 'default');
+          if (target === screenReenroll) setReenrollState(navState  || 'prompt');
 
           updateActiveItem();
         });
