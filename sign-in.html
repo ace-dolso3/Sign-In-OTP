@@ -1486,6 +1486,139 @@
       color: rgba(255,255,255,0.2);
       letter-spacing: 0.3px;
     }
+
+    /* ─────────────────────────────────────────────────────────────
+       CHOOSER PANELS (state-driven display)
+    ───────────────────────────────────────────────────────────── */
+
+    .chooser-panel { display: none; flex-direction: column; gap: 16px; }
+
+    #screen-chooser[data-chooser-state="default"]       .chooser-panel-default       { display: flex; }
+    #screen-chooser[data-chooser-state="passkey-first"] .chooser-panel-passkey-first { display: flex; }
+
+    /* Passkey-first layout extras */
+    .chooser-pf-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 80px;
+      height: 80px;
+      background: #f5f5f5;
+      border-radius: 50%;
+      align-self: center;
+    }
+
+    .chooser-pf-alt {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .chooser-pf-alt-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #6b6b6b;
+      margin: 0;
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       PASSKEY RECOVERY LINK (only in notfound state)
+    ───────────────────────────────────────────────────────────── */
+
+    .passkey-recovery-link {
+      display: none;
+      text-align: center;
+      font-size: 13px;
+      color: #6b6b6b;
+      text-decoration: none;
+      padding-top: 2px;
+    }
+    .passkey-recovery-link span {
+      color: #d6001c;
+      font-weight: 500;
+    }
+    .passkey-recovery-link:hover span { color: #a8001a; }
+
+    #screen-passkey[data-passkey-state="notfound"] .passkey-recovery-link { display: block; }
+
+    /* ─────────────────────────────────────────────────────────────
+       ACCOUNT RECOVERY SCREEN
+    ───────────────────────────────────────────────────────────── */
+
+    .recovery-hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      text-align: center;
+      padding: 20px 0 4px;
+    }
+
+    .recovery-icon {
+      width: 72px;
+      height: 72px;
+      background: #fef2f4;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 4px;
+    }
+
+    .recovery-heading {
+      font-size: 20px;
+      font-weight: 700;
+      color: #121212;
+      margin: 0;
+      font-family: inherit;
+    }
+
+    .recovery-subtext {
+      font-size: 14px;
+      color: #6b6b6b;
+      margin: 0;
+      line-height: 1.55;
+    }
+
+    .recovery-options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .recovery-alt-btn {
+      background: transparent;
+      border: 1.5px solid #c8c8c8;
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #121212;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      transition: border-color 0.15s, background 0.15s;
+      font-family: inherit;
+      width: 100%;
+    }
+    .recovery-alt-btn:hover { border-color: #121212; background: #f8f8f8; }
+
+    .recovery-help-link {
+      display: block;
+      text-align: center;
+      font-size: 13px;
+      color: #6b6b6b;
+      text-decoration: none;
+      padding-top: 2px;
+    }
+    .recovery-help-link span {
+      color: #d6001c;
+      font-weight: 500;
+    }
+    .recovery-help-link:hover span { color: #a8001a; }
+
   </style>
 </head>
 <body>
@@ -1582,79 +1715,153 @@
         </div><!-- /screen-verify -->
 
         <!-- ─── Screen: Choose Sign-In Method ───────────── -->
-        <div id="screen-chooser" hidden>
+        <div id="screen-chooser" data-chooser-state="default" hidden>
 
-          <!-- Hero -->
-          <div class="hero">
-            <h1>Sign In</h1>
-            <p>Choose how you'd like to sign in</p>
-          </div>
+          <!-- ── Chooser: default (no passkey detected) ── -->
+          <div class="chooser-panel chooser-panel-default">
 
-          <!-- Method tiles -->
-          <div class="method-tiles" role="list">
+            <!-- Hero -->
+            <div class="hero">
+              <h1>Sign In</h1>
+              <p>Choose how you'd like to sign in</p>
+            </div>
 
-            <!-- Face ID / Touch ID / Passkey -->
-            <button class="method-tile" id="tile-passkey" role="listitem" type="button"
-              aria-label="Sign in with Face ID or passkey">
-              <span class="method-tile-icon" aria-hidden="true">
-                <!-- Face ID icon -->
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h6m-6 0v18m6-18h4a2 2 0 0 1 2 2v4m-6-6v18M3 9v6m0 0v4a2 2 0 0 0 2 2h4m-6-6h18M21 9v6m0 0v4a2 2 0 0 1-2 2h-4m6-6H3" stroke="#121212" stroke-width="1.5" stroke-linecap="round"/>
-                  <circle cx="9" cy="10" r="1" fill="#121212"/>
-                  <circle cx="15" cy="10" r="1" fill="#121212"/>
-                  <path d="M9 15c.83 1.2 2.17 2 3 2s2.17-.8 3-2" stroke="#121212" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-              </span>
-              Face ID / Passkey
-              <span class="method-tile-arrow" aria-hidden="true">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M9 18l6-6-6-6" stroke="#121212" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-            </button>
+            <!-- Method tiles -->
+            <div class="method-tiles" role="list">
 
-            <!-- Password -->
-            <button class="method-tile" id="tile-password-chooser" role="listitem" type="button"
-              aria-label="Sign in with password">
-              <span class="method-tile-icon" aria-hidden="true">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <rect x="5" y="11" width="14" height="10" rx="2" stroke="#121212" stroke-width="1.5"/>
-                  <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="#121212" stroke-width="1.5" stroke-linecap="round"/>
-                  <circle cx="12" cy="16" r="1.5" fill="#121212"/>
-                </svg>
-              </span>
-              Password
-              <span class="method-tile-arrow" aria-hidden="true">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M9 18l6-6-6-6" stroke="#121212" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-            </button>
+              <!-- Face ID / Touch ID / Passkey -->
+              <button class="method-tile" id="tile-passkey" role="listitem" type="button"
+                aria-label="Sign in with Face ID or passkey">
+                <span class="method-tile-icon" aria-hidden="true">
+                  <!-- Face ID icon -->
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h6m-6 0v18m6-18h4a2 2 0 0 1 2 2v4m-6-6v18M3 9v6m0 0v4a2 2 0 0 0 2 2h4m-6-6h18M21 9v6m0 0v4a2 2 0 0 1-2 2h-4m6-6H3" stroke="#121212" stroke-width="1.5" stroke-linecap="round"/>
+                    <circle cx="9" cy="10" r="1" fill="#121212"/>
+                    <circle cx="15" cy="10" r="1" fill="#121212"/>
+                    <path d="M9 15c.83 1.2 2.17 2 3 2s2.17-.8 3-2" stroke="#121212" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                </span>
+                Face ID / Passkey
+                <span class="method-tile-arrow" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M9 18l6-6-6-6" stroke="#121212" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </button>
 
-            <!-- One-Time Code -->
-            <button class="method-tile" id="tile-otp-chooser" role="listitem" type="button"
-              aria-label="Sign in with one-time code">
-              <span class="method-tile-icon" aria-hidden="true">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path d="M7 8h10M7 12h6M7 16h4" stroke="#121212" stroke-width="1.5" stroke-linecap="round"/>
-                  <rect x="3" y="4" width="18" height="16" rx="2" stroke="#121212" stroke-width="1.5"/>
-                </svg>
-              </span>
-              One-Time Code
-              <span class="method-tile-arrow" aria-hidden="true">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M9 18l6-6-6-6" stroke="#121212" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-            </button>
+              <!-- Password -->
+              <button class="method-tile" id="tile-password-chooser" role="listitem" type="button"
+                aria-label="Sign in with password">
+                <span class="method-tile-icon" aria-hidden="true">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <rect x="5" y="11" width="14" height="10" rx="2" stroke="#121212" stroke-width="1.5"/>
+                    <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="#121212" stroke-width="1.5" stroke-linecap="round"/>
+                    <circle cx="12" cy="16" r="1.5" fill="#121212"/>
+                  </svg>
+                </span>
+                Password
+                <span class="method-tile-arrow" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M9 18l6-6-6-6" stroke="#121212" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </button>
 
-          </div><!-- /method-tiles -->
+              <!-- One-Time Code -->
+              <button class="method-tile" id="tile-otp-chooser" role="listitem" type="button"
+                aria-label="Sign in with one-time code">
+                <span class="method-tile-icon" aria-hidden="true">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M7 8h10M7 12h6M7 16h4" stroke="#121212" stroke-width="1.5" stroke-linecap="round"/>
+                    <rect x="3" y="4" width="18" height="16" rx="2" stroke="#121212" stroke-width="1.5"/>
+                  </svg>
+                </span>
+                One-Time Code
+                <span class="method-tile-arrow" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M9 18l6-6-6-6" stroke="#121212" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </button>
 
-          <!-- Create account footer -->
-          <div class="divider" role="separator"></div>
-          <p class="create-account">
-            Don't have an account? <a href="#">Create an Account</a>
-          </p>
+            </div><!-- /method-tiles -->
+
+            <!-- Create account footer -->
+            <div class="divider" role="separator"></div>
+            <p class="create-account">
+              Don't have an account? <a href="#">Create an Account</a>
+            </p>
+
+          </div><!-- /chooser-panel-default -->
+
+          <!-- ── Chooser: passkey-first (registered passkey detected) ── -->
+          <div class="chooser-panel chooser-panel-passkey-first">
+
+            <div class="hero">
+              <h1>Welcome Back</h1>
+              <p>Use Face ID to sign in quickly and securely</p>
+            </div>
+
+            <!-- Prominent Face ID icon -->
+            <div class="chooser-pf-icon" aria-hidden="true">
+              <svg width="56" height="56" viewBox="0 0 24 24" fill="none">
+                <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h6m-6 0v18m6-18h4a2 2 0 0 1 2 2v4m-6-6v18M3 9v6m0 0v4a2 2 0 0 0 2 2h4m-6-6h18M21 9v6m0 0v4a2 2 0 0 1-2 2h-4m6-6H3" stroke="#121212" stroke-width="1.3" stroke-linecap="round"/>
+                <circle cx="9" cy="10" r="1" fill="#121212"/>
+                <circle cx="15" cy="10" r="1" fill="#121212"/>
+                <path d="M9 15c.83 1.2 2.17 2 3 2s2.17-.8 3-2" stroke="#121212" stroke-width="1.3" stroke-linecap="round"/>
+              </svg>
+            </div>
+
+            <!-- Primary CTA -->
+            <button class="sign-in-btn" id="chooser-pf-faceid-btn" type="button">SIGN IN WITH FACE ID</button>
+
+            <!-- Secondary sign-in options -->
+            <div class="chooser-pf-alt">
+              <p class="chooser-pf-alt-label">Other ways to sign in</p>
+              <div class="method-tiles" role="list">
+
+                <button class="method-tile" id="tile-pf-password" role="listitem" type="button"
+                  aria-label="Sign in with password">
+                  <span class="method-tile-icon" aria-hidden="true">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <rect x="5" y="11" width="14" height="10" rx="2" stroke="#121212" stroke-width="1.5"/>
+                      <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="#121212" stroke-width="1.5" stroke-linecap="round"/>
+                      <circle cx="12" cy="16" r="1.5" fill="#121212"/>
+                    </svg>
+                  </span>
+                  Password
+                  <span class="method-tile-arrow" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                      <path d="M9 18l6-6-6-6" stroke="#121212" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                </button>
+
+                <button class="method-tile" id="tile-pf-otp" role="listitem" type="button"
+                  aria-label="Sign in with one-time code">
+                  <span class="method-tile-icon" aria-hidden="true">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <path d="M7 8h10M7 12h6M7 16h4" stroke="#121212" stroke-width="1.5" stroke-linecap="round"/>
+                      <rect x="3" y="4" width="18" height="16" rx="2" stroke="#121212" stroke-width="1.5"/>
+                    </svg>
+                  </span>
+                  One-Time Code
+                  <span class="method-tile-arrow" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                      <path d="M9 18l6-6-6-6" stroke="#121212" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                </button>
+
+              </div><!-- /method-tiles -->
+            </div><!-- /chooser-pf-alt -->
+
+            <div class="divider" role="separator"></div>
+            <p class="create-account">
+              Don't have an account? <a href="#">Create an Account</a>
+            </p>
+
+          </div><!-- /chooser-panel-passkey-first -->
 
         </div><!-- /screen-chooser -->
 
@@ -1724,6 +1931,9 @@
             </div>
 
             <button class="sign-in-another-way-btn" id="passkey-other-btn" type="button">SIGN IN ANOTHER WAY</button>
+
+            <!-- Recovery entry (shown only in notfound state) -->
+            <a href="#" class="passkey-recovery-link" id="passkey-recovery-link">Having trouble? <span>Get account help</span></a>
           </div>
 
         </div><!-- /screen-passkey -->
@@ -1865,6 +2075,33 @@
           </div>
 
         </div><!-- /screen-settings-passkeys -->
+
+        <!-- ─── Screen: Account Recovery ─────────────────── -->
+        <div id="screen-recovery" hidden>
+
+          <!-- Recovery hero -->
+          <div class="recovery-hero">
+            <div class="recovery-icon" aria-hidden="true">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10" stroke="#121212" stroke-width="1.5"/>
+                <path d="M12 8v4l3 3" stroke="#121212" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M10 16.5c0-.83.67-1.5 1.5-1.5h1c.83 0 1.5.67 1.5 1.5v.5H10v-.5z" fill="#121212"/>
+                <circle cx="12" cy="8.5" r="1" fill="#121212"/>
+              </svg>
+            </div>
+            <h2 class="recovery-heading">Having trouble signing in?</h2>
+            <p class="recovery-subtext">Face ID sign-in didn&#8217;t work. We can verify it&#8217;s you another way and help you get back in.</p>
+          </div>
+
+          <!-- Recovery options -->
+          <div class="recovery-options">
+            <button class="sign-in-btn" id="recovery-otp-btn" type="button">SEND A ONE-TIME CODE</button>
+            <button class="recovery-alt-btn" id="recovery-password-btn" type="button">Use password instead</button>
+          </div>
+
+          <a href="#" class="recovery-help-link" id="recovery-help-link">Need more help? <span>Get account support &#8594;</span></a>
+
+        </div><!-- /screen-recovery -->
 
         <div id="screen-password" hidden>
 
@@ -2063,10 +2300,17 @@
 
     <ul class="proto-nav-list" role="list">
 
+      <li><p class="proto-nav-section">Chooser</p></li>
       <li>
-        <button class="proto-nav-item" data-nav-target="screen-chooser">
+        <button class="proto-nav-item" data-nav-target="screen-chooser" data-nav-state="default">
           <span class="proto-nav-dot" aria-hidden="true"></span>
-          Chooser
+          No passkey (3-tile)
+        </button>
+      </li>
+      <li>
+        <button class="proto-nav-item" data-nav-target="screen-chooser" data-nav-state="passkey-first">
+          <span class="proto-nav-dot" aria-hidden="true"></span>
+          Passkey detected
         </button>
       </li>
       <li><p class="proto-nav-section">Passkey Setup</p></li>
@@ -2181,6 +2425,13 @@
           Resent
         </button>
       </li>
+      <li><p class="proto-nav-section">Account Recovery</p></li>
+      <li>
+        <button class="proto-nav-item" data-nav-target="screen-recovery">
+          <span class="proto-nav-dot" aria-hidden="true"></span>
+          Recovery entry
+        </button>
+      </li>
 
     </ul>
 
@@ -2213,6 +2464,7 @@
     const screenPassword = document.getElementById('screen-password');
     const screenOtp      = document.getElementById('screen-otp');
     const screenEnroll   = document.getElementById('screen-passkey-enroll');
+    const screenRecovery = document.getElementById('screen-recovery');
     const screenSettings = document.getElementById('screen-settings-passkeys');
     const backBtn        = document.getElementById('back-btn');
     const ANIM_DUR = 280;
@@ -2391,6 +2643,11 @@
       ring.setAttribute('data-state', state);
       if (label !== undefined) lbl.textContent = label;
       if (sub   !== undefined) subEl.textContent = sub;
+    }
+
+    // ── Chooser state machine ──────────────────────────────────
+    function setChooserState(state) {
+      screenChooser.setAttribute('data-chooser-state', state || 'default');
     }
 
     // ── Enrollment screen state machine ────────────────────────
@@ -2682,6 +2939,43 @@
       currentScreen = screenChooser;
     });
 
+    // ── Chooser passkey-first panel → Passkey screen ────────────
+    document.getElementById('chooser-pf-faceid-btn').addEventListener('click', () => {
+      setPasskeyState('idle');
+      switchScreen(currentScreen, screenPasskey, 'forward');
+      currentScreen = screenPasskey;
+    });
+    document.getElementById('tile-pf-password').addEventListener('click', () => {
+      switchScreen(currentScreen, screenPassword, 'forward');
+      currentScreen = screenPassword;
+    });
+    document.getElementById('tile-pf-otp').addEventListener('click', () => {
+      switchScreen(currentScreen, screenOtp, 'forward');
+      currentScreen = screenOtp;
+    });
+
+    // ── Passkey recovery entry link → Recovery screen ─────────
+    document.getElementById('passkey-recovery-link').addEventListener('click', (e) => {
+      e.preventDefault();
+      setPasskeyState('idle');
+      switchScreen(screenPasskey, screenRecovery, 'forward');
+      currentScreen = screenRecovery;
+    });
+
+    // ── Recovery screen → OTP / Password / Help ───────────────
+    document.getElementById('recovery-otp-btn').addEventListener('click', () => {
+      switchScreen(screenRecovery, screenOtp, 'forward');
+      currentScreen = screenOtp;
+    });
+    document.getElementById('recovery-password-btn').addEventListener('click', () => {
+      switchScreen(screenRecovery, screenPassword, 'forward');
+      currentScreen = screenPassword;
+    });
+    document.getElementById('recovery-help-link').addEventListener('click', (e) => {
+      e.preventDefault();
+      alert('This would open account support. (prototype)');
+    });
+
     // ── Back button: unified handler for all screen states ──────
     backBtn.addEventListener('click', (e) => {
       e.preventDefault();
@@ -2720,6 +3014,10 @@
         // OTP screen → Chooser
         switchScreen(screenOtp, screenChooser, 'backward');
         currentScreen = screenChooser;
+      } else if (currentScreen === screenRecovery) {
+        // Recovery → Chooser
+        switchScreen(screenRecovery, screenChooser, 'backward');
+        currentScreen = screenChooser;
       }
       // On chooser or unknown, do nothing (href="#" already prevents navigation)
     });
@@ -2733,13 +3031,14 @@
 
       // All navigable screens in order
       const NAV_SCREENS = {
-        'screen-chooser':          screenChooser,
-        'screen-passkey-enroll':   screenEnroll,
+        'screen-chooser':           screenChooser,
+        'screen-passkey-enroll':    screenEnroll,
         'screen-settings-passkeys': screenSettings,
-        'screen-passkey':          screenPasskey,
-        'screen-password':         screenPassword,
-        'screen-otp':              screenOtp,
-        'screen-verify':           screenVerify,
+        'screen-passkey':           screenPasskey,
+        'screen-password':          screenPassword,
+        'screen-otp':               screenOtp,
+        'screen-verify':            screenVerify,
+        'screen-recovery':          screenRecovery,
       };
 
       function openNav() {
@@ -2763,6 +3062,7 @@
         const passkeyState  = document.getElementById('screen-passkey').getAttribute('data-passkey-state') || 'idle';
         const enrollState   = screenEnroll.getAttribute('data-enroll-state') || 'prompt';
         const settingsState = screenSettings.getAttribute('data-settings-state') || 'list';
+        const chooserState  = screenChooser.getAttribute('data-chooser-state') || 'default';
         panel.querySelectorAll('.proto-nav-item').forEach(btn => {
           const matchesScreen = btn.dataset.navTarget === activeId;
           const btnState = btn.dataset.navState || null;
@@ -2772,6 +3072,7 @@
             if (activeId === 'screen-passkey')          matchesState = btnState === passkeyState;
             if (activeId === 'screen-passkey-enroll')   matchesState = btnState === enrollState;
             if (activeId === 'screen-settings-passkeys') matchesState = btnState === settingsState;
+            if (activeId === 'screen-chooser')          matchesState = btnState === chooserState;
           }
           btn.classList.toggle('nav-active', matchesScreen && matchesState);
         });
@@ -2813,6 +3114,7 @@
           if (target === screenPasskey)  setPasskeyState(navState   || 'idle');
           if (target === screenEnroll)   setEnrollState(navState    || 'prompt');
           if (target === screenSettings) setSettingsState(navState  || 'list');
+          if (target === screenChooser)  setChooserState(navState   || 'default');
 
           updateActiveItem();
         });
