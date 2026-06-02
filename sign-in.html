@@ -892,6 +892,94 @@
       text-align: center;
     }
 
+    /* ─── Passkey fallback options (failed / notfound states) ─── */
+    #passkey-qr-area        { display: none; }
+    #passkey-fallback-options { display: none; }
+
+    #screen-passkey[data-passkey-state="cross-device"] #passkey-biometric-hero { display: none; }
+    #screen-passkey[data-passkey-state="cross-device"] #passkey-try-btn        { display: none; }
+    #screen-passkey[data-passkey-state="cross-device"] #passkey-other-btn      { display: none; }
+    #screen-passkey[data-passkey-state="cross-device"] #passkey-qr-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+    }
+
+    #screen-passkey[data-passkey-state="failed"]   #passkey-fallback-options,
+    #screen-passkey[data-passkey-state="notfound"] #passkey-fallback-options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+    }
+    #screen-passkey[data-passkey-state="failed"]   #passkey-other-btn,
+    #screen-passkey[data-passkey-state="notfound"] #passkey-other-btn { display: none; }
+
+    .passkey-fallback-divider {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: rgba(18,18,18,0.45);
+      text-align: center;
+      margin: 4px 0 2px;
+    }
+    .passkey-fallback-tile {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 14px 16px;
+      background: #fff;
+      border: 1px solid rgba(18,18,18,0.2);
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Roboto', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(18,18,18,0.93);
+      transition: background 0.15s ease, border-color 0.15s ease;
+      text-align: left;
+    }
+    .passkey-fallback-tile:hover { background: rgba(18,18,18,0.04); border-color: rgba(18,18,18,0.4); }
+    .passkey-fallback-chevron   { margin-left: auto; color: rgba(18,18,18,0.38); }
+
+    /* QR code area */
+    .passkey-qr-heading {
+      font-size: 18px;
+      font-weight: 500;
+      line-height: 24px;
+      letter-spacing: 0.15px;
+      color: rgba(18,18,18,0.93);
+      text-align: center;
+    }
+    .passkey-qr-box {
+      width: 192px;
+      height: 192px;
+      padding: 16px;
+      background: #fff;
+      border: 1px solid rgba(18,18,18,0.15);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .passkey-qr-svg  { width: 160px; height: 160px; }
+    .passkey-qr-label {
+      font-size: 13px;
+      line-height: 20px;
+      letter-spacing: 0.25px;
+      color: rgba(18,18,18,0.6);
+      text-align: center;
+    }
+    .passkey-qr-expires {
+      font-size: 12px;
+      color: rgba(18,18,18,0.45);
+      text-align: center;
+    }
+
     /* ── OS Biometric Modal ──────────────────────────────────── */
     #os-biometric-backdrop {
       display: none;
@@ -1332,10 +1420,10 @@
         </div><!-- /screen-chooser -->
 
         <!-- ─── Screen: Biometric / Passkey ─────────────── -->
-        <div id="screen-passkey" hidden>
+        <div id="screen-passkey" data-passkey-state="idle" hidden>
 
-          <!-- Biometric hero (state-driven) -->
-          <div class="biometric-hero">
+          <!-- Biometric hero (state-driven, hidden in cross-device) -->
+          <div class="biometric-hero" id="passkey-biometric-hero">
             <div class="biometric-ring" id="biometric-ring" data-state="idle">
               <div class="biometric-icon" aria-hidden="true">
                 <!-- Material Symbols: ar_on_you -->
@@ -1348,9 +1436,54 @@
             <p class="biometric-status-sub" id="biometric-status-sub">Your device will prompt you to authenticate</p>
           </div>
 
+          <!-- Cross-device QR area (only visible in cross-device state) -->
+          <div id="passkey-qr-area">
+            <p class="passkey-qr-heading">Scan with your phone</p>
+            <div class="passkey-qr-box" role="img" aria-label="QR code — scan with your phone camera">
+              <svg viewBox="0 0 100 100" class="passkey-qr-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <rect x="5" y="5" width="28" height="28" fill="none" stroke="#121212" stroke-width="3"/><rect x="12" y="12" width="14" height="14" fill="#121212"/>
+                <rect x="67" y="5" width="28" height="28" fill="none" stroke="#121212" stroke-width="3"/><rect x="74" y="12" width="14" height="14" fill="#121212"/>
+                <rect x="5" y="67" width="28" height="28" fill="none" stroke="#121212" stroke-width="3"/><rect x="12" y="74" width="14" height="14" fill="#121212"/>
+                <rect x="40" y="5" width="5" height="5" fill="#121212"/><rect x="50" y="5" width="5" height="5" fill="#121212"/>
+                <rect x="40" y="15" width="5" height="5" fill="#121212"/><rect x="55" y="15" width="5" height="5" fill="#121212"/>
+                <rect x="40" y="25" width="10" height="5" fill="#121212"/>
+                <rect x="40" y="40" width="5" height="5" fill="#121212"/><rect x="50" y="40" width="5" height="5" fill="#121212"/><rect x="60" y="40" width="5" height="5" fill="#121212"/><rect x="70" y="40" width="5" height="5" fill="#121212"/>
+                <rect x="40" y="50" width="5" height="5" fill="#121212"/><rect x="55" y="50" width="5" height="5" fill="#121212"/><rect x="70" y="50" width="5" height="5" fill="#121212"/>
+                <rect x="40" y="60" width="10" height="5" fill="#121212"/><rect x="60" y="60" width="15" height="5" fill="#121212"/>
+                <rect x="40" y="70" width="5" height="5" fill="#121212"/><rect x="55" y="70" width="5" height="5" fill="#121212"/><rect x="70" y="70" width="5" height="5" fill="#121212"/><rect x="80" y="70" width="5" height="5" fill="#121212"/>
+                <rect x="40" y="80" width="15" height="5" fill="#121212"/><rect x="60" y="80" width="10" height="5" fill="#121212"/><rect x="80" y="80" width="5" height="5" fill="#121212"/>
+                <rect x="5" y="40" width="28" height="5" fill="#121212"/>
+                <rect x="5" y="50" width="5" height="5" fill="#121212"/><rect x="15" y="50" width="10" height="5" fill="#121212"/>
+                <rect x="5" y="60" width="10" height="5" fill="#121212"/><rect x="20" y="60" width="5" height="5" fill="#121212"/>
+                <rect x="5" y="70" width="5" height="5" fill="#121212"/><rect x="15" y="70" width="15" height="5" fill="#121212"/>
+                <rect x="5" y="80" width="10" height="5" fill="#121212"/><rect x="20" y="80" width="5" height="5" fill="#121212"/>
+                <rect x="5" y="90" width="5" height="5" fill="#121212"/><rect x="15" y="90" width="5" height="5" fill="#121212"/><rect x="25" y="90" width="5" height="5" fill="#121212"/>
+              </svg>
+            </div>
+            <p class="passkey-qr-label">Open your phone’s camera and scan this code to sign in with your saved passkey.</p>
+            <p class="passkey-qr-expires">Code expires in <strong>2:00</strong></p>
+            <button class="sign-in-another-way-btn" id="passkey-qr-cancel" type="button">CANCEL</button>
+          </div>
+
           <!-- Actions -->
           <div style="display:flex;flex-direction:column;gap:12px;width:100%;">
             <button class="sign-in-btn" id="passkey-try-btn" type="button">USE FACE ID</button>
+
+            <!-- Fallback options (shown in failed / notfound states) -->
+            <div id="passkey-fallback-options" aria-label="Alternative sign-in methods">
+              <p class="passkey-fallback-divider">Or continue with</p>
+              <button class="passkey-fallback-tile" id="passkey-fallback-password" type="button">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" stroke-width="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                <span>Password</span>
+                <svg class="passkey-fallback-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              </button>
+              <button class="passkey-fallback-tile" id="passkey-fallback-otp" type="button">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="17" r="1" fill="currentColor"/></svg>
+                <span>One-Time Code</span>
+                <svg class="passkey-fallback-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+
             <button class="sign-in-another-way-btn" id="passkey-other-btn" type="button">SIGN IN ANOTHER WAY</button>
           </div>
 
@@ -1560,10 +1693,29 @@
           Chooser
         </button>
       </li>
+      <li><p class="proto-nav-section">Face ID / Passkey states</p></li>
       <li>
-        <button class="proto-nav-item" data-nav-target="screen-passkey">
+        <button class="proto-nav-item" data-nav-target="screen-passkey" data-nav-state="idle">
           <span class="proto-nav-dot" aria-hidden="true"></span>
-          Face ID / Passkey
+          Idle (default)
+        </button>
+      </li>
+      <li>
+        <button class="proto-nav-item" data-nav-target="screen-passkey" data-nav-state="failed">
+          <span class="proto-nav-dot" aria-hidden="true"></span>
+          Face ID failed
+        </button>
+      </li>
+      <li>
+        <button class="proto-nav-item" data-nav-target="screen-passkey" data-nav-state="notfound">
+          <span class="proto-nav-dot" aria-hidden="true"></span>
+          Passkey not found
+        </button>
+      </li>
+      <li>
+        <button class="proto-nav-item" data-nav-target="screen-passkey" data-nav-state="cross-device">
+          <span class="proto-nav-dot" aria-hidden="true"></span>
+          Cross-device QR
         </button>
       </li>
       <li>
@@ -1819,12 +1971,41 @@
       if (sub   !== undefined) subEl.textContent = sub;
     }
 
+    // ── Passkey screen state machine ───────────────────────────
+    function setPasskeyState(state) {
+      const pkScreen = document.getElementById('screen-passkey');
+      const tryBtn   = document.getElementById('passkey-try-btn');
+      pkScreen.setAttribute('data-passkey-state', state);
+      switch (state) {
+        case 'idle':
+          setBiometricState('idle', 'Use Face ID to sign in', 'Your device will prompt you to authenticate');
+          tryBtn.disabled = false;
+          tryBtn.textContent = 'USE FACE ID';
+          break;
+        case 'failed':
+          setBiometricState('error', 'Face ID Could Not Sign You In',
+            'Your account is still secure — try again or use a different method.');
+          tryBtn.disabled = false;
+          tryBtn.textContent = 'TRY AGAIN';
+          break;
+        case 'notfound':
+          setBiometricState('error', 'No Passkey Found on This Device',
+            'Your passkey may be on another device, or you haven’t set one up yet.');
+          tryBtn.disabled = false;
+          tryBtn.textContent = 'SCAN WITH PHONE';
+          break;
+        case 'cross-device':
+          // Biometric hero + try-btn hidden via CSS; QR area shown
+          break;
+      }
+    }
+
     // URL param: ?passkey=found|failed|notfound  (default: found)
     const passkeyOutcome = new URLSearchParams(location.search).get('passkey') || 'found';
 
     // ── Chooser → Passkey ─────────────────────────────────────
     document.getElementById('tile-passkey').addEventListener('click', () => {
-      setBiometricState('idle', 'Use Face ID to sign in', 'Your device will prompt you to authenticate');
+      setPasskeyState('idle');
       switchScreen(currentScreen, screenPasskey, 'forward');
       currentScreen = screenPasskey;
     });
@@ -1904,18 +2085,38 @@
 
     // Cancel button
     osCancelBtn.addEventListener('click', () => {
-      hideOsModal(() => {
-        // Reset ring + button to idle
-        const tryBtn = document.getElementById('passkey-try-btn');
-        tryBtn.disabled = false;
-        tryBtn.textContent = 'USE FACE ID';
-        setBiometricState('idle', 'Use Face ID to sign in', 'Your device will prompt you to authenticate');
-      });
+      hideOsModal(() => { setPasskeyState('idle'); });
     });
 
-    // ── Passkey "Use Face ID" button ──────────────────────────
+    // QR cancel → back to notfound (most likely origin) or idle
+    document.getElementById('passkey-qr-cancel').addEventListener('click', () => {
+      setPasskeyState('notfound');
+    });
+
+    // Passkey fallback tiles → navigate to respective screens
+    document.getElementById('passkey-fallback-password').addEventListener('click', () => {
+      setPasskeyState('idle');
+      switchScreen(screenPasskey, screenPassword, 'forward');
+      currentScreen = screenPassword;
+    });
+    document.getElementById('passkey-fallback-otp').addEventListener('click', () => {
+      setPasskeyState('idle');
+      switchScreen(screenPasskey, screenOtp, 'forward');
+      currentScreen = screenOtp;
+    });
+
+    // ── Passkey "Use Face ID" / "TRY AGAIN" / "SCAN WITH PHONE" button ───
     document.getElementById('passkey-try-btn').addEventListener('click', function () {
-      const tryBtn = this;
+      const tryBtn  = this;
+      const pkState = document.getElementById('screen-passkey').getAttribute('data-passkey-state') || 'idle';
+
+      // In notfound state the button is "SCAN WITH PHONE" → go to QR
+      if (pkState === 'notfound') {
+        setPasskeyState('cross-device');
+        return;
+      }
+
+      // idle or failed → run biometric simulation
       tryBtn.disabled = true;
       setBiometricState('prompting', 'Scanning…', 'Hold still while Face ID authenticates you');
       showOsModal();
@@ -1925,25 +2126,15 @@
           osStatusEl.textContent = 'Face Not Recognized';
           osStatusEl.className = 'os-modal-status os-status-error';
           osCancelBtn.disabled = false;
-          // Auto-dismiss after showing error
           setTimeout(() => {
-            hideOsModal(() => {
-              setBiometricState('error', 'Face Not Recognized',
-                'Face ID could not verify your identity. Try again or sign in another way.');
-              tryBtn.disabled = false;
-              tryBtn.textContent = 'TRY AGAIN';
-            });
+            hideOsModal(() => { setPasskeyState('failed'); });
           }, 1400);
 
         } else if (passkeyOutcome === 'notfound') {
-          osStatusEl.textContent = 'No Face ID Found';
+          osStatusEl.textContent = 'No Passkey Found';
           osStatusEl.className = 'os-modal-status os-status-error';
           setTimeout(() => {
-            hideOsModal(() => {
-              setBiometricState('error', 'Face ID Not Set Up',
-                'No Face ID credential found for this account. Sign in with your password or one-time code.');
-              tryBtn.disabled = true;
-            });
+            hideOsModal(() => { setPasskeyState('notfound'); });
           }, 1400);
 
         } else {
@@ -1968,12 +2159,9 @@
 
     // ── Passkey "Sign in another way" → back to chooser ───────
     document.getElementById('passkey-other-btn').addEventListener('click', () => {
+      setPasskeyState('idle');
       switchScreen(currentScreen, screenChooser, 'backward');
       currentScreen = screenChooser;
-      const tryBtn = document.getElementById('passkey-try-btn');
-      tryBtn.disabled = false;
-      tryBtn.textContent = 'USE FACE ID';
-      setBiometricState('idle', 'Use Face ID to sign in', 'Your device will prompt you to authenticate');
     });
 
     // ── Back button: unified handler for all screen states ──────
@@ -1987,12 +2175,9 @@
         currentScreen = screenOtp;
       } else if (currentScreen === screenPasskey) {
         // Passkey → Chooser
+        setPasskeyState('idle');
         switchScreen(screenPasskey, screenChooser, 'backward');
         currentScreen = screenChooser;
-        const tryBtn = document.getElementById('passkey-try-btn');
-        tryBtn.disabled = false;
-        tryBtn.textContent = 'USE FACE ID';
-        setBiometricState('idle', 'Use Face ID to sign in', 'Your device will prompt you to authenticate');
       } else if (currentScreen === screenPassword) {
         // Password screen → Chooser
         switchScreen(screenPassword, screenChooser, 'backward');
@@ -2037,12 +2222,17 @@
       }
 
       function updateActiveItem() {
-        const activeId    = currentScreen ? currentScreen.id : '';
-        const activeState = screenVerify.getAttribute('data-state') || 'default';
+        const activeId      = currentScreen ? currentScreen.id : '';
+        const verifyState   = screenVerify.getAttribute('data-state') || 'default';
+        const passkeyState  = document.getElementById('screen-passkey').getAttribute('data-passkey-state') || 'idle';
         panel.querySelectorAll('.proto-nav-item').forEach(btn => {
           const matchesScreen = btn.dataset.navTarget === activeId;
           const btnState = btn.dataset.navState || null;
-          const matchesState = btnState === null || btnState === activeState;
+          let matchesState = (btnState === null);
+          if (btnState !== null && matchesScreen) {
+            if (activeId === 'screen-verify')  matchesState = btnState === verifyState;
+            if (activeId === 'screen-passkey') matchesState = btnState === passkeyState;
+          }
           btn.classList.toggle('nav-active', matchesScreen && matchesState);
         });
       }
@@ -2078,8 +2268,9 @@
           target.removeAttribute('hidden');
           currentScreen = target;
 
-          // Apply verify state if specified
-          if (navState) setVerifyState(navState);
+          // Apply screen-specific state
+          if (target === screenVerify)  setVerifyState(navState  || 'default');
+          if (target === screenPasskey) setPasskeyState(navState || 'idle');
 
           updateActiveItem();
         });
