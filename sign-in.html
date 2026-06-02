@@ -140,55 +140,6 @@
       text-align: center;
     }
 
-    /* ─── Tab Toggle ──────────────────────────────────────── */
-    .tabs {
-      background: #eeeeee;
-      border-radius: 30px;
-      display: flex;
-      align-items: center;
-      height: 40px;
-      flex-shrink: 0;
-      position: relative;
-    }
-
-    /* Sliding pill that moves under the active button */
-    .tab-pill {
-      position: absolute;
-      top: 0;
-      height: 40px;
-      background: #d40029;
-      border-radius: 30px;
-      box-shadow: -1px 1px 0.5px #f5f5f5;
-      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-                  width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      pointer-events: none;
-      z-index: 0;
-      will-change: left, width;
-    }
-
-    .tab-btn {
-      position: relative;
-      z-index: 1;
-      height: 40px;
-      padding: 0 24px;
-      font-family: 'Roboto', sans-serif;
-      font-size: 16px;
-      font-weight: 500;
-      letter-spacing: 0.15px;
-      line-height: 40px;
-      white-space: nowrap;
-      cursor: pointer;
-      border: none;
-      background: none;
-      color: rgba(18, 18, 18, 0.93);
-      transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      border-radius: 30px;
-    }
-
-    .tab-btn[aria-selected="true"] {
-      color: #fff;
-    }
-
     /* ─── Hidden utility ────────────────────────────────────── */
     .sr-only {
       position: absolute;
@@ -673,13 +624,6 @@
         background: transparent;
       }
     }
-    /* ─── Panel container + transition animations ─────────── */
-    .panels-container {
-      position: relative;
-      width: 100%;
-      overflow: visible;
-    }
-
     @keyframes panelOutLeft {
       from { transform: translateX(0);    opacity: 1; }
       to   { transform: translateX(-48px); opacity: 0; }
@@ -704,7 +648,6 @@
       overflow: visible;
     }
 
-    #screen-main,
     #screen-verify {
       display: flex;
       flex-direction: column;
@@ -1188,174 +1131,6 @@
     <div class="card" role="main">
       <div id="screens-container">
 
-        <!-- ─── Screen: Sign In ──────────────────────────── -->
-        <div id="screen-main" hidden>
-
-      <!-- Hero -->
-      <div class="hero">
-        <div class="key-icon" aria-hidden="true">
-          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAC4AAAAuCAYAAABXuSs3AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAOdEVYdFNvZnR3YXJlAEZpZ21hnrGWYwAAA+tJREFUeAHNmj9L+0AYxy/9Fdx8AyoITiq4quDioKCzgrOCs6Cz/nB20NXBWdFNKLTdSod2LbRzoX0DbV9A7efgCde0Se7Sps0XQkx6Sb73zfPvnugNR1AzoN/vq3K5rFqtlup0OnrPOTbBzs6OWl1dVbu7u+rg4EDt7+/r41ngJSEOqZ+fH1UqlVStVlNJwAQuLi70lgROxCH88fGhN1PRWbC+vq7u7u6cJ2BNHGUfHh5Ut9tVacB1ArHEUfb19VWrvAhcX1/rCcT5QCRx1L29vdUOt0ig/ufnp96HIZQ4pK+urlIzjTjEkc9NO7ls0jYcJhTHps/Pz5dK2gQ5AOWDNj+hOI6YFdIA/4JTEGPESSqLih4ugFO9Xh87N2YqR0dHmVLbBE5aKBR8k/EVR+2skgZwM63BVzzLagtQu1qt6r1WPOtqC6S4Az5xGzDTm5sbHZ4ajYZqt9t6z/Hl5WVkppsXqEiB1+v1hnt7e7EXUIa+vLxEkuOtvb29qe/vb5UmEOvf8fHx/9/f38iBVGzv7+9jSYD4WqlU1GAw0OdXVlb0/vT0VP+etE63wdbWlsrHPQCFHx8f/WM8m4Rg1uOMYXJUdYA9902LPKLl4yq/p6cnX2kIT8timIhkXMwJYPcucKmPGOOdnZ0Nw8ijJOFHBhMyBTgpdcTIR8beAMSTLsdsycMrUnGICXA6AaZDwS/AcSnMAKbkeZ5yAYtnyEgpG0cekfJRNzSJs4IHmI1JWsaxIQLb/f29cgH3hDD3sCEP8ZyaE1zaDfOI93keGLZiN2eMGkQJWembqqOyRBDGYf8m+E1iu6wpuYbFN/cTteWZNnbujRxuKGYQBJMi2MvDuaEABzw8PNQmZLYrwpyT7GzGeSHJda6kGe+NFsPDYrEYOujr60s7DwgLhwLUNGO+C1zCIcEgt7a2FjkIRxM1ecXT0j5KQtgkTXdgc3NzYhnI35wzBXBd42rFR7Y3xNaiwKuXxCIQe4e09AYFwTcjEwPPz8++ENKCc200UX7MtciCEMRsq82kwO/0QoLXZFtXoBAl7Pb2tpKIJFFlnj3FMCAgUUgnIDzdljhqpq1oFCRiacVRiTokbbVmhVk76cw5LY1nEVI2A3+xnLUOVhCm2sCvVVA9GPKyBFNtMFZk4bFZNBk4BcuIqU1PwuOie+JhCHawBBNlLQPITItoNcRBavNpJXMu6oJlkk/U2Le5ME1ITzzq2ZErILGvRTosz7IRzPpzIWk+zaY/RAnHRDYbOH9ZnvcEJGuzuaxbE30SB1JszfJJnOKO+Jzku35i4gLiPuT51NFsNv0yVwApWWxsbGzo/cnJycz/hPAH6oPAskRDyGQAAAAASUVORK5CYII=" alt="" width="46" height="46" />
-        </div>
-        <h1>Welcome Back</h1>
-        <p>Choose your preferred sign-in method</p>
-      </div>
-
-      <!-- Tab Toggle -->
-      <div class="tabs" role="tablist" aria-label="Sign-in method" id="tabs">
-        <div class="tab-pill" id="tab-pill" aria-hidden="true"></div>
-        <button class="tab-btn" role="tab" aria-selected="true" id="tab-password" aria-controls="panel-password">Password</button>
-        <button class="tab-btn" role="tab" aria-selected="false" id="tab-otp" aria-controls="panel-otp">One-Time Code</button>
-      </div>
-
-      <!-- ─── Panels (animated) ──────────────────────────── -->
-      <div class="panels-container" id="panels-container">
-
-      <!-- ─── Password panel ──────────────────────────────── -->
-      <div class="form-group" id="panel-password" role="tabpanel" aria-labelledby="tab-password">
-        <div class="fields">
-          <div class="text-field">
-            <input type="email" id="email" name="email" placeholder=" "
-              autocomplete="email" aria-label="Email address" />
-            <label class="text-field-label" for="email">Email</label>
-            <button class="text-field-clear" type="button" aria-label="Clear email" tabindex="-1">
-              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="#1f1f1f"/></svg>
-            </button>
-          </div>
-          <div class="text-field">
-            <input type="password" id="password" name="password" placeholder=" "
-              autocomplete="current-password" aria-label="Password" />
-            <label class="text-field-label" for="password">Password</label>
-            <button class="text-field-clear" type="button" aria-label="Clear password" tabindex="-1">
-              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="#1f1f1f"/></svg>
-            </button>
-          </div>
-        </div>
-        <button class="forgot-link" type="button">Forgot Password?</button>
-
-        <!-- Cloudflare Turnstile widget (mockup) -->
-        <div class="captcha-widget" aria-label="CAPTCHA verification">
-          <div class="captcha-left">
-            <div class="captcha-checkbox" role="checkbox" aria-checked="false"
-              aria-label="Verify you are human" tabindex="0"></div>
-            <span class="captcha-label">Verify you are human</span>
-          </div>
-          <div class="cloudflare-logo" aria-label="Cloudflare">
-            <svg class="cf-flame" viewBox="0 0 51 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <path d="M33.2 42.1c.6-2.1 2.4-3.6 4.5-3.7h.1l13.7-.5s.1 0 .2-.1c.1-.1 0-.2 0-.3-2.2-7.7-8.3-13.9-16-16.3a25.9 25.9 0 0 0-7.2-1c-2.7 0-5.4.4-7.9 1.3C10.9 24.4 4 32.4 3 42c0 .1.1.2.2.2l11.5-.4c1.9-.1 3.6-1.3 4.4-3 1.2-2.7 3.9-4.5 7-4.5 1 0 2 .2 2.9.6 1.9.8 3.3 2.5 3.8 4.4 0 .1.1.2.2.2l.2-.4z" fill="#F6821F"/>
-              <path d="M33.9 42.5c-.2.1-.4.1-.6.1l-11.2.4c-.2 0-.4-.1-.5-.3-.1-.2-.1-.4 0-.6 1.7-4.1 5.8-7 10.6-7 1.3 0 2.6.2 3.7.7 2.6 1 4.5 3.1 5.3 5.8 0 .1.1.2.2.2l-7.5.7z" fill="#FBAD41"/>
-              <path d="M50.5 38.5c-.3-1-.7-2-1.1-3C46.7 27.4 39 21 30 21c-1.3 0-2.6.1-3.9.3C19.9 22.3 14.6 26 11.2 31c-3 4.4-4.6 9.6-4.7 14.9H0c.1-7.3 2.3-14.4 6.5-20.4C12 17.6 20.2 12.7 29.5 12c1-.1 2-.1 3-.1 10.3 0 19.9 4.5 26.5 12.3 2.9 3.4 5.1 7.3 6.4 11.5l.1.4c.2.6.4 1.2.5 1.9v.1c.1.3.2.6.2.9.1.4.2.8.2 1.2l-4.4.3c-.1-.3-.1-.6-.2-.8l-.3-1.2z" fill="#F6821F"/>
-            </svg>
-            <span class="cloudflare-name">Cloudflare</span>
-            <div class="cloudflare-links">
-              <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">Privacy</a>
-              <span>·</span>
-              <a href="https://www.cloudflare.com/website-terms/" target="_blank" rel="noopener noreferrer">Terms</a>
-            </div>
-          </div>
-        </div>
-
-      <!-- Keep signed in (password flow) -->
-      <input type="checkbox" id="keep-cb-pwd" class="sr-only" name="keep-signed-in" />
-      <label class="keep-signed-in" for="keep-cb-pwd">
-        <svg class="ds-checkbox-icon ds-checkbox-unchecked" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" fill="#1f1f1f"/>
-        </svg>
-        <svg class="ds-checkbox-icon ds-checkbox-checked" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="#1f1f1f"/>
-        </svg>
-        <span class="keep-signed-in-label">Keep me signed in for 30 days</span>
-      </label>
-      </div>
-
-      <!-- ─── One-Time Code panel (hidden by default) ─────── -->
-      <div class="otp-group" id="panel-otp" role="tabpanel" aria-labelledby="tab-otp" hidden>
-        <p class="send-to-label">Send verification code to</p>
-
-        <!-- Delivery tiles -->
-        <div class="delivery-tiles" role="group" aria-label="Delivery method">
-          <!-- Email tile (selected by default) -->
-          <button class="tile tile-selected" id="tile-email" data-tile="email"
-            aria-pressed="true" aria-label="Send to Email">
-            <span class="tile-badge" aria-hidden="true">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <circle cx="8" cy="8" r="8" fill="#1f1f1f"/>
-                <path d="M4.5 8.5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5"
-                  stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </span>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" fill="#1f1f1f"/>
-            </svg>
-            Email
-          </button>
-
-          <!-- Text tile -->
-          <button class="tile" id="tile-phone" data-tile="phone"
-            aria-pressed="false" aria-label="Send via Text">
-            <span class="tile-badge" aria-hidden="true">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <circle cx="8" cy="8" r="8" fill="#1f1f1f"/>
-                <path d="M4.5 8.5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.5"
-                  stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </span>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z" fill="#1f1f1f"/>
-            </svg>
-            Text
-          </button>
-        </div>
-
-        <!-- Destination input fields (hidden until tile clicked) -->
-        <div id="otp-field-email">
-          <div class="text-field">
-            <input type="email" id="otp-email" name="otp-email" placeholder=" "
-              autocomplete="email" aria-label="Email address" />
-            <label class="text-field-label" for="otp-email">Email</label>
-            <button class="text-field-clear" type="button" aria-label="Clear email" tabindex="-1">
-              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="#1f1f1f"/></svg>
-            </button>
-          </div>
-          <p class="otp-delivery-helper">We'll send a 6-digit code to your email</p>
-        </div>
-        <div id="otp-field-phone" hidden>
-          <div class="text-field">
-            <input type="tel" id="otp-phone" name="otp-phone" placeholder=" "
-              autocomplete="tel" aria-label="Phone number" />
-            <label class="text-field-label" for="otp-phone">Phone number</label>
-            <button class="text-field-clear" type="button" aria-label="Clear phone" tabindex="-1">
-              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="#1f1f1f"/></svg>
-            </button>
-          </div>
-          <p class="otp-delivery-helper">We'll text a 6-digit code to your phone</p>
-        </div>
-      </div>
-
-      </div><!-- /panels-container -->
-
-      <!-- ─── Shared: button ───────────────────────────────── -->
-      <div class="action-block">
-        <!-- CTA button — label swaps via JS -->
-        <button class="sign-in-btn" id="cta-btn" type="submit">SIGN IN</button>
-      </div>
-
-      <!-- Legal -->
-      <p class="legal">
-        By choosing to continue, I confirm I have read and agree to the
-        <a href="https://www.acehardware.com/customer-service?page=ace-rewards" target="_blank" rel="noopener noreferrer">Ace Rewards® Terms</a>,
-        <a href="https://www.acehardware.com/customer-service?page=terms-of-use" target="_blank" rel="noopener noreferrer">TERMS OF USE</a>,
-        and <a href="https://www.acehardware.com/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy.</a>
-      </p>
-
-      <!-- Divider -->
-      <div class="divider" role="separator"></div>
-
-      <!-- Create Account -->
-      <p class="create-account">
-        Don't have an account? <a href="#">Create an Account</a>
-      </p>
-
-        </div><!-- /screen-main -->
 
         <!-- ─── Screen: Verify OTP ───────────────────────── -->
         <div id="screen-verify" hidden>
@@ -2121,7 +1896,7 @@
       panel.querySelectorAll('.proto-nav-item[data-nav-target]').forEach(btn => {
         btn.addEventListener('click', () => {
           const target = NAV_SCREENS[btn.dataset.navTarget];
-          if (!target || target === currentScreen) { closeNav(); return; }
+          if (!target || target === currentScreen) { return; }
 
           // Reset passkey ring if leaving or entering passkey screen
           if (currentScreen === screenPasskey || target === screenPasskey) {
@@ -2134,8 +1909,7 @@
           currentScreen.setAttribute('hidden', '');
           target.removeAttribute('hidden');
           currentScreen = target;
-
-          closeNav();
+          updateActiveItem();
         });
       });
     })();
