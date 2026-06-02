@@ -980,6 +980,96 @@
       text-align: center;
     }
 
+    /* ─── Passkey Enrollment Screen ─────────────────────────── */
+    .enroll-panel-prompt,
+    .enroll-panel-success,
+    .enroll-panel-error { display: none; }
+
+    #screen-passkey-enroll[data-enroll-state="prompt"]  .enroll-panel-prompt,
+    #screen-passkey-enroll[data-enroll-state="success"] .enroll-panel-success,
+    #screen-passkey-enroll[data-enroll-state="error"]   .enroll-panel-error {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      width: 100%;
+    }
+
+    .enroll-hero-icon {
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .enroll-hero-icon--setup   { background: rgba(218, 41, 28, 0.08); color: #DA291C; }
+    .enroll-hero-icon--success { background: #E8F5E9; color: #2E7D32; }
+    .enroll-hero-icon--error   { background: #FFF3E0; color: #E65100; }
+
+    .enroll-heading {
+      font-family: 'Roboto', sans-serif;
+      font-size: 22px;
+      font-weight: 500;
+      line-height: 28px;
+      letter-spacing: 0;
+      color: rgba(18,18,18,0.93);
+      text-align: center;
+      margin: 0;
+    }
+    .enroll-subtext {
+      font-size: 14px;
+      line-height: 22px;
+      letter-spacing: 0.25px;
+      color: rgba(18,18,18,0.6);
+      text-align: center;
+      margin: -8px 0 0;
+    }
+    .enroll-device-label {
+      font-size: 12px;
+      color: rgba(18,18,18,0.45);
+      text-align: center;
+      margin: -12px 0 0;
+    }
+
+    .enroll-benefits {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .enroll-benefit-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 14px;
+      line-height: 20px;
+      color: rgba(18,18,18,0.8);
+    }
+    .enroll-benefit-icon {
+      flex-shrink: 0;
+      color: #2E7D32;
+      margin-top: 1px;
+    }
+
+    .enroll-skip-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: 'Roboto', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      color: rgba(18,18,18,0.55);
+      padding: 8px 0;
+      transition: color 0.15s;
+    }
+    .enroll-skip-btn:hover { color: rgba(18,18,18,0.85); }
+
     /* ── OS Biometric Modal ──────────────────────────────────── */
     #os-biometric-backdrop {
       display: none;
@@ -1693,6 +1783,25 @@
           Chooser
         </button>
       </li>
+      <li><p class="proto-nav-section">Passkey Setup</p></li>
+      <li>
+        <button class="proto-nav-item" data-nav-target="screen-passkey-enroll" data-nav-state="prompt">
+          <span class="proto-nav-dot" aria-hidden="true"></span>
+          Opt-in prompt
+        </button>
+      </li>
+      <li>
+        <button class="proto-nav-item" data-nav-target="screen-passkey-enroll" data-nav-state="success">
+          <span class="proto-nav-dot" aria-hidden="true"></span>
+          Enrolled — success
+        </button>
+      </li>
+      <li>
+        <button class="proto-nav-item" data-nav-target="screen-passkey-enroll" data-nav-state="error">
+          <span class="proto-nav-dot" aria-hidden="true"></span>
+          Enrollment failed
+        </button>
+      </li>
       <li><p class="proto-nav-section">Face ID / Passkey states</p></li>
       <li>
         <button class="proto-nav-item" data-nav-target="screen-passkey" data-nav-state="idle">
@@ -1792,6 +1901,7 @@
     const screenVerify   = document.getElementById('screen-verify');
     const screenPassword = document.getElementById('screen-password');
     const screenOtp      = document.getElementById('screen-otp');
+    const screenEnroll   = document.getElementById('screen-passkey-enroll');
     const backBtn        = document.getElementById('back-btn');
     const ANIM_DUR = 280;
     let animating = false;
@@ -2157,6 +2267,41 @@
       }, 1600);
     });
 
+    // ── Enrollment button handlers ─────────────────────────────────────
+    // "SET UP FACE ID SIGN-IN" → simulate OS enrollment prompt
+    document.getElementById('enroll-setup-btn').addEventListener('click', function () {
+      this.disabled = true;
+      this.textContent = 'Setting up…';
+      const enrollOutcome = new URLSearchParams(location.search).get('enroll') || 'success';
+      setTimeout(() => {
+        this.disabled = false;
+        this.textContent = 'SET UP FACE ID SIGN-IN';
+        setEnrollState(enrollOutcome === 'error' ? 'error' : 'success');
+      }, 1800);
+    });
+
+    // "Not now" / "Do this later" → back to chooser (prototype: start over)
+    document.getElementById('enroll-skip-btn').addEventListener('click', () => {
+      setEnrollState('prompt');
+      switchScreen(screenEnroll, screenChooser, 'backward');
+      currentScreen = screenChooser;
+    });
+    document.getElementById('enroll-later-btn').addEventListener('click', () => {
+      setEnrollState('prompt');
+      switchScreen(screenEnroll, screenChooser, 'backward');
+      currentScreen = screenChooser;
+    });
+
+    // "TRY AGAIN" → go back to prompt
+    document.getElementById('enroll-retry-btn').addEventListener('click', () => {
+      setEnrollState('prompt');
+    });
+
+    // "CONTINUE SHOPPING" → prototype confirmation
+    document.getElementById('enroll-continue-btn').addEventListener('click', () => {
+      alert('✓ Passkey saved. Continuing to shop… (prototype)');
+    });
+
     // ── Passkey "Sign in another way" → back to chooser ───────
     document.getElementById('passkey-other-btn').addEventListener('click', () => {
       setPasskeyState('idle');
@@ -2173,6 +2318,15 @@
         verifyBtn.disabled = true;
         switchScreen(screenVerify, screenOtp, 'backward');
         currentScreen = screenOtp;
+      } else if (currentScreen === screenEnroll) {
+        // Enrollment → back to prompt state (or chooser if already at prompt)
+        const es = screenEnroll.getAttribute('data-enroll-state') || 'prompt';
+        if (es !== 'prompt') {
+          setEnrollState('prompt');
+        } else {
+          switchScreen(screenEnroll, screenChooser, 'backward');
+          currentScreen = screenChooser;
+        }
       } else if (currentScreen === screenPasskey) {
         // Passkey → Chooser
         setPasskeyState('idle');
@@ -2199,11 +2353,12 @@
 
       // All navigable screens in order
       const NAV_SCREENS = {
-        'screen-chooser':  screenChooser,
-        'screen-passkey':  screenPasskey,
-        'screen-password': screenPassword,
-        'screen-otp':      screenOtp,
-        'screen-verify':   screenVerify,
+        'screen-chooser':        screenChooser,
+        'screen-passkey-enroll': screenEnroll,
+        'screen-passkey':        screenPasskey,
+        'screen-password':       screenPassword,
+        'screen-otp':            screenOtp,
+        'screen-verify':         screenVerify,
       };
 
       function openNav() {
@@ -2225,13 +2380,15 @@
         const activeId      = currentScreen ? currentScreen.id : '';
         const verifyState   = screenVerify.getAttribute('data-state') || 'default';
         const passkeyState  = document.getElementById('screen-passkey').getAttribute('data-passkey-state') || 'idle';
+        const enrollState   = screenEnroll.getAttribute('data-enroll-state') || 'prompt';
         panel.querySelectorAll('.proto-nav-item').forEach(btn => {
           const matchesScreen = btn.dataset.navTarget === activeId;
           const btnState = btn.dataset.navState || null;
           let matchesState = (btnState === null);
           if (btnState !== null && matchesScreen) {
-            if (activeId === 'screen-verify')  matchesState = btnState === verifyState;
-            if (activeId === 'screen-passkey') matchesState = btnState === passkeyState;
+            if (activeId === 'screen-verify')         matchesState = btnState === verifyState;
+            if (activeId === 'screen-passkey')        matchesState = btnState === passkeyState;
+            if (activeId === 'screen-passkey-enroll') matchesState = btnState === enrollState;
           }
           btn.classList.toggle('nav-active', matchesScreen && matchesState);
         });
@@ -2269,8 +2426,9 @@
           currentScreen = target;
 
           // Apply screen-specific state
-          if (target === screenVerify)  setVerifyState(navState  || 'default');
-          if (target === screenPasskey) setPasskeyState(navState || 'idle');
+          if (target === screenVerify)  setVerifyState(navState    || 'default');
+          if (target === screenPasskey) setPasskeyState(navState   || 'idle');
+          if (target === screenEnroll)  setEnrollState(navState    || 'prompt');
 
           updateActiveItem();
         });
