@@ -1189,7 +1189,7 @@
       <div id="screens-container">
 
         <!-- ─── Screen: Sign In ──────────────────────────── -->
-        <div id="screen-main">
+        <div id="screen-main" hidden>
 
       <!-- Hero -->
       <div class="hero">
@@ -1706,15 +1706,6 @@
 
     <ul class="proto-nav-list" role="list">
 
-      <li><p class="proto-nav-section">Legacy</p></li>
-      <li>
-        <button class="proto-nav-item" data-nav-target="screen-main">
-          <span class="proto-nav-dot" aria-hidden="true"></span>
-          Sign In (Tab View)
-        </button>
-      </li>
-
-      <li><p class="proto-nav-section">New Flow</p></li>
       <li>
         <button class="proto-nav-item" data-nav-target="screen-chooser">
           <span class="proto-nav-dot" aria-hidden="true"></span>
@@ -1773,85 +1764,12 @@
   </div>
 
   <script>
-    const tabPassword   = document.getElementById('tab-password');
-    const tabOtp        = document.getElementById('tab-otp');
-    const tabPill       = document.getElementById('tab-pill');
-    const panelPassword = document.getElementById('panel-password');
-    const panelOtp      = document.getElementById('panel-otp');
-    const ctaBtn        = document.getElementById('cta-btn');
-    const screenMain     = document.getElementById('screen-main');
     const screenVerify   = document.getElementById('screen-verify');
     const screenPassword = document.getElementById('screen-password');
     const screenOtp      = document.getElementById('screen-otp');
     const backBtn        = document.getElementById('back-btn');
-    let selectedDelivery = 'email';
-
-    // ── Hoist key icon out of animated screens so it stays stationary ──
-    const keyIconEl = document.querySelector('#screen-main .key-icon');
-    const screensContainer = document.getElementById('screens-container');
-    if (keyIconEl && screensContainer) {
-      screensContainer.parentElement.insertBefore(keyIconEl, screensContainer);
-      keyIconEl.style.display = 'none'; // hidden until screen-main is active
-    }
-
-    // ── Sliding pill ──────────────────────────────────────────
-    function movePill(btn) {
-      tabPill.style.left  = btn.offsetLeft + 'px';
-      tabPill.style.width = btn.offsetWidth + 'px';
-    }
-
-    // Position pill instantly (no transition) on init
-    function initPill(btn) {
-      tabPill.style.transition = 'none';
-      movePill(btn);
-      // Re-enable transition after layout settles
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => { tabPill.style.transition = ''; });
-      });
-    }
-
-    // ── Panel transition ──────────────────────────────────────
     const ANIM_DUR = 280;
     let animating = false;
-
-    function switchPanel(fromEl, toEl, direction) {
-      if (animating) return;
-      animating = true;
-
-      const outKey = direction === 'forward' ? 'panelOutLeft'  : 'panelOutRight';
-      const inKey  = direction === 'forward' ? 'panelInRight'  : 'panelInLeft';
-      const container = document.getElementById('panels-container');
-
-      // Lock container height to current panel's height
-      container.style.height = fromEl.offsetHeight + 'px';
-
-      // Pull exiting panel out of flow so it overlaps during exit
-      fromEl.style.cssText =
-        `position:absolute;top:0;left:0;width:100%;` +
-        `animation:${outKey} ${ANIM_DUR}ms ease forwards;` +
-        `pointer-events:none;z-index:1;`;
-
-      // Reveal incoming panel invisibly to measure it
-      toEl.style.opacity = '0';
-      toEl.removeAttribute('hidden');
-      const newH = toEl.scrollHeight;
-      toEl.style.opacity = '';
-
-      // Start entrance + height transition on next frame
-      requestAnimationFrame(() => {
-        toEl.style.cssText = `animation:${inKey} ${ANIM_DUR}ms ease forwards;`;
-        container.style.transition = `height ${ANIM_DUR}ms ease`;
-        container.style.height = newH + 'px';
-      });
-
-      setTimeout(() => {
-        fromEl.setAttribute('hidden', '');
-        fromEl.style.cssText  = '';
-        toEl.style.cssText    = '';
-        container.style.cssText = '';
-        animating = false;
-      }, ANIM_DUR + 40);
-    }
 
     // ── Screen transition ──────────────────────────────────────
     function switchScreen(fromScreen, toScreen, direction) {
@@ -1888,94 +1806,6 @@
         animating = false;
       }, ANIM_DUR + 40);
     }
-
-    // ── Tab switching ──────────────────────────────────────────
-    function setPasswordActive(animated) {
-      tabPassword.setAttribute('aria-selected', 'true');
-      tabOtp.setAttribute('aria-selected', 'false');
-      movePill(tabPassword);
-      ctaBtn.textContent = 'SIGN IN';
-      if (animated) {
-        switchPanel(panelOtp, panelPassword, 'backward');
-      } else {
-        panelOtp.setAttribute('hidden', '');
-        panelPassword.removeAttribute('hidden');
-      }
-    }
-
-    function setOtpActive(animated) {
-      tabOtp.setAttribute('aria-selected', 'true');
-      tabPassword.setAttribute('aria-selected', 'false');
-      movePill(tabOtp);
-      ctaBtn.textContent = 'SEND CODE';
-      if (animated) {
-        switchPanel(panelPassword, panelOtp, 'forward');
-      } else {
-        panelPassword.setAttribute('hidden', '');
-        panelOtp.removeAttribute('hidden');
-      }
-    }
-
-    tabPassword.addEventListener('click', () => { if (tabPassword.getAttribute('aria-selected') !== 'true') setPasswordActive(true); });
-    tabOtp.addEventListener('click',      () => { if (tabOtp.getAttribute('aria-selected') !== 'true') setOtpActive(true); });
-
-    // ── Screen navigation ─────────────────────────────────────
-    function showVerifyScreen() {
-      const destEl = document.getElementById('verify-destination-text');
-      if (destEl) {
-        const dest = selectedDelivery === 'phone'
-          ? (document.getElementById('otp-phone').value.trim() || 'your phone')
-          : (document.getElementById('otp-email').value.trim() || 'your email');
-        destEl.innerHTML = `Please enter the verification code we sent to <strong>${dest}</strong> to verify your identity.`;
-      }
-      switchScreen(screenMain, screenVerify, 'forward');
-    }
-
-    function showOtpScreen() {
-      setOtpActive(false);
-      otpFields.forEach(f => { f.value = ''; });
-      verifyBtn.disabled = true;
-      switchScreen(screenVerify, screenMain, 'backward');
-      setTimeout(() => initPill(tabOtp), ANIM_DUR + 40);
-    }
-
-    ctaBtn.addEventListener('click', () => {
-      if (ctaBtn.textContent.trim() === 'SEND CODE') showVerifyScreen();
-    });
-
-    document.querySelector('.sign-in-another-way-btn').addEventListener('click', () => {
-      otpFields.forEach(f => { f.value = ''; });
-      verifyBtn.disabled = true;
-      setPasswordActive(false);
-      switchScreen(screenVerify, screenMain, 'backward');
-      setTimeout(() => initPill(tabPassword), ANIM_DUR + 40);
-    });
-
-    // ── Back button (unified) ─────────────────────────────────
-    // Handled below in the new-screens block to cover all states.
-
-    // ── Delivery tile selection ────────────────────────────────
-    document.querySelectorAll('.tile').forEach(tile => {
-      tile.addEventListener('click', () => {
-        document.querySelectorAll('.tile').forEach(t => {
-          t.classList.remove('tile-selected');
-          t.setAttribute('aria-pressed', 'false');
-        });
-        tile.classList.add('tile-selected');
-        tile.setAttribute('aria-pressed', 'true');
-
-        selectedDelivery = tile.dataset.tile;
-        const otpFieldEmail = document.getElementById('otp-field-email');
-        const otpFieldPhone = document.getElementById('otp-field-phone');
-        if (tile.dataset.tile === 'phone') {
-          otpFieldEmail.setAttribute('hidden', '');
-          otpFieldPhone.removeAttribute('hidden');
-        } else {
-          otpFieldPhone.setAttribute('hidden', '');
-          otpFieldEmail.removeAttribute('hidden');
-        }
-      });
-    });
 
     // ── Clear button handler ────────────────────────────────
     document.addEventListener('click', (e) => {
@@ -2036,21 +1866,9 @@
       field.addEventListener('focus', () => field.select());
     });
 
-    // ── Init pill position ────────────────────────────────────
-    initPill(tabPassword);
-
-    // ═══════════════════════════════════════════════════════════
-    // NEW SCREENS: chooser + passkey/biometric
-    // ═══════════════════════════════════════════════════════════
-
     const screenChooser = document.getElementById('screen-chooser');
     const screenPasskey = document.getElementById('screen-passkey');
-    let currentScreen = screenMain;
-
-    // Boot: show chooser, hide legacy tab screen
-    screenMain.setAttribute('hidden', '');
-    screenChooser.removeAttribute('hidden');
-    currentScreen = screenChooser;
+    let currentScreen = screenChooser;
 
     // ── Biometric state helper ────────────────────────────────
     function setBiometricState(state, label, sub) {
@@ -2244,11 +2062,6 @@
         // OTP screen → Chooser
         switchScreen(screenOtp, screenChooser, 'backward');
         currentScreen = screenChooser;
-      } else if (currentScreen === screenMain) {
-        // Password/OTP tab screen → Chooser
-        if (keyIconEl) keyIconEl.style.display = 'none';
-        switchScreen(screenMain, screenChooser, 'backward');
-        currentScreen = screenChooser;
       }
       // On chooser or unknown, do nothing (href="#" already prevents navigation)
     });
@@ -2262,7 +2075,6 @@
 
       // All navigable screens in order
       const NAV_SCREENS = {
-        'screen-main':     screenMain,
         'screen-chooser':  screenChooser,
         'screen-passkey':  screenPasskey,
         'screen-password': screenPassword,
@@ -2314,8 +2126,6 @@
             if (tryBtn) { tryBtn.disabled = false; tryBtn.textContent = 'USE FACE ID'; }
             setBiometricState('idle', 'Use Face ID to sign in', 'Your device will prompt you to authenticate');
           }
-          // Hide key icon unless going to screen-main
-          if (keyIconEl) keyIconEl.style.display = target === screenMain ? '' : 'none';
 
           // Show target directly (no slide animation for nav jumps)
           currentScreen.setAttribute('hidden', '');
