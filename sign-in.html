@@ -1868,6 +1868,9 @@
 
     const screenChooser = document.getElementById('screen-chooser');
     const screenPasskey = document.getElementById('screen-passkey');
+
+    // Boot: show chooser
+    screenChooser.removeAttribute('hidden');
     let currentScreen = screenChooser;
 
     // ── Biometric state helper ────────────────────────────────
