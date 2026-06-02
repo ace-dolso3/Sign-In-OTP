@@ -1729,6 +1729,143 @@
         </div><!-- /screen-passkey -->
 
         <!-- ─── Screen: Password ──────────────────────────── -->
+
+        <!-- ══ Passkey Enrollment ══════════════════════════════════════ -->
+        <div id="screen-passkey-enroll" data-enroll-state="prompt" hidden>
+
+          <!-- ① Prompt panel -->
+          <div class="enroll-panel-prompt">
+            <div class="enroll-hero-icon enroll-hero-icon--setup" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 -960 960 960" fill="currentColor">
+                <path d="M701-701q91 91 91 221t-91 221q-91 91-221 91t-221-91q-91-91-91-221t91-221q91-91 221-91t221 91Zm-43 399q74-74 74-178t-74-178q-74-74-178-74t-178 74q-74 74-74 178t74 178q74 74 178 74t178-74Zm-93-67q38-26 57-70H338q18 44 56.5 70t85.5 26q47 0 85-26ZM349-536q11 11 28 11t28-11q11-11 11-28t-11-28q-11-11-28-11t-28 11q-11 11-11 28t11 28Zm206 0q11 11 28 11t28-11q11-11 11-28t-11-28q-11-11-28-11t-28 11q-11 11-11 28t11 28ZM480-480Z"/>
+              </svg>
+            </div>
+            <h2 class="enroll-heading">Sign in faster with Face ID</h2>
+            <p class="enroll-subtext">Skip the password next time. Your device uses Face ID to verify it&#8217;s you &#8212; nothing ever leaves your device.</p>
+            <ul class="enroll-benefits" aria-label="Benefits">
+              <li class="enroll-benefit-item">
+                <svg class="enroll-benefit-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M8 12l3 3 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>No password to remember</span>
+              </li>
+              <li class="enroll-benefit-item">
+                <svg class="enroll-benefit-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M8 12l3 3 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>Works with Face ID or Touch ID</span>
+              </li>
+              <li class="enroll-benefit-item">
+                <svg class="enroll-benefit-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M8 12l3 3 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>Syncs across your Apple devices</span>
+              </li>
+            </ul>
+            <button class="sign-in-btn" id="enroll-setup-btn" type="button">SET UP FACE ID SIGN-IN</button>
+            <button class="enroll-skip-btn" id="enroll-skip-btn" type="button">Not now</button>
+          </div>
+
+          <!-- ② Success panel -->
+          <div class="enroll-panel-success">
+            <div class="enroll-hero-icon enroll-hero-icon--success" aria-hidden="true">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M7 12l4 4 6-7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <h2 class="enroll-heading">You&#8217;re all set</h2>
+            <p class="enroll-subtext">Face ID is set up for this account. You&#8217;ll use it to sign in faster next time.</p>
+            <p class="enroll-device-label">Saved to: iPhone (this device)</p>
+            <button class="sign-in-btn" id="enroll-continue-btn" type="button">CONTINUE SHOPPING</button>
+          </div>
+
+          <!-- ③ Error / cancelled panel -->
+          <div class="enroll-panel-error">
+            <div class="enroll-hero-icon enroll-hero-icon--error" aria-hidden="true">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 7v5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="16" r="1" fill="currentColor"/></svg>
+            </div>
+            <h2 class="enroll-heading">Setup Didn&#8217;t Complete</h2>
+            <p class="enroll-subtext">Face ID enrollment was cancelled or didn&#8217;t finish. You can set it up anytime from Account Settings.</p>
+            <button class="sign-in-btn" id="enroll-retry-btn" type="button">TRY AGAIN</button>
+            <button class="enroll-skip-btn" id="enroll-later-btn" type="button">Do this later</button>
+          </div>
+
+        </div><!-- /screen-passkey-enroll -->
+
+        <!-- ══ Account Settings — Passkey Management ══════════════════ -->
+        <div id="screen-settings-passkeys" data-settings-state="list" hidden>
+
+          <!-- fake settings chrome -->
+          <div class="settings-topbar">
+            <span class="settings-breadcrumb">Account Settings &rsaquo; Sign-In &amp; Security</span>
+            <h2 class="settings-section-heading">Passkeys</h2>
+          </div>
+
+          <!-- ① List panel -->
+          <div class="settings-panel settings-panel-list">
+            <ul class="passkey-list" id="passkey-list" aria-label="Your saved passkeys">
+              <li class="passkey-list-item" data-pk-id="pk1">
+                <div class="passkey-list-icon" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="5" y="2" width="14" height="20" rx="2" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="17" r="1" fill="currentColor"/></svg>
+                </div>
+                <div class="passkey-list-info">
+                  <p class="passkey-list-name">iPhone 15 Pro</p>
+                  <p class="passkey-list-meta">Added May 12, 2026 &middot; Last used today</p>
+                </div>
+                <div class="passkey-list-actions">
+                  <button class="passkey-action-btn" data-action="rename" data-pk-id="pk1" aria-label="Rename iPhone 15 Pro">Rename</button>
+                  <button class="passkey-action-btn passkey-action-remove" data-action="remove" data-pk-id="pk1" aria-label="Remove iPhone 15 Pro">Remove</button>
+                </div>
+              </li>
+              <li class="passkey-list-item" data-pk-id="pk2">
+                <div class="passkey-list-icon" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 20h8M12 18v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </div>
+                <div class="passkey-list-info">
+                  <p class="passkey-list-name">MacBook Pro</p>
+                  <p class="passkey-list-meta">Added Apr 3, 2026 &middot; Last used May 28</p>
+                </div>
+                <div class="passkey-list-actions">
+                  <button class="passkey-action-btn" data-action="rename" data-pk-id="pk2" aria-label="Rename MacBook Pro">Rename</button>
+                  <button class="passkey-action-btn passkey-action-remove" data-action="remove" data-pk-id="pk2" aria-label="Remove MacBook Pro">Remove</button>
+                </div>
+              </li>
+            </ul>
+            <button class="sign-in-btn" id="settings-add-passkey-btn" type="button">ADD A PASSKEY</button>
+          </div>
+
+          <!-- ② Rename panel -->
+          <div class="settings-panel settings-panel-rename">
+            <p class="settings-panel-intro">Give this passkey a name that helps you identify which device it belongs to.</p>
+            <label class="settings-field-label" for="rename-input">Passkey name</label>
+            <input class="settings-text-input" id="rename-input" type="text" maxlength="40" placeholder="e.g. My iPhone" autocomplete="off" />
+            <p class="settings-char-hint" id="rename-char-hint">40 characters max</p>
+            <div class="settings-action-row">
+              <button class="sign-in-btn" id="rename-save-btn" type="button">SAVE NAME</button>
+              <button class="enroll-skip-btn" id="rename-cancel-btn" type="button">Cancel</button>
+            </div>
+          </div>
+
+          <!-- ③ Remove confirmation panel (2+ passkeys) -->
+          <div class="settings-panel settings-panel-remove">
+            <div class="enroll-hero-icon enroll-hero-icon--error" style="margin:0 auto 4px;" aria-hidden="true">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <h3 class="settings-confirm-heading">Remove <span id="remove-pk-name">iPhone 15 Pro</span>?</h3>
+            <p class="settings-confirm-body">You&#8217;ll no longer be able to sign in with Face ID from this device. Your other passkeys and sign-in methods will still work.</p>
+            <div class="settings-action-row">
+              <button class="sign-in-btn settings-remove-confirm-btn" id="remove-confirm-btn" type="button">REMOVE PASSKEY</button>
+              <button class="enroll-skip-btn" id="remove-cancel-btn" type="button">Cancel</button>
+            </div>
+          </div>
+
+          <!-- ④ Remove — last passkey warning -->
+          <div class="settings-panel settings-panel-remove-last">
+            <div class="enroll-hero-icon" style="background:rgba(183,28,28,0.08);color:#B71C1C;margin:0 auto 4px;" aria-hidden="true">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 19h20L12 2z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 9v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="16" r="1" fill="currentColor"/></svg>
+            </div>
+            <h3 class="settings-confirm-heading">This is your only passkey</h3>
+            <p class="settings-confirm-body">Removing it means you can only sign in with your password or a one-time code. You can always add a new passkey later.</p>
+            <div class="settings-action-row">
+              <button class="sign-in-btn settings-remove-confirm-btn" id="remove-last-confirm-btn" type="button">REMOVE ANYWAY</button>
+              <button class="enroll-skip-btn" id="remove-last-cancel-btn" type="button">Keep passkey</button>
+            </div>
+          </div>
+
+        </div><!-- /screen-settings-passkeys -->
+
         <div id="screen-password" hidden>
 
           <!-- Screen heading -->
