@@ -1000,6 +1000,167 @@
       letter-spacing: 0;
     }
     .os-cancel-btn:hover { background: #f0f0f5; }
+
+    /* ─── Prototype Navigator ────────────────────────────── */
+    #proto-nav-toggle {
+      position: fixed;
+      top: 50%;
+      right: 0;
+      transform: translateY(-50%);
+      z-index: 300;
+      background: #1f1f1f;
+      color: #fff;
+      border: none;
+      border-radius: 8px 0 0 8px;
+      padding: 10px 8px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Roboto', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      line-height: 1;
+      opacity: 0.75;
+      transition: opacity 0.15s;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+    }
+    #proto-nav-toggle:hover { opacity: 1; }
+    #proto-nav-toggle svg { transform: rotate(90deg); }
+
+    #proto-nav-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 310;
+      background: transparent;
+    }
+    #proto-nav-backdrop.nav-open { display: block; }
+
+    #proto-nav-panel {
+      position: fixed;
+      top: 0;
+      right: -260px;
+      width: 240px;
+      height: 100%;
+      z-index: 320;
+      background: #1a1a1a;
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      box-shadow: -4px 0 24px rgba(0,0,0,0.4);
+      transition: right 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    #proto-nav-panel.nav-open { right: 0; }
+
+    .proto-nav-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 16px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .proto-nav-title {
+      font-family: 'Roboto', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+    }
+    .proto-nav-close {
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: rgba(255,255,255,0.08);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: rgba(255,255,255,0.6);
+      transition: background 0.15s;
+      padding: 0;
+    }
+    .proto-nav-close:hover { background: rgba(255,255,255,0.15); }
+
+    .proto-nav-list {
+      list-style: none;
+      margin: 0;
+      padding: 8px 0;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .proto-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 11px 16px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      text-align: left;
+      font-family: 'Roboto', sans-serif;
+      font-size: 13px;
+      font-weight: 400;
+      color: rgba(255,255,255,0.6);
+      letter-spacing: 0.2px;
+      line-height: 18px;
+      transition: background 0.12s, color 0.12s;
+      border-radius: 0;
+      position: relative;
+    }
+    .proto-nav-item:hover {
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.9);
+    }
+    .proto-nav-item.nav-active {
+      color: #fff;
+      font-weight: 500;
+    }
+    .proto-nav-item.nav-active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 6px;
+      bottom: 6px;
+      width: 3px;
+      background: #d40029;
+      border-radius: 0 2px 2px 0;
+    }
+    .proto-nav-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      flex-shrink: 0;
+      margin-left: 2px;
+    }
+    .proto-nav-item.nav-active .proto-nav-dot {
+      background: #d40029;
+    }
+    .proto-nav-section {
+      padding: 16px 16px 6px;
+      font-family: 'Roboto', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.25);
+    }
+    .proto-nav-footer {
+      padding: 12px 16px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      font-family: 'Roboto', sans-serif;
+      font-size: 10px;
+      color: rgba(255,255,255,0.2);
+      letter-spacing: 0.3px;
+    }
   </style>
 </head>
 <body>
@@ -1523,6 +1684,73 @@
     </div><!-- /card -->
   </main>
 
+  <!-- ─── Prototype Navigator ─────────────────────────────── -->
+  <button id="proto-nav-toggle" aria-label="Open prototype navigator" aria-expanded="false" aria-controls="proto-nav-panel">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    Screens
+  </button>
+
+  <div id="proto-nav-backdrop" aria-hidden="true"></div>
+
+  <nav id="proto-nav-panel" aria-label="Prototype screens" aria-hidden="true">
+    <div class="proto-nav-header">
+      <span class="proto-nav-title">Screens</span>
+      <button class="proto-nav-close" id="proto-nav-close" aria-label="Close navigator">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <ul class="proto-nav-list" role="list">
+
+      <li><p class="proto-nav-section">Legacy</p></li>
+      <li>
+        <button class="proto-nav-item" data-nav-target="screen-main">
+          <span class="proto-nav-dot" aria-hidden="true"></span>
+          Sign In (Tab View)
+        </button>
+      </li>
+
+      <li><p class="proto-nav-section">New Flow</p></li>
+      <li>
+        <button class="proto-nav-item" data-nav-target="screen-chooser">
+          <span class="proto-nav-dot" aria-hidden="true"></span>
+          Chooser
+        </button>
+      </li>
+      <li>
+        <button class="proto-nav-item" data-nav-target="screen-passkey">
+          <span class="proto-nav-dot" aria-hidden="true"></span>
+          Face ID / Passkey
+        </button>
+      </li>
+      <li>
+        <button class="proto-nav-item" data-nav-target="screen-password">
+          <span class="proto-nav-dot" aria-hidden="true"></span>
+          Password
+        </button>
+      </li>
+      <li>
+        <button class="proto-nav-item" data-nav-target="screen-otp">
+          <span class="proto-nav-dot" aria-hidden="true"></span>
+          One-Time Code
+        </button>
+      </li>
+      <li>
+        <button class="proto-nav-item" data-nav-target="screen-verify">
+          <span class="proto-nav-dot" aria-hidden="true"></span>
+          Verify Code
+        </button>
+      </li>
+
+    </ul>
+
+    <div class="proto-nav-footer">Prototype — Ace Hardware Sign In</div>
+  </nav>
+
   <!-- ─── OS Biometric Bottom Sheet ───────────────────────── -->
   <div id="os-biometric-backdrop" role="dialog" aria-modal="true" aria-label="Face ID prompt">
     <div class="os-modal">
@@ -2024,6 +2252,80 @@
       }
       // On chooser or unknown, do nothing (href="#" already prevents navigation)
     });
+
+    // ── Prototype Navigator ──────────────────────────────────
+    (function () {
+      const toggle    = document.getElementById('proto-nav-toggle');
+      const panel     = document.getElementById('proto-nav-panel');
+      const backdrop  = document.getElementById('proto-nav-backdrop');
+      const closeBtn  = document.getElementById('proto-nav-close');
+
+      // All navigable screens in order
+      const NAV_SCREENS = {
+        'screen-main':     screenMain,
+        'screen-chooser':  screenChooser,
+        'screen-passkey':  screenPasskey,
+        'screen-password': screenPassword,
+        'screen-otp':      screenOtp,
+        'screen-verify':   screenVerify,
+      };
+
+      function openNav() {
+        panel.classList.add('nav-open');
+        backdrop.classList.add('nav-open');
+        toggle.setAttribute('aria-expanded', 'true');
+        panel.setAttribute('aria-hidden', 'false');
+        updateActiveItem();
+      }
+
+      function closeNav() {
+        panel.classList.remove('nav-open');
+        backdrop.classList.remove('nav-open');
+        toggle.setAttribute('aria-expanded', 'false');
+        panel.setAttribute('aria-hidden', 'true');
+      }
+
+      function updateActiveItem() {
+        const activeId = currentScreen ? currentScreen.id : '';
+        panel.querySelectorAll('.proto-nav-item').forEach(btn => {
+          btn.classList.toggle('nav-active', btn.dataset.navTarget === activeId);
+        });
+      }
+
+      toggle.addEventListener('click', () => {
+        panel.classList.contains('nav-open') ? closeNav() : openNav();
+      });
+
+      closeBtn.addEventListener('click', closeNav);
+      backdrop.addEventListener('click', closeNav);
+
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && panel.classList.contains('nav-open')) closeNav();
+      });
+
+      panel.querySelectorAll('.proto-nav-item[data-nav-target]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = NAV_SCREENS[btn.dataset.navTarget];
+          if (!target || target === currentScreen) { closeNav(); return; }
+
+          // Reset passkey ring if leaving or entering passkey screen
+          if (currentScreen === screenPasskey || target === screenPasskey) {
+            const tryBtn = document.getElementById('passkey-try-btn');
+            if (tryBtn) { tryBtn.disabled = false; tryBtn.textContent = 'USE FACE ID'; }
+            setBiometricState('idle', 'Use Face ID to sign in', 'Your device will prompt you to authenticate');
+          }
+          // Hide key icon unless going to screen-main
+          if (keyIconEl) keyIconEl.style.display = target === screenMain ? '' : 'none';
+
+          // Show target directly (no slide animation for nav jumps)
+          currentScreen.setAttribute('hidden', '');
+          target.removeAttribute('hidden');
+          currentScreen = target;
+
+          closeNav();
+        });
+      });
+    })();
 
     // ── Password screen → Chooser (sign in another way) ────────────
     document.getElementById('pw-other-btn').addEventListener('click', () => {
