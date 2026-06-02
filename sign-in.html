@@ -980,6 +980,155 @@
       text-align: center;
     }
 
+    /* ─── Account Settings — Passkey Management ─────────────────────── */
+    .settings-topbar {
+      width: 100%;
+      border-bottom: 1px solid rgba(18,18,18,0.1);
+      padding-bottom: 14px;
+      margin-bottom: 4px;
+    }
+    .settings-breadcrumb {
+      font-size: 11px;
+      letter-spacing: 0.4px;
+      color: rgba(18,18,18,0.4);
+      text-transform: uppercase;
+    }
+    .settings-section-heading {
+      font-size: 20px;
+      font-weight: 500;
+      line-height: 26px;
+      color: rgba(18,18,18,0.93);
+      margin: 4px 0 0;
+    }
+
+    /* State routing */
+    .settings-panel { display: none; width: 100%; }
+    #screen-settings-passkeys[data-settings-state="list"]        .settings-panel-list,
+    #screen-settings-passkeys[data-settings-state="rename"]      .settings-panel-rename,
+    #screen-settings-passkeys[data-settings-state="remove"]      .settings-panel-remove,
+    #screen-settings-passkeys[data-settings-state="remove-last"] .settings-panel-remove-last {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Passkey list */
+    .passkey-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border: 1px solid rgba(18,18,18,0.12);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .passkey-list-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: #fff;
+      border-bottom: 1px solid rgba(18,18,18,0.08);
+    }
+    .passkey-list-item:last-child { border-bottom: none; }
+    .passkey-list-icon {
+      flex-shrink: 0;
+      color: rgba(18,18,18,0.5);
+    }
+    .passkey-list-info { flex: 1; min-width: 0; }
+    .passkey-list-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(18,18,18,0.93);
+      margin: 0 0 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .passkey-list-meta {
+      font-size: 12px;
+      color: rgba(18,18,18,0.45);
+      margin: 0;
+    }
+    .passkey-list-actions {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .passkey-action-btn {
+      background: none;
+      border: 1px solid rgba(18,18,18,0.2);
+      border-radius: 3px;
+      cursor: pointer;
+      font-family: 'Roboto', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.4px;
+      padding: 4px 10px;
+      color: rgba(18,18,18,0.75);
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .passkey-action-btn:hover { background: rgba(18,18,18,0.04); border-color: rgba(18,18,18,0.4); }
+    .passkey-action-remove { color: #B71C1C; border-color: rgba(183,28,28,0.25); }
+    .passkey-action-remove:hover { background: rgba(183,28,28,0.04); border-color: #B71C1C; }
+
+    /* Rename / confirm panels */
+    .settings-panel-intro {
+      font-size: 14px;
+      line-height: 22px;
+      color: rgba(18,18,18,0.6);
+      margin: 0;
+    }
+    .settings-field-label {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: rgba(18,18,18,0.55);
+    }
+    .settings-text-input {
+      width: 100%;
+      padding: 12px 14px;
+      font-family: 'Roboto', sans-serif;
+      font-size: 15px;
+      border: 1px solid rgba(18,18,18,0.3);
+      border-radius: 4px;
+      outline: none;
+      box-sizing: border-box;
+      transition: border-color 0.15s;
+    }
+    .settings-text-input:focus { border-color: #DA291C; }
+    .settings-char-hint {
+      font-size: 11px;
+      color: rgba(18,18,18,0.4);
+      text-align: right;
+      margin: -8px 0 0;
+    }
+    .settings-action-row {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+    }
+    .settings-confirm-heading {
+      font-size: 18px;
+      font-weight: 500;
+      text-align: center;
+      color: rgba(18,18,18,0.93);
+      margin: 0;
+    }
+    .settings-confirm-body {
+      font-size: 14px;
+      line-height: 22px;
+      color: rgba(18,18,18,0.6);
+      text-align: center;
+      margin: 0;
+    }
+    .settings-remove-confirm-btn { background: #B71C1C; }
+    .settings-remove-confirm-btn:hover { background: #8B0000; }
+
     /* ─── Passkey Enrollment Screen ─────────────────────────── */
     .enroll-panel-prompt,
     .enroll-panel-success,
@@ -1839,6 +1988,31 @@
           One-Time Code
         </button>
       </li>
+      <li><p class="proto-nav-section">Account Settings</p></li>
+      <li>
+        <button class="proto-nav-item" data-nav-target="screen-settings-passkeys" data-nav-state="list">
+          <span class="proto-nav-dot" aria-hidden="true"></span>
+          Passkeys list
+        </button>
+      </li>
+      <li>
+        <button class="proto-nav-item" data-nav-target="screen-settings-passkeys" data-nav-state="rename">
+          <span class="proto-nav-dot" aria-hidden="true"></span>
+          Rename passkey
+        </button>
+      </li>
+      <li>
+        <button class="proto-nav-item" data-nav-target="screen-settings-passkeys" data-nav-state="remove">
+          <span class="proto-nav-dot" aria-hidden="true"></span>
+          Remove (2+ passkeys)
+        </button>
+      </li>
+      <li>
+        <button class="proto-nav-item" data-nav-target="screen-settings-passkeys" data-nav-state="remove-last">
+          <span class="proto-nav-dot" aria-hidden="true"></span>
+          Remove — last passkey
+        </button>
+      </li>
       <li><p class="proto-nav-section">Verify Code states</p></li>
       <li>
         <button class="proto-nav-item" data-nav-target="screen-verify" data-nav-state="default">
@@ -1902,6 +2076,7 @@
     const screenPassword = document.getElementById('screen-password');
     const screenOtp      = document.getElementById('screen-otp');
     const screenEnroll   = document.getElementById('screen-passkey-enroll');
+    const screenSettings = document.getElementById('screen-settings-passkeys');
     const backBtn        = document.getElementById('back-btn');
     const ANIM_DUR = 280;
     let animating = false;
@@ -2079,6 +2254,20 @@
       ring.setAttribute('data-state', state);
       if (label !== undefined) lbl.textContent = label;
       if (sub   !== undefined) subEl.textContent = sub;
+    }
+
+    // ── Enrollment screen state machine ────────────────────────
+    function setEnrollState(state) {
+      screenEnroll.setAttribute('data-enroll-state', state);
+    }
+
+    // ── Settings screen state machine ──────────────────────────
+    function setSettingsState(state, pkName) {
+      screenSettings.setAttribute('data-settings-state', state);
+      if (pkName) {
+        const el = document.getElementById('remove-pk-name');
+        if (el) el.textContent = pkName;
+      }
     }
 
     // ── Passkey screen state machine ───────────────────────────
@@ -2267,6 +2456,53 @@
       }, 1600);
     });
 
+    // ── Settings: passkey list action buttons (Rename / Remove) ───
+    document.getElementById('passkey-list').addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      const action = btn.dataset.action;
+      const pkItem = btn.closest('.passkey-list-item');
+      const pkName = pkItem ? pkItem.querySelector('.passkey-list-name').textContent : '';
+      const isLast = document.querySelectorAll('.passkey-list-item').length === 1;
+      if (action === 'rename') {
+        document.getElementById('rename-input').value = pkName;
+        setSettingsState('rename');
+      } else if (action === 'remove') {
+        setSettingsState(isLast ? 'remove-last' : 'remove', pkName);
+      }
+    });
+
+    // Rename: save → back to list (prototype: just update label)
+    document.getElementById('rename-save-btn').addEventListener('click', () => {
+      setSettingsState('list');
+    });
+    document.getElementById('rename-cancel-btn').addEventListener('click', () => {
+      setSettingsState('list');
+    });
+
+    // Remove: confirm (2+ passkeys) → back to list
+    document.getElementById('remove-confirm-btn').addEventListener('click', () => {
+      setSettingsState('list');
+    });
+    document.getElementById('remove-cancel-btn').addEventListener('click', () => {
+      setSettingsState('list');
+    });
+
+    // Remove: confirm last passkey → back to list
+    document.getElementById('remove-last-confirm-btn').addEventListener('click', () => {
+      setSettingsState('list');
+    });
+    document.getElementById('remove-last-cancel-btn').addEventListener('click', () => {
+      setSettingsState('list');
+    });
+
+    // “ADD A PASSKEY” from settings → go to enrollment screen
+    document.getElementById('settings-add-passkey-btn').addEventListener('click', () => {
+      setEnrollState('prompt');
+      switchScreen(screenSettings, screenEnroll, 'forward');
+      currentScreen = screenEnroll;
+    });
+
     // ── Enrollment button handlers ─────────────────────────────────────
     // "SET UP FACE ID SIGN-IN" → simulate OS enrollment prompt
     document.getElementById('enroll-setup-btn').addEventListener('click', function () {
@@ -2319,13 +2555,20 @@
         switchScreen(screenVerify, screenOtp, 'backward');
         currentScreen = screenOtp;
       } else if (currentScreen === screenEnroll) {
-        // Enrollment → back to prompt state (or chooser if already at prompt)
+        // Enrollment → back to prompt state (or chooser / settings depending on origin)
         const es = screenEnroll.getAttribute('data-enroll-state') || 'prompt';
         if (es !== 'prompt') {
           setEnrollState('prompt');
         } else {
+          // If we came from settings, go back there; otherwise back to chooser
           switchScreen(screenEnroll, screenChooser, 'backward');
           currentScreen = screenChooser;
+        }
+      } else if (currentScreen === screenSettings) {
+        // Settings sub-panel → back to list (if not already); list → prototype has nowhere to go
+        const ss = screenSettings.getAttribute('data-settings-state') || 'list';
+        if (ss !== 'list') {
+          setSettingsState('list');
         }
       } else if (currentScreen === screenPasskey) {
         // Passkey → Chooser
@@ -2353,12 +2596,13 @@
 
       // All navigable screens in order
       const NAV_SCREENS = {
-        'screen-chooser':        screenChooser,
-        'screen-passkey-enroll': screenEnroll,
-        'screen-passkey':        screenPasskey,
-        'screen-password':       screenPassword,
-        'screen-otp':            screenOtp,
-        'screen-verify':         screenVerify,
+        'screen-chooser':          screenChooser,
+        'screen-passkey-enroll':   screenEnroll,
+        'screen-settings-passkeys': screenSettings,
+        'screen-passkey':          screenPasskey,
+        'screen-password':         screenPassword,
+        'screen-otp':              screenOtp,
+        'screen-verify':           screenVerify,
       };
 
       function openNav() {
@@ -2381,14 +2625,16 @@
         const verifyState   = screenVerify.getAttribute('data-state') || 'default';
         const passkeyState  = document.getElementById('screen-passkey').getAttribute('data-passkey-state') || 'idle';
         const enrollState   = screenEnroll.getAttribute('data-enroll-state') || 'prompt';
+        const settingsState = screenSettings.getAttribute('data-settings-state') || 'list';
         panel.querySelectorAll('.proto-nav-item').forEach(btn => {
           const matchesScreen = btn.dataset.navTarget === activeId;
           const btnState = btn.dataset.navState || null;
           let matchesState = (btnState === null);
           if (btnState !== null && matchesScreen) {
-            if (activeId === 'screen-verify')         matchesState = btnState === verifyState;
-            if (activeId === 'screen-passkey')        matchesState = btnState === passkeyState;
-            if (activeId === 'screen-passkey-enroll') matchesState = btnState === enrollState;
+            if (activeId === 'screen-verify')           matchesState = btnState === verifyState;
+            if (activeId === 'screen-passkey')          matchesState = btnState === passkeyState;
+            if (activeId === 'screen-passkey-enroll')   matchesState = btnState === enrollState;
+            if (activeId === 'screen-settings-passkeys') matchesState = btnState === settingsState;
           }
           btn.classList.toggle('nav-active', matchesScreen && matchesState);
         });
@@ -2426,9 +2672,10 @@
           currentScreen = target;
 
           // Apply screen-specific state
-          if (target === screenVerify)  setVerifyState(navState    || 'default');
-          if (target === screenPasskey) setPasskeyState(navState   || 'idle');
-          if (target === screenEnroll)  setEnrollState(navState    || 'prompt');
+          if (target === screenVerify)   setVerifyState(navState    || 'default');
+          if (target === screenPasskey)  setPasskeyState(navState   || 'idle');
+          if (target === screenEnroll)   setEnrollState(navState    || 'prompt');
+          if (target === screenSettings) setSettingsState(navState  || 'list');
 
           updateActiveItem();
         });
