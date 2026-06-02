@@ -522,7 +522,62 @@
       justify-content: center;
     }
 
-    .resend-btn:hover { border-color: rgba(18,18,18,0.4); }
+    .resend-btn:hover:not(:disabled) { border-color: rgba(18,18,18,0.4); }
+    .resend-btn:disabled { opacity: 0.38; cursor: default; }
+
+    /* ─── Verify screen inline alerts ───────────────────────── */
+    .verify-alert {
+      display: none;
+      width: 100%;
+      border-radius: 4px;
+      padding: 12px 14px;
+      font-family: 'Roboto', sans-serif;
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 18px;
+      letter-spacing: 0.25px;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .verify-alert svg { flex-shrink: 0; margin-top: 1px; }
+
+    .verify-alert-cooldown  { background: #fff8e1; color: #7a5500; border: 1px solid #f9c34f; }
+    .verify-alert-expired   { background: #fdecea; color: #c62828; border: 1px solid #f28b82; }
+    .verify-alert-locked    { background: #fdecea; color: #c62828; border: 1px solid #f28b82; }
+    .verify-alert-resent    { background: #e8f5e9; color: #1b5e20; border: 1px solid #81c784; }
+
+    /* Show the right alert per state */
+    #screen-verify[data-state="cooldown"] .verify-alert-cooldown { display: flex; }
+    #screen-verify[data-state="expired"]  .verify-alert-expired  { display: flex; }
+    #screen-verify[data-state="locked"]   .verify-alert-locked   { display: flex; }
+    #screen-verify[data-state="resent"]   .verify-alert-resent   { display: flex; }
+
+    /* Expiry line color */
+    #screen-verify[data-state="expired"] .verify-expiry,
+    #screen-verify[data-state="locked"]  .verify-expiry { color: #c62828; font-weight: 500; }
+
+    /* OTP boxes — error state (expired) */
+    #screen-verify[data-state="expired"] .otp-inputs input {
+      border-color: #c62828;
+      color: #c62828;
+    }
+    /* OTP boxes — disabled (locked) */
+    #screen-verify[data-state="locked"] .otp-inputs input {
+      background: #f5f5f5;
+      border-color: #d1d1d1;
+      color: #9e9e9e;
+      pointer-events: none;
+    }
+
+    /* CTA label swaps */
+    #screen-verify[data-state="expired"] #verify-btn::after  { content: 'RESEND CODE'; }
+    #screen-verify[data-state="expired"] #verify-btn          { font-size: 0; } /* hide original text */
+    #screen-verify[data-state="locked"]  #verify-btn::after  { content: 'SIGN IN WITH PASSWORD'; }
+    #screen-verify[data-state="locked"]  #verify-btn          { font-size: 0; }
+
+    /* Resend btn disabled in cooldown + locked */
+    #screen-verify[data-state="cooldown"] .resend-btn,
+    #screen-verify[data-state="locked"]   .resend-btn { pointer-events: none; opacity: 0.38; }
 
     /* ─── Sign in another way / text-only link ───────────── */
     .sign-in-another-way-btn {
@@ -1138,11 +1193,11 @@
       <!-- Hero -->
       <div class="hero">
         <h1>Welcome Back</h1>
-        <div style="display:flex;flex-direction:column;gap:16px;width:100%;text-align:center;">
+        <div style="display:flex;flex-direction:column;gap:8px;width:100%;text-align:center;">
           <p id="verify-destination-text" style="font-size:14px;line-height:20px;letter-spacing:0.25px;color:#121212;">
             Please enter the verification code we sent to (***)***-*924 to verify your identity.
           </p>
-          <p style="font-size:14px;line-height:20px;letter-spacing:0.25px;color:rgba(18,18,18,0.93);">
+          <p class="verify-expiry" style="font-size:14px;line-height:20px;letter-spacing:0.25px;color:rgba(18,18,18,0.93);">
             The code expires in <strong>3 minutes</strong>.
           </p>
         </div>
@@ -1156,6 +1211,24 @@
         <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 4" />
         <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 5" />
         <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 6" />
+      </div>
+
+      <!-- Inline alerts (state-driven, only one visible at a time) -->
+      <div class="verify-alert verify-alert-cooldown" role="alert" aria-live="polite">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="#e6930a" stroke-width="2"/><path d="M12 7v5l3 3" stroke="#e6930a" stroke-width="2" stroke-linecap="round"/></svg>
+        <span>Resend available in <strong id="cooldown-timer">0:42</strong></span>
+      </div>
+      <div class="verify-alert verify-alert-expired" role="alert" aria-live="polite">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="#c62828" stroke-width="2"/><path d="M12 8v4m0 4h.01" stroke="#c62828" stroke-width="2" stroke-linecap="round"/></svg>
+        <span>This code has expired. Request a new one below.</span>
+      </div>
+      <div class="verify-alert verify-alert-locked" role="alert" aria-live="polite">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" stroke="#c62828" stroke-width="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="#c62828" stroke-width="2" stroke-linecap="round"/></svg>
+        <span>Code requests are temporarily locked. Try again in <strong>15 min</strong> or sign in another way.</span>
+      </div>
+      <div class="verify-alert verify-alert-resent" role="alert" aria-live="polite">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6L9 17l-5-5" stroke="#2e7d32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span id="resent-dest-text">New code sent to (***)***-*924</span>
       </div>
 
       <!-- Keep signed in -->
@@ -1175,8 +1248,8 @@
       <!-- Actions -->
       <div style="display:flex;flex-direction:column;gap:16px;width:100%;">
         <button class="sign-in-btn" id="verify-btn" type="button" disabled>VERIFY</button>
-        <button class="resend-btn" type="button">RESEND CODE</button>
-        <button class="sign-in-another-way-btn" type="button">SIGN IN ANOTHER WAY</button>
+        <button class="resend-btn" id="resend-btn" type="button">RESEND CODE</button>
+        <button class="sign-in-another-way-btn" id="verify-other-btn" type="button">SIGN IN ANOTHER WAY</button>
       </div>
 
         </div><!-- /screen-verify -->
@@ -1505,10 +1578,35 @@
           One-Time Code
         </button>
       </li>
+      <li><p class="proto-nav-section">Verify Code states</p></li>
       <li>
-        <button class="proto-nav-item" data-nav-target="screen-verify">
+        <button class="proto-nav-item" data-nav-target="screen-verify" data-nav-state="default">
           <span class="proto-nav-dot" aria-hidden="true"></span>
-          Verify Code
+          Default
+        </button>
+      </li>
+      <li>
+        <button class="proto-nav-item" data-nav-target="screen-verify" data-nav-state="cooldown">
+          <span class="proto-nav-dot" aria-hidden="true"></span>
+          Cooldown
+        </button>
+      </li>
+      <li>
+        <button class="proto-nav-item" data-nav-target="screen-verify" data-nav-state="expired">
+          <span class="proto-nav-dot" aria-hidden="true"></span>
+          Expired
+        </button>
+      </li>
+      <li>
+        <button class="proto-nav-item" data-nav-target="screen-verify" data-nav-state="locked">
+          <span class="proto-nav-dot" aria-hidden="true"></span>
+          Locked out
+        </button>
+      </li>
+      <li>
+        <button class="proto-nav-item" data-nav-target="screen-verify" data-nav-state="resent">
+          <span class="proto-nav-dot" aria-hidden="true"></span>
+          Resent
         </button>
       </li>
 
@@ -1639,6 +1737,69 @@
     // Select content on focus for easy overwrite
     otpFields.forEach(field => {
       field.addEventListener('focus', () => field.select());
+    });
+
+    // ── Verify screen state machine ───────────────────────────
+    let cooldownInterval = null;
+    let resentTimeout = null;
+
+    function setVerifyState(state) {
+      // Clear any running timers
+      if (cooldownInterval) { clearInterval(cooldownInterval); cooldownInterval = null; }
+      if (resentTimeout)    { clearTimeout(resentTimeout);    resentTimeout = null; }
+
+      screenVerify.setAttribute('data-state', state);
+
+      // Reset OTP fields on state entry so the UI is consistent
+      if (state === 'expired') {
+        // Fill boxes with a fake failed entry so red color shows
+        otpFields.forEach(f => { f.value = '1'; });
+        verifyBtn.disabled = false;
+      } else if (state === 'locked') {
+        otpFields.forEach(f => { f.value = ''; });
+        verifyBtn.disabled = false;
+      } else if (state === 'default' || state === 'resent') {
+        otpFields.forEach(f => { f.value = ''; });
+        verifyBtn.disabled = true;
+      }
+
+      if (state === 'cooldown') {
+        // Start a 42-second countdown
+        let secs = 42;
+        const timerEl = document.getElementById('cooldown-timer');
+        timerEl.textContent = '0:' + String(secs).padStart(2, '0');
+        cooldownInterval = setInterval(() => {
+          secs--;
+          timerEl.textContent = '0:' + String(secs).padStart(2, '0');
+          if (secs <= 0) {
+            clearInterval(cooldownInterval);
+            cooldownInterval = null;
+            setVerifyState('default');
+          }
+        }, 1000);
+      }
+
+      if (state === 'resent') {
+        // Auto-dismiss after 4 s
+        resentTimeout = setTimeout(() => setVerifyState('default'), 4000);
+      }
+    }
+
+    // Resend button behavior
+    const resendBtn = document.getElementById('resend-btn');
+    resendBtn.addEventListener('click', () => {
+      const s = screenVerify.getAttribute('data-state') || 'default';
+      if (s === 'cooldown' || s === 'locked') return;
+      setVerifyState('resent');
+      // After resent auto-dismisses, enter cooldown
+      setTimeout(() => setVerifyState('cooldown'), 4100);
+    });
+
+    // Verify other-way button
+    document.getElementById('verify-other-btn').addEventListener('click', () => {
+      setVerifyState('default');
+      switchScreen(screenVerify, screenChooser, 'backward');
+      currentScreen = screenChooser;
     });
 
     const screenChooser = document.getElementById('screen-chooser');
@@ -1876,9 +2037,13 @@
       }
 
       function updateActiveItem() {
-        const activeId = currentScreen ? currentScreen.id : '';
+        const activeId    = currentScreen ? currentScreen.id : '';
+        const activeState = screenVerify.getAttribute('data-state') || 'default';
         panel.querySelectorAll('.proto-nav-item').forEach(btn => {
-          btn.classList.toggle('nav-active', btn.dataset.navTarget === activeId);
+          const matchesScreen = btn.dataset.navTarget === activeId;
+          const btnState = btn.dataset.navState || null;
+          const matchesState = btnState === null || btnState === activeState;
+          btn.classList.toggle('nav-active', matchesScreen && matchesState);
         });
       }
 
@@ -1896,7 +2061,10 @@
       panel.querySelectorAll('.proto-nav-item[data-nav-target]').forEach(btn => {
         btn.addEventListener('click', () => {
           const target = NAV_SCREENS[btn.dataset.navTarget];
-          if (!target || target === currentScreen) { return; }
+          const navState = btn.dataset.navState || null;
+          if (!target) return;
+          // Same screen + same state → no-op
+          if (target === currentScreen && navState === (screenVerify.getAttribute('data-state') || 'default')) return;
 
           // Reset passkey ring if leaving or entering passkey screen
           if (currentScreen === screenPasskey || target === screenPasskey) {
@@ -1909,6 +2077,10 @@
           currentScreen.setAttribute('hidden', '');
           target.removeAttribute('hidden');
           currentScreen = target;
+
+          // Apply verify state if specified
+          if (navState) setVerifyState(navState);
+
           updateActiveItem();
         });
       });
