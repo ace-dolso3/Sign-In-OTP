@@ -606,7 +606,19 @@ Screen states are referenced as `screen-id:state` (e.g. `screen-passkey:notfound
 | 2 | `screen-settings-passkeys:list` | User selects a passkey to remove. | ✅ |
 | 3 | `screen-settings-passkeys:remove` | Confirm removal. Warns that another sign-in method will be required from that device. | ✅ |
 
-> **Note:** `screen-settings-passkeys:remove-last` (shown when removing the only remaining passkey) exists in the prototype with stricter copy but has no dedicated named flow or Figma frame yet.
+---
+
+### 8f · Remove Last Passkey (Only Passkey Warning) `421:2`
+
+**Scenario:** The user tries to remove their only remaining passkey. This is treated as a higher-stakes action than a standard removal because it results in losing Face ID sign-in entirely — not just on one device, but across all entry points.
+
+**Design intent:** The `remove-last` state diverges from `remove` specifically to surface that loss of access consequence before it's too late. The stricter confirmation (`screen-settings-passkeys:remove-last`) uses a triangle warning icon and reframes the action: "This is your only passkey" sets context, and the CTA escalates to REMOVE ANYWAY rather than just REMOVE. The cancel action is labeled "Keep passkey" — grounding the user in what they'd be preserving rather than what they're canceling. After confirmation, the list refreshes to an empty state with an "Add a passkey" CTA, keeping the recovery path discoverable.
+
+| Step | Screen | Purpose | Status |
+|------|--------|---------|--------|
+| 1 | `screen-settings-security` | User navigates to passkey management. | ✅ |
+| 2 | `screen-settings-passkeys:list` | Only one passkey in list. User taps it and selects remove. | ✅ |
+| 3 | `screen-settings-passkeys:remove-last` | Stricter warning: triangle icon, "This is your only passkey," REMOVE ANYWAY CTA. | ✅ |
 
 ---
 
@@ -618,7 +630,7 @@ Screen states are referenced as `screen-id:state` (e.g. `screen-passkey:notfound
 |---|-----|---------|----------|
 | 1 | **Home / signed-in destination** — every happy path terminates at the last auth screen rather than a post-login state | All groups | High |
 | ~~2~~ | ~~`screen-passkey-enroll:declined` — "Don't Ask Again" exit has no distinct confirmation screen~~ | ~~Group 5e~~ | ✅ Fixed |
-| 3 | `screen-settings-passkeys:remove-last` — exists in prototype but has no named flow or Figma frame | Group 8e | Low |
+| ~~3~~ | ~~`screen-settings-passkeys:remove-last` — exists in prototype but has no named flow or Figma frame~~ | ~~Group 8e~~ | ✅ Fixed |
 
 ### Wiring Gaps (Screen Exists, but Organic Routing Is Missing)
 

@@ -5400,6 +5400,16 @@
             { screen: 'screen-settings-passkeys', state: 'remove', label: 'Remove passkey — confirmation' },
           ],
         },
+        {
+          id: 'settings-remove-last-passkey', group: 'Account Settings & Security',
+          label: 'Remove Last Passkey (Only Passkey)',
+          figmaUrl: FIGMA + '421-2',
+          steps: [
+            { screen: 'screen-settings-security', state: null,          label: 'Security hub' },
+            { screen: 'screen-settings-passkeys', state: 'list',        label: 'Passkeys list — one passkey' },
+            { screen: 'screen-settings-passkeys', state: 'remove-last', label: 'Remove last — stricter warning' },
+          ],
+        },
 
       ];
 
