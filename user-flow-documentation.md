@@ -636,5 +636,5 @@ Screen states are referenced as `screen-id:state` (e.g. `screen-passkey:notfound
 
 | # | Gap | Fix |
 |---|-----|-----|
-| 1 | `screen-passkey-enroll:prompt` is only reachable via the Settings "Add Passkey" button — it is not automatically surfaced after a password or OTP sign-in on a device with no passkey | Wire enrollment offer as an automatic post-auth step in the password and OTP happy path sign-in handlers |
-| 2 | `screen-passkey:notfound` — the "SET UP FACE ID" button (`passkey-setup-enroll-btn`) exists on screen but has no click handler routing it to `screen-passkey-enroll:prompt` | Add click handler: `passkey-setup-enroll-btn` → navigate to `screen-passkey-enroll:prompt` |
+| ~~1~~ | ~~`screen-passkey-enroll:prompt` is only reachable via the Settings "Add Passkey" button — it is not automatically surfaced after a password or OTP sign-in on a device with no passkey~~ | ✅ Fixed — `verify-btn` happy path sets `enrollOrigin = 'post-login'` and navigates to `screen-passkey-enroll:prompt`; both `password-happy` and `otp-happy` FLOWS include enrollment as the final step |
+| ~~2~~ | ~~`screen-passkey:notfound` — the "SET UP FACE ID" button (`passkey-setup-enroll-btn`) exists on screen but has no click handler routing it to `screen-passkey-enroll:prompt`~~ | ✅ Fixed — handler added; `enrollOrigin = 'post-login'` set so that skipping enrollment routes to the signed-in confirmation rather than Security Settings |

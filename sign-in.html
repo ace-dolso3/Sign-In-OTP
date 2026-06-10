@@ -4801,6 +4801,7 @@
 
     // ── Passkey notfound → Enrollment ───────────────────────────────
     document.getElementById('passkey-setup-enroll-btn').addEventListener('click', () => {
+      enrollOrigin = 'post-login'; // user is mid-sign-in; skip → "you're signed in" not settings
       setPasskeyState('idle');
       setEnrollState('prompt');
       switchScreen(screenPasskey, screenEnroll, 'forward');
