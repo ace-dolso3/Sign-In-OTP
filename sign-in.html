@@ -5084,8 +5084,10 @@
           label: 'Happy Path — Password Sign-In',
           figmaUrl: FIGMA + '86-31',
           steps: [
-            { screen: 'screen-chooser',  state: 'default', label: 'Chooser — no passkey' },
-            { screen: 'screen-password', state: null,      label: 'Password — entry' },
+            { screen: 'screen-chooser',        state: 'default', label: 'Chooser — no passkey' },
+            { screen: 'screen-password',       state: null,      label: 'Password — entry' },
+            { screen: 'screen-verify',         state: 'default', label: 'MFA — verify code' },
+            { screen: 'screen-passkey-enroll', state: 'prompt',  label: 'Post-login — passkey enrollment offer' },
           ],
         },
         {
@@ -5129,9 +5131,10 @@
           label: 'Happy Path — OTP Sign-In',
           figmaUrl: FIGMA + '93-31',
           steps: [
-            { screen: 'screen-chooser', state: 'default',  label: 'Chooser — no passkey' },
-            { screen: 'screen-otp',     state: null,       label: 'OTP — request code' },
-            { screen: 'screen-verify',  state: 'default',  label: 'Code entry' },
+            { screen: 'screen-chooser',        state: 'default', label: 'Chooser — no passkey' },
+            { screen: 'screen-otp',            state: null,      label: 'OTP — request code' },
+            { screen: 'screen-verify',         state: 'default', label: 'Code entry' },
+            { screen: 'screen-passkey-enroll', state: 'prompt',  label: 'Post-login — passkey enrollment offer' },
           ],
         },
         {
