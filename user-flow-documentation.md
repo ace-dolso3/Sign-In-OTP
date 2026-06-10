@@ -1,9 +1,9 @@
 # Ace Hardware Sign-In Flow — User Flow Documentation
 
-> **Purpose:** Reference document mapping all designed user flows to their corresponding prototype screens in `sign-in.html`, and identifying gaps where screens still need to be built.
+> **Source of truth:** The `FLOWS` array and `SCREEN_DESCRIPTIONS` object in `sign-in.html`. This document is derived directly from those definitions and reflects the prototype's current wired state as of the last update.
 >
-> **Figma file key:** `IDuYbd4aYwGsFgo6c3ThVX` · Flows page ID: `65:2177`
-> **Prototype:** `sign-in.html` (local + Vercel)
+> **Figma file key:** `IDuYbd4aYwGsFgo6c3ThVX` · Flows page: "Prototype Flows"
+> **Prototype:** `sign-in.html` (local + Vercel — `feature/faceid-passkey` branch)
 
 ---
 
@@ -11,396 +11,477 @@
 
 | Symbol | Meaning |
 |--------|---------|
-| ✅ | Screen exists in prototype and is wired correctly |
-| ⚠️ | Screen exists but has a wiring or routing gap |
-| ❌ | Screen is missing from the prototype entirely |
+| ✅ | Screen exists in prototype and step is correctly wired |
+| ⚠️ | Screen exists but has a known limitation or gap |
+| ❌ | Screen or state is missing from the prototype |
+| — | OS-native or external; no app screen exists |
 
 ---
 
 ## Prototype Screen Inventory
 
-All screens currently in `sign-in.html`, including their data-states:
+All screens currently in `sign-in.html`, including their `data-state` values:
 
 | Screen ID | States | Notes |
 |-----------|--------|-------|
-| `screen-chooser` | `default`, `passkey-first` | Entry point; state set by passkey detection |
-| `screen-passkey` | `idle`, `failed`, `notfound`, `cross-device`, `cross-device-failed` | Passkey sign-in screen |
-| `screen-passkey-enroll` | `prompt`, `success`, `error` | Enrollment/upsell screen |
-| `screen-verify` | `default`, `cooldown`, `expired`, `locked`, `wrong`, `resent` | OTP/MFA code entry |
-| `screen-password` | `default`, `error` | Password sign-in screen |
-| `screen-account-locked` | — | Too many password failures |
-| `screen-forgot-password` | — | Password reset entry |
+| `screen-chooser` | `default`, `passkey-first` | Entry point; state driven by passkey detection on device |
+| `screen-passkey` | `idle`, `failed`, `notfound`, `cross-device`, `cross-device-failed`, `cross-device-no-credential`, `cross-device-transport-error` | Passkey sign-in; multiple error/fallback states |
+| `screen-passkey-enroll` | `prompt`, `success`, `error`, `declined`, `already-enrolled` | Post-login enrollment upsell |
+| `screen-verify` | `default`, `cooldown`, `expired`, `locked`, `wrong`, `resent` | OTP / MFA code entry |
+| `screen-password` | `default`, `error` | Password sign-in |
+| `screen-account-locked` | — | Too many failed password attempts |
+| `screen-forgot-password` | `default`, `not-found`, `rate-limited` | Password reset entry; inline error and rate-limit states |
 | `screen-reset-sent` | — | Reset email confirmation |
-| `screen-new-password` | — | Reset link destination |
+| `screen-new-password` | `default`, `expired` | Reset link destination; expired-link state |
 | `screen-reset-success` | — | Password updated confirmation |
 | `screen-otp` | — | OTP channel selection |
-| `screen-otp-no-access` | — | Can't receive code fallback |
+| `screen-otp-no-access` | — | Can't receive a code fallback |
 | `screen-settings-security` | — | Security hub in account settings |
 | `screen-activity` | — | Sign-in activity log |
-| `screen-active-devices` | — | Active session management |
-| `screen-settings-passkeys` | `list`, `rename`, `remove`, `remove-last` | Passkey management |
-| `screen-recovery` | — | Account recovery entry |
-| `screen-reenroll` | `prompt`, `success`, `error` | Re-enrollment after recovery |
+| `screen-active-devices` | — | Active session list + remote sign-out |
+| `screen-settings-passkeys` | `list`, `rename`, `remove`, `remove-last` | Passkey management; `remove-last` has stricter confirm |
+| `screen-recovery` | `default`, `locked` | Account recovery entry; `locked` = OTP rate-limited |
+| `screen-reenroll` | `prompt`, `success`, `error` | Passkey re-enrollment after account recovery |
 
-**Notably missing from all flows:** A signed-in / home screen state — every flow terminates at authentication success but the prototype has no destination screen for it.
-
----
-
-## Flow 1 · Passkey / Face ID
-
-**Figma frame ID:** `78:31`
-
-### Happy Path
-*User arrives with a saved passkey on device; signs in with Face ID.*
-
-| Step | Description | Prototype Screen | Status |
-|------|-------------|-----------------|--------|
-| 1 | Sign-in entry, passkey detected | `screen-chooser:passkey-first` | ✅ |
-| 2 | Tap "Use Face ID" | `screen-passkey:idle` | ✅ |
-| 3 | OS biometric prompt | *(OS native — no app screen)* | N/A |
-| 4 | Authenticated → home | Home screen | ❌ Missing |
+> **Still missing from all happy paths:** A signed-in / home destination screen. Every authenticated flow terminates at the final prototype screen rather than a post-login state.
 
 ---
 
-### Branch A · Biometric Failed `80:31`
-*Face ID fails or is cancelled; user falls back to password.*
+## Group 1 · Passkey Sign-In
 
-| Step | Description | Prototype Screen | Status |
-|------|-------------|-----------------|--------|
-| 1 | Biometric fails / user cancels | `screen-passkey:failed` | ✅ |
-| 2 | Tap "Use Password" | `screen-password` | ✅ |
-| 3 | Enter password | `screen-password` | ✅ |
-| 4 | MFA code entry | `screen-verify:default` | ✅ |
-| 5 | Authenticated → home | Home screen | ❌ Missing |
+### 1a · Happy Path — Passkey / Face ID `78:31`
+*Device has a saved passkey; user signs in with Face ID.*
 
----
-
-### Branch B · No Passkey Found `81:31`
-*Chooser loads in default state; user taps Face ID anyway but no passkey exists for their account on this device.*
-
-| Step | Description | Prototype Screen | Status |
-|------|-------------|-----------------|--------|
-| 1 | Chooser (no passkey detected) | `screen-chooser:default` | ✅ |
-| 2 | No passkey for this account | `screen-passkey:notfound` | ✅ |
-| 3 | "Sign in another way" | Routes back to chooser / password | ✅ |
-
-> **Note:** Branch C (Cross-Device Passkey) was promoted to its own Flow 6 — see below.
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-chooser:passkey-first` — passkey detected | ✅ |
+| 2 | `screen-passkey:idle` — biometric prompt | ✅ |
+| 3 | OS biometric sheet | — (OS native) |
+| 4 | Authenticated → home | ❌ Missing |
 
 ---
 
-## Flow 2 · Password Sign-In
+### 1b · Biometric Failed `80:31`
+*Face ID fails or is cancelled; user falls back.*
 
-**Figma frame ID:** `86:31`
-
-### Happy Path
-*User chooses password; enters credentials; completes MFA.*
-
-| Step | Description | Prototype Screen | Status |
-|------|-------------|-----------------|--------|
-| 1 | Chooser | `screen-chooser:default` | ✅ |
-| 2 | Password entry | `screen-password` | ✅ |
-| 3 | MFA code entry | `screen-verify:default` | ✅ |
-| 4 | Authenticated → home | Home screen | ❌ Missing |
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-chooser:passkey-first` | ✅ |
+| 2 | `screen-passkey:idle` | ✅ |
+| 3 | `screen-passkey:failed` — biometric failed | ✅ |
 
 ---
 
-### Branch A · Wrong Password → Account Locked `90:31`
-*User enters incorrect password repeatedly until account locks.*
+### 1c · No Passkey Found `81:31`
+*User taps Face ID / Passkey from the default chooser, but no credential exists for their account on this device.*
 
-| Step | Description | Prototype Screen | Status |
-|------|-------------|-----------------|--------|
-| 1 | Wrong password | `screen-password:error` | ✅ |
-| 2 | Account locked (too many attempts) | `screen-account-locked` | ✅ |
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-chooser:default` — no passkey | ✅ |
+| 2 | `screen-passkey:idle` — initiating auth | ✅ |
+| 3 | `screen-passkey:notfound` — no passkey on device | ✅ |
 
-> **Note:** Flow 2 · Branch B is not represented as a separate frame in Figma. MFA failure paths are fully covered under Flow 3 branches.
-
----
-
-### Branch C · Forgot Password `92:31`
-*User cannot remember password; completes email-based reset.*
-
-| Step | Description | Prototype Screen | Status |
-|------|-------------|-----------------|--------|
-| 1 | Tap "Forgot password?" | `screen-forgot-password` | ✅ |
-| 2 | Reset email sent | `screen-reset-sent` | ✅ |
-| 3 | Open link → create new password | `screen-new-password` | ✅ |
-| 4 | Password updated confirmation | `screen-reset-success` | ✅ |
+> **Entry note:** Users reach this screen by tapping the "Face ID / Passkey" tile on the default chooser. The OS passkey lookup runs, finds no credential for this account, and the app transitions to the `notfound` state. From here they can: scan with another device, set up Face ID on this device, sign in another way, or tap "Having trouble? Get account help" to begin account recovery.
 
 ---
 
-## Flow 3 · OTP Sign-In
+### 1d–1g · OS Native Sheet Variants `100–103:31`
+*These flows model the native iOS WebAuthn sheet behavior: happy path, biometric failure, no passkey enrolled, and enrollment nudge. The OS sheet is not part of the app's UI — no prototype screens exist for these steps.*
 
-**Figma frame ID:** `93:31`
-
-### Happy Path
-*User chooses One-Time Code; selects channel; enters code.*
-
-| Step | Description | Prototype Screen | Status |
-|------|-------------|-----------------|--------|
-| 1 | Chooser | `screen-chooser:default` | ✅ |
-| 2 | Select OTP channel | `screen-otp` | ✅ |
-| 3 | Enter 6-digit code | `screen-verify:default` | ✅ |
-| 4 | Authenticated → home | Home screen | ❌ Missing |
+| Flow | Figma Frame | Prototype Steps |
+|------|-------------|----------------|
+| OS Sheet — Happy Path | `100:31` | Figma reference only |
+| Biometric Fails (OS Sheet) | `101:31` | Figma reference only |
+| No Passkey Enrolled (OS Sheet) | `102:31` | Figma reference only |
+| Enrollment Nudge (OS Sheet) | `103:31` | Figma reference only |
 
 ---
 
-### Branch A · Wrong Code `94:31`
-*User enters incorrect code; sees remaining attempts.*
+## Group 2 · Cross-Device Passkey Sign-In
 
-| Step | Description | Prototype Screen | Status |
-|------|-------------|-----------------|--------|
-| 1 | Incorrect code entered | `screen-verify:wrong` | ✅ |
+### 2a · Happy Path — Cross-Device via QR `116:31`
+*User signs in using a passkey on a nearby phone by scanning a QR code.*
 
----
-
-### Branch B · Resend Cooldown `96:31`
-*User requests resend; must wait before requesting another.*
-
-| Step | Description | Prototype Screen | Status |
-|------|-------------|-----------------|--------|
-| 1 | New code sent | `screen-verify:resent` | ✅ |
-| 2 | Resend on cooldown | `screen-verify:cooldown` | ✅ |
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-chooser:default` | ✅ |
+| 2 | `screen-passkey:idle` — "Use a passkey from another device" | ✅ |
+| 3 | `screen-passkey:cross-device` — QR shown | ✅ |
+| 4 | Phone scans QR; biometric on phone | — (phone-side, external) |
+| 5 | Authenticated → home | ❌ Missing |
 
 ---
 
-### Branch C · Expired Code `97:31`
-*Verification code time window passes before user submits.*
+### 2b · QR Code Expired `120:31`
+*QR session times out before the phone completes authentication.*
 
-| Step | Description | Prototype Screen | Status |
-|------|-------------|-----------------|--------|
-| 1 | Code expired | `screen-verify:expired` | ✅ |
-
----
-
-### Branch D · Account Locked `98:31`
-*Too many incorrect attempts; further resends blocked.*
-
-| Step | Description | Prototype Screen | Status |
-|------|-------------|-----------------|--------|
-| 1 | Too many wrong attempts | `screen-verify:locked` | ✅ |
-| 2 | Can't access any channel | `screen-otp-no-access` | ✅ |
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-passkey:cross-device` — QR shown | ✅ |
+| 2 | `screen-passkey:cross-device-failed` — QR expired | ✅ |
 
 ---
 
-## Flow 4 · Passkey-First Chooser Path
-
-**Figma frame ID:** `100:31`
-
-### Happy Path
-*Device has a saved passkey; passkey-first chooser shown; sign-in completes.*
-
-| Step | Description | Prototype Screen | Status |
-|------|-------------|-----------------|--------|
-| 1 | Passkey detected on device | `screen-chooser:passkey-first` | ✅ |
-| 2 | Face ID presented | `screen-passkey:idle` | ✅ |
-| 3 | Authenticated → home | Home screen | ❌ Missing |
-
----
-
-### Branch A · Biometric Fails `101:31`
-*Face ID fails in the passkey-first flow.*
-
-| Step | Description | Prototype Screen | Status |
-|------|-------------|-----------------|--------|
-| 1 | Biometric fails / cancelled | `screen-passkey:failed` | ✅ |
-
----
-
-### Branch B · No Passkey Enrolled `102:31`
-*Passkey-first chooser shows, but no credential exists for this account on this device.*
-
-| Step | Description | Prototype Screen | Status |
-|------|-------------|-----------------|--------|
-| 1 | Passkey not found for account | `screen-passkey:notfound` | ✅ |
-
----
-
-### Branch C · Passkey Enrollment Offered `103:31`
-*After a failed/missing passkey attempt, user is offered corrective enrollment ("Set up the Face ID sign-in you tried to use").*
-
-| Step | Description | Prototype Screen | Status |
-|------|-------------|-----------------|--------|
-| 1 | Enrollment interstitial | `screen-passkey-enroll:prompt` | ⚠️ Only reachable via `settings-add-passkey-btn` — not wired from notfound path |
-| 2 | Biometric success → enrolled | `screen-passkey-enroll:success` | ✅ |
-| 3 | Biometric error / cancelled | `screen-passkey-enroll:error` | ✅ |
-
----
-
-## Flow 5 · Account Recovery
-
-**Figma frame ID:** `104:31`
-
-### Happy Path
-*User has lost access to all standard methods; identity verified; account recovered; passkey re-enrolled.*
-
-| Step | Description | Prototype Screen | Status |
-|------|-------------|-----------------|--------|
-| 1 | Recovery entry | `screen-recovery` | ✅ |
-| 2 | Identity verified, reset link sent | `screen-reset-sent` | ✅ |
-| 3 | Create new password | `screen-new-password` | ✅ |
-| 4 | Password updated | `screen-reset-success` | ✅ |
-| 5 | Re-enrollment prompt | `screen-reenroll:prompt` | ✅ |
-| 6 | Re-enrollment success | `screen-reenroll:success` | ✅ |
-| 7 | Authenticated → home | Home screen | ❌ Missing |
-
----
-
-### Branch A · Reset Link Expired `109:31`
-*User receives recovery email but the link expires before use.*
-
-| Step | Description | Prototype Screen | Status |
-|------|-------------|-----------------|--------|
-| 1 | Reset link opens after expiry | `screen-new-password` | ⚠️ No expired-link error state on `screen-new-password` — screen only shows form, no expired variant |
-
----
-
-### Branch B · Email Not Found `107:31`
-*User enters an email address not associated with any account.*
-
-| Step | Description | Prototype Screen | Status |
-|------|-------------|-----------------|--------|
-| 1 | Unknown email submitted | `screen-forgot-password` | ⚠️ No inline error state for unrecognised email — screen does not surface this case |
-
----
-
-### Branch C · Rate Limiting `113:31`
-*User submits recovery requests too frequently; temporarily blocked.*
-
-| Step | Description | Prototype Screen | Status |
-|------|-------------|-----------------|--------|
-| 1 | Too many recovery attempts | *(no screen)* | ❌ Missing — no rate-limit / too-many-requests screen exists |
-
----
-
-## Flow 6 · Passkey Cross-Device
-
-**Figma frame ID:** `116:31`
-
-### Happy Path
-*User signs in using a passkey stored on a nearby phone by scanning a QR code.*
-
-| Step | Description | Prototype Screen | Status |
-|------|-------------|-----------------|--------|
-| 1 | Tap "Use a different device" | `screen-passkey:cross-device` | ✅ |
-| 2 | QR displayed; phone scans | *(phone-side — external)* | N/A |
-| 3 | Biometric on phone; approved | *(phone-side — external)* | N/A |
-| 4 | Authenticated → home | Home screen | ❌ Missing |
-
----
-
-### Branch A · QR Code Expired `120:31`
-*QR session expires before phone scans or completes.*
-
-| Step | Description | Prototype Screen | Status |
-|------|-------------|-----------------|--------|
-| 1 | QR session expires | `screen-passkey:cross-device-failed` | ✅ |
-
----
-
-### Branch B · No Passkey on Phone `123:31`
+### 2c · No Passkey on Phone `123:31`
 *Phone scans QR successfully but has no passkey enrolled for this account.*
 
-| Step | Description | Prototype Screen | Status |
-|------|-------------|-----------------|--------|
-| 1 | Phone has no matching passkey | `screen-passkey:cross-device-failed` | ⚠️ `cross-device-failed` exists but its copy is scoped to timeout — no distinct "no credential on phone" state |
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-passkey:cross-device` — QR shown | ✅ |
+| 2 | `screen-passkey:cross-device-no-credential` — phone has no matching passkey | ✅ |
 
 ---
 
-### Branch C · Bluetooth / Proximity Error `126:31`
-*Hybrid transport (CTAP2 BLE/caBLE) fails due to proximity or connectivity.*
+### 2d · Bluetooth / Proximity Error `126:31`
+*Hybrid transport (caBLE/BLE) fails before authentication completes.*
 
-| Step | Description | Prototype Screen | Status |
-|------|-------------|-----------------|--------|
-| 1 | Transport / proximity error | *(no screen)* | ❌ Missing — no dedicated screen for Bluetooth/caBLE failure; `cross-device-failed` is timeout-only |
-
----
-
-## Flow 7 · Passkey Registration (Post-Login Enrollment)
-
-**Figma frame ID:** `129:31`
-
-### Happy Path
-*After a successful password sign-in, user accepts the proactive "Sign in faster with Face ID" offer.*
-
-| Step | Description | Prototype Screen | Status |
-|------|-------------|-----------------|--------|
-| 1 | Signed in via password | *(post-auth state, home/continuation)* | ❌ Missing — no screen triggers the upsell post-login |
-| 2 | Enrollment interstitial shown | `screen-passkey-enroll:prompt` | ⚠️ Exists but only reachable via `settings-add-passkey-btn`. Not wired from post-login password path. |
-| 3 | Biometric success → enrolled | `screen-passkey-enroll:success` | ✅ |
-| 4 | Continue to home | Home screen | ❌ Missing |
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-passkey:cross-device` — QR shown | ✅ |
+| 2 | `screen-passkey:cross-device-transport-error` — Bluetooth error | ✅ |
 
 ---
 
-### Branch A · Biometric Fails / User Cancels `137:31`
-*User accepts the offer but Face ID fails or they cancel the OS dialog.*
+### 2e · Transport Error Fork `183:31`
+*After a Bluetooth error, user can retry the QR flow or switch to another sign-in method.*
 
-| Step | Description | Prototype Screen | Status |
-|------|-------------|-----------------|--------|
-| 1 | Biometric fails or cancelled | `screen-passkey-enroll:error` | ✅ |
-
----
-
-### Branch B · Passkey Already Exists `139:31`
-*WebAuthn returns `InvalidStateError` — a credential for this account already exists on this authenticator.*
-
-| Step | Description | Prototype Screen | Status |
-|------|-------------|-----------------|--------|
-| 1 | Duplicate credential detected | *(no screen)* | ❌ Missing — no informational "already enrolled" screen state |
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-passkey:cross-device-transport-error` | ✅ |
+| 2a | `screen-passkey:cross-device` — retry QR | ✅ |
+| 2b | `screen-chooser:default` — sign in another way | ✅ |
 
 ---
 
-### Branch C · User Declines Setup Prompt `141:31`
-*User taps "Maybe Later" (snooze) or "Don't Ask Again" (permanent suppress).*
+## Group 3 · Password Sign-In
 
-| Step | Description | Prototype Screen | Status |
-|------|-------------|-----------------|--------|
-| 1 | User declines enrollment offer | *(no screen)* | ❌ Missing — `screen-passkey-enroll` has no declined/skipped state; "Maybe Later" / "Don't Ask Again" are not modelled |
+### 3a · Happy Path — Password Sign-In `86:31`
+*User chooses password; enters credentials; completes MFA; sees passkey enrollment offer.*
 
----
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-chooser:default` | ✅ |
+| 2 | `screen-password` — email + password entry | ✅ |
+| 3 | `screen-verify:default` — MFA code entry | ✅ |
+| 4 | `screen-passkey-enroll:prompt` — post-login enrollment offer | ✅ |
 
-## Screens in Prototype Not Covered by Any Flow
-
-These screens exist in the prototype but have no corresponding user flow diagram:
-
-| Screen | Description | Recommended Action |
-|--------|-------------|-------------------|
-| `screen-settings-security` | Security hub — shows passkeys, recent activity, active devices | Consider adding a Flow 8: Settings / Security Hub |
-| `screen-activity` | Sign-in activity log | Part of a potential Flow 8 |
-| `screen-active-devices` | Active session list + remote sign-out | Part of a potential Flow 8 |
-| `screen-settings-passkeys:list` | All enrolled passkeys | Part of a potential Flow 8 |
-| `screen-settings-passkeys:rename` | Rename a passkey | Part of a potential Flow 8 |
-| `screen-settings-passkeys:remove` | Remove a passkey | Part of a potential Flow 8 |
-| `screen-settings-passkeys:remove-last` | Remove last passkey (strict confirm) | Part of a potential Flow 8 |
-| `screen-reenroll:error` | Re-enrollment failure after recovery | Not covered in Flow 5 branches |
+> **Note:** The enrollment offer (step 4) is wired as a flow step. In production this screen would appear automatically after a successful sign-in on a device without a saved passkey.
 
 ---
 
-## Gap Summary
+### 3b · Wrong Password `90:31`
+*User enters an incorrect password.*
 
-### Screens to Build
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-chooser:default` | ✅ |
+| 2 | `screen-password` | ✅ |
+| 3 | `screen-password:error` — wrong password warning | ✅ |
 
-| # | Missing Screen / State | Affects Flow(s) | Priority |
-|---|----------------------|----------------|---------|
-| 1 | **Home / signed-in state** (authenticated destination) | Flows 1–7 (all happy paths) | High |
-| 2 | **Post-login passkey upsell trigger** (wire `screen-passkey-enroll:prompt` from password happy path, not just settings) | Flow 7 Happy Path | High |
-| 3 | **Recovery rate-limit screen** (too many recovery requests) | Flow 5 Branch C | Medium |
-| 4 | `screen-new-password` **expired-link state** | Flow 5 Branch A | Medium |
-| 5 | `screen-forgot-password` **email not found inline error** | Flow 5 Branch B | Medium |
-| 6 | `screen-passkey:cross-device-failed` **no-credential-on-phone variant** | Flow 6 Branch B | Medium |
-| 7 | **Bluetooth / proximity error screen** (distinct from QR timeout) | Flow 6 Branch C | Low |
-| 8 | **"Already enrolled" informational screen** (`InvalidStateError` branch) | Flow 7 Branch B | Low |
-| 9 | **Enrollment declined / skipped state** ("Maybe Later" / "Don't Ask Again") | Flow 7 Branch C | Low |
+---
 
-### Wiring Gaps (Screen Exists, Routing Broken)
+### 3c · Account Locked `169:32`
+*Too many failed password attempts lock the account.*
 
-| # | Gap | Affects | Fix |
-|---|-----|---------|-----|
-| 1 | `screen-passkey-enroll` only reachable via `settings-add-passkey-btn`, not from post-login password path | Flow 4 Branch C, Flow 7 Happy Path | Wire enrollment interstitial as a post-auth step after successful password sign-in |
-| 2 | `screen-passkey:notfound` does not route to `screen-passkey-enroll:prompt` | Flow 4 Branch C | Add "Set Up Passkey" CTA on the notfound screen that navigates to enroll:prompt |
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-chooser:default` | ✅ |
+| 2 | `screen-password` | ✅ |
+| 3 | `screen-password:error` | ✅ |
+| 4 | `screen-account-locked` — lockout with countdown | ✅ |
 
-### Flow Diagrams to Create
+---
 
-| Flow | Description |
-|------|-------------|
-| **Flow 8 · Account Settings & Passkey Management** | Covers `screen-settings-security`, `screen-activity`, `screen-active-devices`, and all `screen-settings-passkeys` states |
-| **Flow 5 · Branch D: Re-enrollment Failure** | Covers `screen-reenroll:error` after account recovery |
+### 3d · Forgot Password → Reset `92:31`
+*User cannot remember password; completes email-based reset.*
+
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-chooser:default` | ✅ |
+| 2 | `screen-password` | ✅ |
+| 3 | `screen-forgot-password` — email entry | ✅ |
+| 4 | `screen-reset-sent` — reset email sent | ✅ |
+| 5 | `screen-new-password` — create new password | ✅ |
+| 6 | `screen-reset-success` — password updated | ✅ |
+
+---
+
+## Group 4 · One-Time Code (OTP) Sign-In
+
+### 4a · Happy Path — OTP Sign-In `93:31`
+*User chooses One-Time Code; selects channel; enters code; sees enrollment offer.*
+
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-chooser:default` | ✅ |
+| 2 | `screen-otp` — select delivery channel | ✅ |
+| 3 | `screen-verify:default` — enter 6-digit code | ✅ |
+| 4 | `screen-passkey-enroll:prompt` — post-login enrollment offer | ✅ |
+
+---
+
+### 4b · Wrong Code `94:31`
+
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-chooser:default` | ✅ |
+| 2 | `screen-otp` | ✅ |
+| 3 | `screen-verify:default` | ✅ |
+| 4 | `screen-verify:wrong` — incorrect code warning | ✅ |
+
+---
+
+### 4c · Resend Cooldown `96:31`
+*User requests a resend; must wait before requesting another.*
+
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-otp` | ✅ |
+| 2 | `screen-verify:default` | ✅ |
+| 3 | `screen-verify:cooldown` — resend blocked | ✅ |
+
+---
+
+### 4d · Expired Code `97:31`
+
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-otp` | ✅ |
+| 2 | `screen-verify:default` | ✅ |
+| 3 | `screen-verify:expired` — code window passed | ✅ |
+
+---
+
+### 4e · Account Locked `98:31`
+*Too many incorrect attempts; further resends blocked.*
+
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-otp` | ✅ |
+| 2 | `screen-verify:default` | ✅ |
+| 3 | `screen-verify:wrong` | ✅ |
+| 4 | `screen-verify:locked` — locked out | ✅ |
+
+---
+
+### 4f · Code Resent Confirmation `169:53`
+
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-verify:default` | ✅ |
+| 2 | `screen-verify:resent` — new code sent confirmation | ✅ |
+
+---
+
+### 4g · Can't Access Code `169:74`
+*User cannot receive a code on any registered channel.*
+
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-verify:default` | ✅ |
+| 2 | `screen-otp-no-access` — no channel available | ✅ |
+
+---
+
+## Group 5 · Passkey Registration & Enrollment
+
+### 5a · Happy Path — Passkey Registration `129:31`
+
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-passkey-enroll:prompt` — opt-in offer | ✅ |
+| 2 | `screen-passkey-enroll:success` — enrolled | ✅ |
+
+---
+
+### 5b · Biometric Fails / User Cancels `137:31`
+
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-passkey-enroll:prompt` | ✅ |
+| 2 | `screen-passkey-enroll:error` — failed or cancelled | ✅ |
+
+---
+
+### 5c · Passkey Already Exists `139:31`
+*WebAuthn returns `InvalidStateError` — credential already exists for this authenticator.*
+
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-passkey-enroll:prompt` | ✅ |
+| 2 | `screen-passkey-enroll:already-enrolled` — reassurance screen | ✅ |
+
+---
+
+### 5d · User Declines Setup `141:31`
+
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-passkey-enroll:prompt` | ✅ |
+| 2 | `screen-passkey-enroll:declined` — "Maybe Later" or "Don't Ask Again" options | ✅ |
+
+---
+
+### 5e · Declined Fork `176:31`
+*After declining, user either snoozes (returns to chooser) or permanently suppresses the offer.*
+
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-passkey-enroll:declined` | ✅ |
+| 2a | `screen-chooser:default` — "Maybe Later" snooze | ✅ |
+| 2b | *(suppress stored silently; returns to app)* | ⚠️ No distinct "suppressed" confirmation screen |
+
+---
+
+## Group 6 · Password Reset
+
+### 6a · Happy Path — Password Reset `104:31`
+
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-forgot-password` — email entry | ✅ |
+| 2 | `screen-reset-sent` — reset email sent | ✅ |
+| 3 | `screen-new-password` — create new password | ✅ |
+| 4 | `screen-reset-success` — password updated | ✅ |
+
+---
+
+### 6b · Reset Link Expired `109:31`
+*User clicks the reset link after it has expired.*
+
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-forgot-password` | ✅ |
+| 2 | `screen-reset-sent` | ✅ |
+| 3 | `screen-new-password:expired` — link expired error | ✅ |
+
+---
+
+### 6c · Email Not Found `107:31`
+*Submitted email has no matching account.*
+
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-forgot-password` | ✅ |
+| 2 | `screen-forgot-password:not-found` — inline email error | ✅ |
+
+---
+
+### 6d · Rate Limiting `113:31`
+*Too many reset requests from the same account or IP.*
+
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-forgot-password` | ✅ |
+| 2 | `screen-forgot-password:rate-limited` — lockout with countdown | ✅ |
+
+---
+
+## Group 7 · Account Recovery
+
+> **Entry point:** All three recovery flows begin at `screen-passkey:notfound`. The user must first try Face ID / Passkey, see the "no passkey found" screen, then tap **"Having trouble? Get account help"** to enter recovery. This link is only shown in the `notfound` state.
+
+### 7a · Happy Path — Account Recovery `154:31`
+*User verifies identity via OTP, then re-enrolls a passkey.*
+
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-passkey:notfound` — tap "Get account help" | ✅ |
+| 2 | `screen-recovery` — choose fallback method | ✅ |
+| 3 | `screen-verify:default` — verify OTP code | ✅ |
+| 4 | `screen-reenroll:prompt` — set up passkey again | ✅ |
+| 5 | `screen-reenroll:success` — re-enrollment complete | ✅ |
+
+---
+
+### 7b · Recovery Rate Limited `154:57`
+*User requests too many OTP codes during recovery; temporarily blocked.*
+
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-passkey:notfound` | ✅ |
+| 2 | `screen-recovery` | ✅ |
+| 3 | `screen-recovery:locked` — OTP rate limited (15-min block) | ✅ |
+
+---
+
+### 7c · Re-Enroll Failed `154:73`
+*Identity verified, but passkey re-enrollment fails after recovery.*
+
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-passkey:notfound` | ✅ |
+| 2 | `screen-recovery` | ✅ |
+| 3 | `screen-verify:default` | ✅ |
+| 4 | `screen-reenroll:prompt` | ✅ |
+| 5 | `screen-reenroll:error` — re-enrollment failed | ✅ |
+
+---
+
+## Group 8 · Account Settings & Security
+
+### 8a · Security Settings Overview `165:31`
+
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-settings-security` — security hub | ✅ |
+
+---
+
+### 8b · Sign-In Activity Log `165:57`
+
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-settings-security` | ✅ |
+| 2 | `screen-activity` — recent sign-in events | ✅ |
+
+---
+
+### 8c · Active Devices & Remote Sign-Out `165:73`
+
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-settings-security` | ✅ |
+| 2 | `screen-active-devices` — session list | ✅ |
+
+---
+
+### 8d · Rename a Passkey `165:99`
+
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-settings-security` | ✅ |
+| 2 | `screen-settings-passkeys:list` | ✅ |
+| 3 | `screen-settings-passkeys:rename` — edit name field | ✅ |
+
+---
+
+### 8e · Remove a Passkey `165:120`
+
+| Step | Screen | Status |
+|------|--------|--------|
+| 1 | `screen-settings-security` | ✅ |
+| 2 | `screen-settings-passkeys:list` | ✅ |
+| 3 | `screen-settings-passkeys:remove` — confirm removal | ✅ |
+
+> **Note:** `screen-settings-passkeys:remove-last` (stricter confirmation when removing the final passkey) exists in the prototype but is not yet mapped to a named flow or Figma frame.
+
+---
+
+## Remaining Gaps
+
+### Screens / States Still Missing
+
+| # | Gap | Affects | Priority |
+|---|-----|---------|----------|
+| 1 | **Home / signed-in destination** — every happy path terminates at the last auth screen | All groups | High |
+| 2 | `screen-passkey-enroll:declined` — "Don't Ask Again" has no confirmation or distinct exit screen | Group 5e | Low |
+| 3 | `screen-settings-passkeys:remove-last` — exists in prototype, no named flow or Figma frame | Group 8 | Low |
+
+### Wiring Gaps (Screen Exists, Organic Routing Missing)
+
+| # | Gap | Fix |
+|---|-----|-----|
+| 1 | `screen-passkey-enroll:prompt` is only reachable via the Settings "Add Passkey" button, not automatically after a non-passkey sign-in | Wire enrollment interstitial as automatic post-auth step after password or OTP sign-in on a device with no saved passkey |
+| 2 | `screen-passkey:notfound` "SET UP FACE ID" button exists but does not route to `screen-passkey-enroll:prompt` | Add click handler from `passkey-setup-enroll-btn` → enroll:prompt |
+
