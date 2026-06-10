@@ -110,6 +110,7 @@ if (typeof document !== 'undefined' && !document.getElementById('dc-styles')) {
     '.dc-header{width:calc((100% + 4px) / var(--dc-inv-zoom,1));',
     '  transform:scale(var(--dc-inv-zoom,1));transform-origin:bottom left}',
     '.dc-sectionhead{zoom:var(--dc-inv-zoom,1)}',
+    '.dc-desc{pointer-events:none;line-height:1.5;color:rgba(60,50,40,0.5);margin-top:calc(8px * var(--dc-inv-zoom,1));font-size:calc(12px * var(--dc-inv-zoom,1))}',
   ].join('\n');
   document.head.appendChild(s);
 }
@@ -677,7 +678,7 @@ async function dcExport(node, w, h, name, kind) {
 }
 
 function DCArtboardFrame({ sectionId, artboard, label, order, onRename, onReorder, onFocus, onDelete }) {
-  const { id: rawId, label: rawLabel, width = 260, height = 480, children, style = {} } = artboard.props;
+  const { id: rawId, label: rawLabel, width = 260, height = 480, children, style = {}, description } = artboard.props;
   const id = rawId ?? rawLabel;
   const ref = React.useRef(null);
   const cardRef = React.useRef(null);
@@ -802,6 +803,11 @@ function DCArtboardFrame({ sectionId, artboard, label, order, onRename, onReorde
         style={{ borderRadius: 2, boxShadow: '0 1px 3px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.06)', overflow: 'hidden', width, height, background: '#fff', ...style }}>
         {children || <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#bbb', fontSize: 13, fontFamily: DC.font }}>{id}</div>}
       </div>
+      {description && (
+        <div className="dc-desc" data-omelette-chrome="" style={{ fontFamily: DC.font, width }}>
+          {description}
+        </div>
+      )}
     </div>
   );
 }
