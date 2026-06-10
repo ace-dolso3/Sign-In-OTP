@@ -404,17 +404,30 @@ Screen states are referenced as `screen-id:state` (e.g. `screen-passkey:notfound
 
 ---
 
-### 5e · Declined Fork `176:31`
+### 5f · Declined Fork — Don't Ask Again
 
-**Scenario:** The user made their choice on the `declined` screen.
+**Scenario:** The user chose "Don't Ask Again" on the declined screen, permanently suppressing the enrollment prompt.
 
-**Design intent:** Both choices return the user to a usable state. "Maybe Later" sends them back to the chooser so they can continue their session. "Don't Ask Again" stores the suppression preference silently — no confirmation screen needed, the action is self-explanatory.
+**Design intent:** "Don't Ask Again" is an irreversible preference that deserves an explicit acknowledgment screen — not a browser `alert()`. The `suppressed` state is a quiet confirmation: neutral icon, plain copy ("Got it, won't ask again"), a reminder that Face ID is still available via Settings, and a single "CONTINUE" button to proceed. There are no secondary options — the decision has been made and the screen's only job is to confirm it and get out of the way. The neutral gray icon color intentionally avoids making this feel like an error or a success.
 
 | Step | Screen | Purpose | Status |
 |------|--------|---------|--------|
-| 1 | `screen-passkey-enroll:declined` | Choice presented. | ✅ |
-| 2a | `screen-chooser:default` | "Maybe Later" — returns to chooser; preference snoozed. | ✅ |
-| 2b | *(suppress stored; continues to app)* | "Don't Ask Again" — preference persisted silently. No confirmation screen. | ⚠️ No distinct confirmation state |
+| 1 | `screen-passkey-enroll:declined` | User taps "Don't Ask Again." | ✅ |
+| 2 | `screen-passkey-enroll:suppressed` | Acknowledgment screen. Confirms preference saved, surfaces Settings path, single CONTINUE CTA. | ✅ |
+| 3 | `screen-chooser:default` | Returns to chooser; enrollment prompt suppressed. | ✅ |
+
+---
+
+### 5e · Declined Fork — Maybe Later `176:31`
+
+**Scenario:** The user chose "Maybe Later" on the declined screen — they're not ready to set up Face ID but haven't ruled it out.
+
+**Design intent:** "Maybe Later" is a snooze, not a permanent decision. The prompt will reappear on the next sign-in. The user is returned to the chooser immediately — no friction, no guilt, no extra screen. The simplicity of this exit reinforces that declining is consequence-free.
+
+| Step | Screen | Purpose | Status |
+|------|--------|---------|--------|
+| 1 | `screen-passkey-enroll:declined` | User taps "Maybe Later." | ✅ |
+| 2 | `screen-chooser:default` | Returns to chooser; preference snoozed until next sign-in. | ✅ |
 
 ---
 
@@ -604,7 +617,7 @@ Screen states are referenced as `screen-id:state` (e.g. `screen-passkey:notfound
 | # | Gap | Affects | Priority |
 |---|-----|---------|----------|
 | 1 | **Home / signed-in destination** — every happy path terminates at the last auth screen rather than a post-login state | All groups | High |
-| 2 | `screen-passkey-enroll:declined` — "Don't Ask Again" exit has no distinct confirmation screen | Group 5e | Low |
+| ~~2~~ | ~~`screen-passkey-enroll:declined` — "Don't Ask Again" exit has no distinct confirmation screen~~ | ~~Group 5e~~ | ✅ Fixed |
 | 3 | `screen-settings-passkeys:remove-last` — exists in prototype but has no named flow or Figma frame | Group 8e | Low |
 
 ### Wiring Gaps (Screen Exists, but Organic Routing Is Missing)
