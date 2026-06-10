@@ -5292,7 +5292,8 @@
           label: 'Happy Path — Account Recovery',
           figmaUrl: FIGMA + '154-31',
           steps: [
-            { screen: 'screen-recovery', state: null,      label: 'Recovery — identity verification' },
+            { screen: 'screen-recovery', state: null,      label: 'Recovery — choose fallback method' },
+            { screen: 'screen-verify',   state: 'default', label: 'Recovery — verify code' },
             { screen: 'screen-reenroll', state: 'prompt',  label: 'Re-enroll — set up passkey' },
             { screen: 'screen-reenroll', state: 'success', label: 'Re-enroll — success' },
           ],
@@ -5302,7 +5303,7 @@
           label: 'Recovery Rate Limited',
           figmaUrl: FIGMA + '154-57',
           steps: [
-            { screen: 'screen-recovery', state: null,     label: 'Recovery — identity verification' },
+            { screen: 'screen-recovery', state: null,     label: 'Recovery — choose fallback method' },
             { screen: 'screen-recovery', state: 'locked', label: 'Recovery — rate limited' },
           ],
         },
@@ -5311,7 +5312,8 @@
           label: 'Re-Enroll Failed',
           figmaUrl: FIGMA + '154-73',
           steps: [
-            { screen: 'screen-recovery', state: null,     label: 'Recovery — identity verification' },
+            { screen: 'screen-recovery', state: null,     label: 'Recovery — choose fallback method' },
+            { screen: 'screen-verify',   state: 'default', label: 'Recovery — verify code' },
             { screen: 'screen-reenroll', state: 'prompt', label: 'Re-enroll — set up passkey' },
             { screen: 'screen-reenroll', state: 'error',  label: 'Re-enroll — failed' },
           ],
