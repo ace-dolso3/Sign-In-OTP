@@ -5780,6 +5780,7 @@
         const input = document.getElementById('rename-input');
         input.value = pkName;
         input.dataset.targetPkId = pkId || '';
+        updateRenameCharHint();   // W3.10: prime the live counter for the prefilled name
         setSettingsState('rename');
       } else if (action === 'remove') {
         if (isLast) {
@@ -5821,6 +5822,21 @@
     document.getElementById('rename-cancel-btn').addEventListener('click', () => {
       setSettingsState('list');
     });
+
+    // W3.10 · Live character counter on the rename input.
+    // The hint element starts as static copy ('40 characters max'); once
+    // the user opens the rename panel we switch it to a live readout
+    // ('7 / 40 characters'). The same function gets called from the
+    // 'rename' branch of the per-row action handler above so the hint
+    // is already correct on the first paint of the panel.
+    function updateRenameCharHint() {
+      const input = document.getElementById('rename-input');
+      const hint  = document.getElementById('rename-char-hint');
+      if (!input || !hint) return;
+      const len = (input.value || '').length;
+      hint.textContent = `${len} / 40 characters`;
+    }
+    document.getElementById('rename-input').addEventListener('input', updateRenameCharHint);
 
     // Remove: confirm (2+ passkeys) → mutate, toast, back to list (W1.5)
     document.getElementById('remove-confirm-btn').addEventListener('click', () => {
