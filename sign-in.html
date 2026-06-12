@@ -488,8 +488,7 @@
       font-family: 'Roboto', sans-serif;
       font-size: 14px;
       font-weight: 500;
-      letter-spacing: 1.25px;
-      text-transform: uppercase;
+      letter-spacing: 0.3px;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -513,8 +512,7 @@
       font-family: 'Roboto', sans-serif;
       font-size: 14px;
       font-weight: 500;
-      letter-spacing: 1.25px;
-      text-transform: uppercase;
+      letter-spacing: 0.2px;
       color: #1f1f1f;
       cursor: pointer;
       display: flex;
@@ -585,12 +583,11 @@
     #screen-otp[data-otp-substate="locked"]  #verify-btn::after {
       font-size: 14px;
       font-weight: 500;
-      letter-spacing: 1.25px;
-      text-transform: uppercase;
+      letter-spacing: 0.3px;
       line-height: 1;
     }
-    #screen-otp[data-otp-substate="expired"] #verify-btn::after { content: 'RESEND CODE'; }
-    #screen-otp[data-otp-substate="locked"]  #verify-btn::after { content: 'SIGN IN WITH PASSWORD'; }
+    #screen-otp[data-otp-substate="expired"] #verify-btn::after { content: 'Resend Code'; }
+    #screen-otp[data-otp-substate="locked"]  #verify-btn::after { content: 'Sign In with Password'; }
 
     /* Resend btn disabled in cooldown + locked */
     #screen-otp[data-otp-substate="cooldown"] .resend-btn,
@@ -630,8 +627,7 @@
       font-family: 'Roboto', sans-serif;
       font-size: 14px;
       font-weight: 500;
-      letter-spacing: 1.25px;
-      text-transform: uppercase;
+      letter-spacing: 0.2px;
       color: #d40029;
       cursor: pointer;
       text-align: center;
@@ -2017,7 +2013,7 @@
       font-size: 10px;
       font-weight: 500;
       letter-spacing: 0.5px;
-      text-transform: uppercase;
+    }
       line-height: 1;
       opacity: 0.75;
       transition: opacity 0.15s;
@@ -2557,8 +2553,7 @@
       font-weight: 600;
       color: #121212;
       cursor: pointer;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
+      letter-spacing: 0.01em;
       transition: border-color 0.15s, background 0.15s;
       font-family: inherit;
       width: 100%;
@@ -2797,8 +2792,7 @@
       font-family: 'Roboto', sans-serif;
       font-size: 14px;
       font-weight: 500;
-      letter-spacing: 1.25px;
-      text-transform: uppercase;
+      letter-spacing: 0.2px;
       color: #1f1f1f;
       cursor: pointer;
       display: flex;
@@ -2894,7 +2888,6 @@
       color: inherit;
       font: inherit;
       font-weight: 600;
-      text-transform: uppercase;
       letter-spacing: 0.5px;
       padding: 4px 8px;
       margin-left: 4px;
@@ -3076,7 +3069,7 @@
 
           <!-- Hero -->
           <div class="hero">
-            <h1>Sign In</h1>
+            <h1>Sign in</h1>
             <p class="chooser-subtitle-default">Enter your email to get started</p>
             <p class="chooser-subtitle-passkey-first">We recognize this device. Use Face ID for the fastest sign-in.</p>
           </div>
@@ -3091,7 +3084,7 @@
                 <svg width="18" height="18" viewBox="0 -960 960 960" fill="#1f1f1f" aria-hidden="true"><path d="m249-207-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z"/></svg>
               </button>
             </div>
-            <button class="sign-in-btn" id="chooser-continue-btn" type="submit">CONTINUE</button>
+            <button class="sign-in-btn" id="chooser-continue-btn" type="submit">Continue</button>
           </form>
 
           <!-- "or" divider -->
@@ -3212,7 +3205,7 @@
             </div>
             <p class="passkey-qr-label">Open your phone’s camera and scan this code to sign in with your saved passkey.</p>
             <p class="passkey-qr-expires">Code expires in <strong>2:00</strong></p>
-            <button class="sign-in-another-way-btn" id="passkey-qr-cancel" type="button">CANCEL</button>
+            <button class="sign-in-another-way-btn" id="passkey-qr-cancel" type="button">Cancel</button>
           </div>
 
           <!-- Cross-device: no passkey on phone -->
@@ -3222,8 +3215,8 @@
             </div>
             <p class="passkey-qr-heading">No Passkey on That Phone</p>
             <p class="passkey-qr-label">The phone you scanned with doesn&#8217;t have a passkey saved for this account. Try a different device or sign in another way.</p>
-            <button class="sign-in-btn" id="passkey-qr-retry-device-btn" type="button">TRY A DIFFERENT DEVICE</button>
-            <button class="sign-in-another-way-btn" id="passkey-qr-no-cred-cancel" type="button">SIGN IN ANOTHER WAY</button>
+            <button class="sign-in-btn" id="passkey-qr-retry-device-btn" type="button">Try a Different Device</button>
+            <button class="sign-in-another-way-btn" id="passkey-qr-no-cred-cancel" type="button">Sign in another way</button>
           </div>
 
           <!-- Cross-device transport / Bluetooth error area -->
@@ -3235,8 +3228,8 @@
             </div>
             <p class="passkey-qr-heading">Couldn&#8217;t Connect to Phone</p>
             <p class="passkey-qr-label">The Bluetooth connection between this device and your phone failed. Make sure both devices are nearby, Bluetooth is enabled, and try again.</p>
-            <button class="sign-in-btn" id="passkey-transport-retry-btn" type="button">TRY AGAIN</button>
-            <button class="sign-in-another-way-btn" id="passkey-transport-cancel-btn" type="button">SIGN IN ANOTHER WAY</button>
+            <button class="sign-in-btn" id="passkey-transport-retry-btn" type="button">Try Again</button>
+            <button class="sign-in-another-way-btn" id="passkey-transport-cancel-btn" type="button">Sign in another way</button>
           </div>
 
           <!-- Cross-device QR expired area -->
@@ -3276,12 +3269,12 @@
               </svg>
               GENERATE NEW CODE
             </button>
-            <button class="sign-in-another-way-btn" id="passkey-qr-cancel-expired" type="button">SIGN IN ANOTHER WAY</button>
+            <button class="sign-in-another-way-btn" id="passkey-qr-cancel-expired" type="button">Sign in another way</button>
           </div>
 
           <!-- Actions -->
           <div style="display:flex;flex-direction:column;gap:12px;width:100%;">
-            <button class="sign-in-btn" id="passkey-try-btn" type="button">USE FACE ID</button>
+            <button class="sign-in-btn" id="passkey-try-btn" type="button">Use Face ID</button>
 
             <!-- Cross-device option (shown only in idle state) -->
             <button class="passkey-cd-btn" id="passkey-cd-btn" type="button">
@@ -3306,7 +3299,7 @@
               </button>
             </div>
 
-            <button class="sign-in-another-way-btn" id="passkey-other-btn" type="button">SIGN IN ANOTHER WAY</button>
+            <button class="sign-in-another-way-btn" id="passkey-other-btn" type="button">Sign in another way</button>
 
             <!--
               The "notfound" state UI (More ways to sign in disclosure,
@@ -3349,7 +3342,7 @@
                 <span>Syncs across your Apple devices</span>
               </li>
             </ul>
-            <button class="sign-in-btn" id="enroll-setup-btn" type="button">SET UP FACE ID SIGN-IN</button>
+            <button class="sign-in-btn" id="enroll-setup-btn" type="button">Set Up Face ID Sign-In</button>
             <button class="enroll-skip-btn" id="enroll-skip-btn" type="button">Not now</button>
           </div>
 
@@ -3361,7 +3354,7 @@
             <h2 class="enroll-heading">You&#8217;re all set</h2>
             <p class="enroll-subtext">Face ID is set up for this account. You&#8217;ll use it to sign in faster next time.</p>
             <p class="enroll-device-label">Saved to: iPhone (this device)</p>
-            <button class="sign-in-btn" id="enroll-continue-btn" type="button">CONTINUE SHOPPING</button>
+            <button class="sign-in-btn" id="enroll-continue-btn" type="button">Continue Shopping</button>
           </div>
 
           <!-- ③ Error / cancelled panel -->
@@ -3369,9 +3362,9 @@
             <div class="enroll-hero-icon enroll-hero-icon--error" aria-hidden="true">
               <svg width="40" height="40" viewBox="0 -960 960 960" fill="currentColor"><path d="M503.5-289.48q9.5-9.48 9.5-23.5t-9.48-23.52q-9.48-9.5-23.5-9.5t-23.52 9.48q-9.5 9.48-9.5 23.5t9.48 23.52q9.48 9.5 23.5 9.5t23.52-9.48ZM453-433h60v-253h-60v253Zm27.27 353q-82.74 0-155.5-31.5Q252-143 197.5-197.5t-86-127.34Q80-397.68 80-480.5t31.5-155.66Q143-709 197.5-763t127.34-85.5Q397.68-880 480.5-880t155.66 31.5Q709-817 763-763t85.5 127Q880-563 880-480.27q0 82.74-31.5 155.5Q817-252 763-197.68q-54 54.31-127 86Q563-80 480.27-80Zm.23-60Q622-140 721-239.5t99-241Q820-622 721.19-721T480-820q-141 0-240.5 98.81T140-480q0 141 99.5 240.5t241 99.5Zm-.5-340Z"/></svg>
             </div>
-            <h2 class="enroll-heading">Setup Didn&#8217;t Complete</h2>
+            <h2 class="enroll-heading">Setup didn&#8217;t complete</h2>
             <p class="enroll-subtext">Face ID enrollment was cancelled or didn&#8217;t finish. You can set it up anytime from Account Settings.</p>
-            <button class="sign-in-btn" id="enroll-retry-btn" type="button">TRY AGAIN</button>
+            <button class="sign-in-btn" id="enroll-retry-btn" type="button">Try Again</button>
             <button class="enroll-skip-btn" id="enroll-later-btn" type="button">Do this later</button>
           </div>
 
@@ -3383,8 +3376,8 @@
               </svg>
             </div>
             <h2 class="enroll-heading">No problem</h2>
-            <p class="enroll-subtext">You can set up Face ID sign-in anytime from <strong>Account Settings &rsaquo; Sign-In &amp; Security</strong>.</p>
-            <button class="sign-in-btn" id="enroll-decline-later-btn" type="button">MAYBE LATER</button>
+            <p class="enroll-subtext">You can set up Face ID sign-in anytime from <strong>Account Settings &rsaquo; Sign-in &amp; security</strong>.</p>
+            <button class="sign-in-btn" id="enroll-decline-later-btn" type="button">Maybe Later</button>
             <button class="enroll-skip-btn" id="enroll-decline-never-btn" type="button">Don&#8217;t ask again</button>
           </div>
 
@@ -3394,8 +3387,8 @@
               <svg width="40" height="40" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="m421-298 283-283-46-45-237 237-120-120-45 45 165 166Zm59 218q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 31.5-156t86-127Q252-817 325-848.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 82-31.5 155T763-197.5q-54 54.5-127 86T480-80Zm0-60q142 0 241-99.5T820-480q0-142-99-241t-241-99q-141 0-240.5 99T140-480q0 141 99.5 240.5T480-140Zm0-340Z"/></svg>
             </div>
             <h2 class="enroll-heading">Got it, won&#8217;t ask again</h2>
-            <p class="enroll-subtext">You&#8217;re signed in. If you change your mind, you can set up Face ID from <strong>Account Settings &rsaquo; Sign-In &amp; Security</strong>.</p>
-            <button class="sign-in-btn" id="enroll-suppressed-continue-btn" type="button">CONTINUE</button>
+            <p class="enroll-subtext">You&#8217;re signed in. If you change your mind, you can set up Face ID from <strong>Account Settings &rsaquo; Sign-in &amp; security</strong>.</p>
+            <button class="sign-in-btn" id="enroll-suppressed-continue-btn" type="button">Continue</button>
           </div>
 
           <!-- ④ Already-enrolled panel -->
@@ -3405,9 +3398,9 @@
                 <path d="m421-298 283-283-46-45-237 237-120-120-45 45 165 166Zm59 218q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 31.5-156t86-127Q252-817 325-848.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 82-31.5 155T763-197.5q-54 54.5-127 86T480-80Zm0-60q142 0 241-99.5T820-480q0-142-99-241t-241-99q-141 0-240.5 99T140-480q0 141 99.5 240.5T480-140Zm0-340Z"/>
               </svg>
             </div>
-            <h2 class="enroll-heading">Face ID Already Set Up</h2>
+            <h2 class="enroll-heading">Face ID already set up</h2>
             <p class="enroll-subtext">A passkey for this account is already saved on this device. You&#8217;re all set &#8212; just use Face ID to sign in.</p>
-            <button class="sign-in-btn" id="enroll-already-continue-btn" type="button">GOT IT</button>
+            <button class="sign-in-btn" id="enroll-already-continue-btn" type="button">Got It</button>
           </div>
 
         </div><!-- /screen-passkey-enroll -->
@@ -3417,7 +3410,7 @@
 
           <div class="settings-topbar">
             <span class="settings-breadcrumb">Account Settings</span>
-            <h2 class="settings-section-heading">Sign-In &amp; Security</h2>
+            <h2 class="settings-section-heading">Sign-in &amp; security</h2>
           </div>
 
           <!-- ── Group 1 · Sign-in & recovery ────────────────────────
@@ -3456,7 +3449,7 @@
                     </svg>
                   </span>
                   <span class="security-row-info">
-                    <span class="security-row-label">Recovery Email</span>
+                    <span class="security-row-label">Recovery email</span>
                     <span class="security-row-meta" id="security-recovery-email-meta">Not set — add a backup way to get back in</span>
                   </span>
                   <span class="security-row-badge security-row-badge--muted" id="security-recovery-email-badge">Not set</span>
@@ -3475,7 +3468,7 @@
             <!-- Recent sign-in activity -->
             <div class="security-section">
               <div class="security-section-header">
-                <h4 class="security-section-title">Recent Sign-In Activity</h4>
+                <h4 class="security-section-title">Recent sign-in activity</h4>
                 <button class="security-manage-link" type="button" id="security-activity-link">View all</button>
               </div>
               <ul class="security-activity-list" aria-label="Recent sign-in activity">
@@ -3514,7 +3507,7 @@
             <!-- Devices Signed In (renamed from "Trusted Devices" — W2.3) -->
             <div class="security-section">
               <div class="security-section-header">
-                <h4 class="security-section-title">Devices Signed In</h4>
+                <h4 class="security-section-title">Devices signed in</h4>
                 <button class="security-manage-link" type="button" id="security-manage-devices-btn">Manage</button>
               </div>
               <ul class="security-devices-list" aria-label="Devices signed in">
@@ -3546,8 +3539,8 @@
         <div id="screen-activity" hidden>
 
           <div class="settings-topbar">
-            <button class="settings-breadcrumb-link" type="button" data-breadcrumb-target="screen-settings-security">Account Settings &rsaquo; Sign-In &amp; Security</button>
-            <h2 class="settings-section-heading">Sign-In Activity</h2>
+            <button class="settings-breadcrumb-link" type="button" data-breadcrumb-target="screen-settings-security">Account Settings &rsaquo; Sign-in &amp; security</button>
+            <h2 class="settings-section-heading">Sign-in activity</h2>
           </div>
 
           <p class="activity-intro">Sign-in events for your account &middot; last 30 days</p>
@@ -3642,8 +3635,8 @@
         <div id="screen-active-devices" hidden>
 
           <div class="settings-topbar">
-            <button class="settings-breadcrumb-link" type="button" data-breadcrumb-target="screen-settings-security">Account Settings &rsaquo; Sign-In &amp; Security</button>
-            <h2 class="settings-section-heading">Active Devices</h2>
+            <button class="settings-breadcrumb-link" type="button" data-breadcrumb-target="screen-settings-security">Account Settings &rsaquo; Sign-in &amp; security</button>
+            <h2 class="settings-section-heading">Active devices</h2>
           </div>
 
           <p class="activity-intro">Devices currently signed in to your account</p>
@@ -3666,7 +3659,7 @@
                 <p class="device-full-label">MacBook Pro</p>
                 <p class="device-full-meta">Active 2 hours ago &middot; Chicago, IL &middot; macOS 15.2</p>
               </div>
-              <button class="device-signout-btn" type="button" data-device-name="MacBook Pro">SIGN OUT</button>
+              <button class="device-signout-btn" type="button" data-device-name="MacBook Pro">Sign Out</button>
             </li>
             <li class="device-full-item" data-device-id="d3">
               <span class="device-full-icon" aria-hidden="true">
@@ -3676,11 +3669,11 @@
                 <p class="device-full-label">iPad Air</p>
                 <p class="device-full-meta">Active 3 days ago &middot; Seattle, WA &middot; iPadOS 18.1</p>
               </div>
-              <button class="device-signout-btn" type="button" data-device-name="iPad Air">SIGN OUT</button>
+              <button class="device-signout-btn" type="button" data-device-name="iPad Air">Sign Out</button>
             </li>
           </ul>
 
-          <button class="device-signout-all-btn" type="button" id="device-signout-all-btn">SIGN OUT OF ALL OTHER DEVICES</button>
+          <button class="device-signout-all-btn" type="button" id="device-signout-all-btn">Sign Out of All Other Devices</button>
 
           <!-- Remote sign-out confirmation (modal overlay) -->
           <div class="signout-modal-backdrop" id="signout-modal-backdrop" hidden></div>
@@ -3690,7 +3683,7 @@
             <p class="signout-modal-body">They&#8217;ll need to sign in again to access your Ace Hardware account.</p>
             <div class="signout-modal-actions">
               <button class="enroll-skip-btn" id="signout-modal-cancel" type="button">Cancel</button>
-              <button class="sign-in-btn signout-confirm-btn" id="signout-modal-confirm" type="button">SIGN OUT</button>
+              <button class="sign-in-btn signout-confirm-btn" id="signout-modal-confirm" type="button">Sign Out</button>
             </div>
           </div>
 
@@ -3701,7 +3694,7 @@
 
           <!-- fake settings chrome -->
           <div class="settings-topbar">
-            <button class="settings-breadcrumb-link" type="button" data-breadcrumb-target="screen-settings-security">Account Settings &rsaquo; Sign-In &amp; Security</button>
+            <button class="settings-breadcrumb-link" type="button" data-breadcrumb-target="screen-settings-security">Account Settings &rsaquo; Sign-in &amp; security</button>
             <h2 class="settings-section-heading">Passkeys</h2>
           </div>
 
@@ -3739,7 +3732,7 @@
             <div class="passkey-list-empty" id="passkey-list-empty" hidden>
               <p class="passkey-list-empty-text">You don&#8217;t have any passkeys saved. Adding one lets you sign in instantly with Face ID or Touch ID on this device.</p>
             </div>
-            <button class="sign-in-btn" id="settings-add-passkey-btn" type="button">ADD A PASSKEY</button>
+            <button class="sign-in-btn" id="settings-add-passkey-btn" type="button">Add a Passkey</button>
           </div>
 
           <!-- ② Rename panel -->
@@ -3749,7 +3742,7 @@
             <input class="settings-text-input" id="rename-input" type="text" maxlength="40" placeholder="e.g. My iPhone" autocomplete="off" />
             <p class="settings-char-hint" id="rename-char-hint">40 characters max</p>
             <div class="settings-action-row">
-              <button class="sign-in-btn" id="rename-save-btn" type="button">SAVE NAME</button>
+              <button class="sign-in-btn" id="rename-save-btn" type="button">Save Name</button>
               <button class="enroll-skip-btn" id="rename-cancel-btn" type="button">Cancel</button>
             </div>
           </div>
@@ -3762,7 +3755,7 @@
             <h3 class="settings-confirm-heading">Remove <span id="remove-pk-name">iPhone 15 Pro</span>?</h3>
             <p class="settings-confirm-body">You&#8217;ll no longer be able to sign in with Face ID from this device. Your other passkeys and sign-in methods will still work.</p>
             <div class="settings-action-row">
-              <button class="sign-in-btn settings-remove-confirm-btn" id="remove-confirm-btn" type="button">REMOVE PASSKEY</button>
+              <button class="sign-in-btn settings-remove-confirm-btn" id="remove-confirm-btn" type="button">Remove Passkey</button>
               <button class="enroll-skip-btn" id="remove-cancel-btn" type="button">Cancel</button>
             </div>
           </div>
@@ -3775,7 +3768,7 @@
             <h3 class="settings-confirm-heading">This is your only passkey</h3>
             <p class="settings-confirm-body">Removing it means you can only sign in with your password or a one-time code. You can always add a new passkey later.</p>
             <div class="settings-action-row">
-              <button class="sign-in-btn settings-remove-confirm-btn" id="remove-last-confirm-btn" type="button">REMOVE ANYWAY</button>
+              <button class="sign-in-btn settings-remove-confirm-btn" id="remove-last-confirm-btn" type="button">Remove Anyway</button>
               <button class="enroll-skip-btn" id="remove-last-cancel-btn" type="button">Keep passkey</button>
             </div>
           </div>
@@ -3787,8 +3780,8 @@
 
           <!-- fake settings chrome -->
           <div class="settings-topbar">
-            <button class="settings-breadcrumb-link" type="button" data-breadcrumb-target="screen-settings-security">Account Settings &rsaquo; Sign-In &amp; Security</button>
-            <h2 class="settings-section-heading">Recovery Email</h2>
+            <button class="settings-breadcrumb-link" type="button" data-breadcrumb-target="screen-settings-security">Account Settings &rsaquo; Sign-in &amp; security</button>
+            <h2 class="settings-section-heading">Recovery email</h2>
           </div>
 
           <!-- ① Request panel — enter / edit recovery email -->
@@ -3805,7 +3798,7 @@
               placeholder="backup@example.com" autocomplete="email" inputmode="email" />
             <p class="settings-char-hint" id="recovery-email-hint" style="text-align:left;">Use an address that&#8217;s different from your account email.</p>
             <div class="settings-action-row">
-              <button class="sign-in-btn" id="recovery-email-send-btn" type="button">SEND VERIFICATION EMAIL</button>
+              <button class="sign-in-btn" id="recovery-email-send-btn" type="button">Send Verification Email</button>
               <button class="enroll-skip-btn" id="recovery-email-cancel-btn" type="button">Cancel</button>
             </div>
           </div>
@@ -3821,7 +3814,7 @@
             </div>
             <p class="recovery-email-sent-meta">The link expires in <strong>15 minutes</strong>. Didn&#8217;t get it? Check spam or resend below.</p>
             <div class="settings-action-row">
-              <button class="reset-resend-btn" id="recovery-email-resend-btn" type="button">RESEND EMAIL</button>
+              <button class="reset-resend-btn" id="recovery-email-resend-btn" type="button">Resend email</button>
               <p class="reset-cooldown-text" id="recovery-email-cooldown-text"></p>
               <button class="enroll-skip-btn" id="recovery-email-simulate-verify-btn" type="button">I verified my email &rarr;</button>
               <button class="enroll-skip-btn" id="recovery-email-change-btn" type="button">Use a different email</button>
@@ -3846,7 +3839,7 @@
                Primary path = try another method (banner-augmented chooser).
                Secondary paths = forgot password, lost device, contact support. -->
           <div class="recovery-options">
-            <button class="sign-in-btn" id="recovery-try-other-btn" type="button">TRY A DIFFERENT SIGN-IN METHOD</button>
+            <button class="sign-in-btn" id="recovery-try-other-btn" type="button">Try a Different Sign-In Method</button>
             <button class="recovery-alt-btn" id="recovery-forgot-pw-btn" type="button">I forgot my password</button>
             <button class="recovery-alt-btn" id="recovery-lost-passkey-btn" type="button">I lost my passkey or phone</button>
           </div>
@@ -3899,7 +3892,7 @@
             <p class="recovery-subtext" style="font-size:13px;color:rgba(18,18,18,0.55);">If you don&#8217;t have access to your recovery email either, contact account support and we&#8217;ll guide you through manual verification.</p>
 
             <div class="recovery-options" style="margin-top:4px;">
-              <button class="sign-in-btn" id="recovery-passkey-help-otp-btn" type="button">SEND A ONE-TIME CODE TO MY EMAIL</button>
+              <button class="sign-in-btn" id="recovery-passkey-help-otp-btn" type="button">Send a One-Time Code to My Email</button>
               <button class="recovery-alt-btn" id="recovery-passkey-help-support-btn" type="button">Contact account support</button>
             </div>
 
@@ -3949,7 +3942,7 @@
                 <span>Syncs across your Apple devices</span>
               </li>
             </ul>
-            <button class="sign-in-btn" id="reenroll-setup-btn" type="button">SET UP FACE ID SIGN-IN</button>
+            <button class="sign-in-btn" id="reenroll-setup-btn" type="button">Set Up Face ID Sign-In</button>
             <button class="enroll-skip-btn" id="reenroll-skip-btn" type="button">Skip for now</button>
           </div>
 
@@ -3961,7 +3954,7 @@
             <h2 class="enroll-heading">Face ID restored</h2>
             <p class="enroll-subtext">You&#8217;re all set. You&#8217;ll use Face ID to sign in from now on &#8212; faster and more secure.</p>
             <p class="enroll-device-label">Saved to: iPhone (this device)</p>
-            <button class="sign-in-btn" id="reenroll-continue-btn" type="button">CONTINUE SHOPPING</button>
+            <button class="sign-in-btn" id="reenroll-continue-btn" type="button">Continue Shopping</button>
           </div>
 
           <!-- ③ Error / cancelled panel -->
@@ -3969,9 +3962,9 @@
             <div class="enroll-hero-icon enroll-hero-icon--error" aria-hidden="true">
               <svg width="40" height="40" viewBox="0 -960 960 960" fill="currentColor"><path d="M503.5-289.48q9.5-9.48 9.5-23.5t-9.48-23.52q-9.48-9.5-23.5-9.5t-23.52 9.48q-9.5 9.48-9.5 23.5t9.48 23.52q9.48 9.5 23.5 9.5t23.52-9.48ZM453-433h60v-253h-60v253Zm27.27 353q-82.74 0-155.5-31.5Q252-143 197.5-197.5t-86-127.34Q80-397.68 80-480.5t31.5-155.66Q143-709 197.5-763t127.34-85.5Q397.68-880 480.5-880t155.66 31.5Q709-817 763-763t85.5 127Q880-563 880-480.27q0 82.74-31.5 155.5Q817-252 763-197.68q-54 54.31-127 86Q563-80 480.27-80Zm.23-60Q622-140 721-239.5t99-241Q820-622 721.19-721T480-820q-141 0-240.5 98.81T140-480q0 141 99.5 240.5t241 99.5Zm-.5-340Z"/></svg>
             </div>
-            <h2 class="enroll-heading">Setup Didn&#8217;t Complete</h2>
+            <h2 class="enroll-heading">Setup didn&#8217;t complete</h2>
             <p class="enroll-subtext">Face ID enrollment was cancelled or didn&#8217;t finish. You can set it up anytime from Account Settings.</p>
-            <button class="sign-in-btn" id="reenroll-retry-btn" type="button">TRY AGAIN</button>
+            <button class="sign-in-btn" id="reenroll-retry-btn" type="button">Try Again</button>
             <button class="enroll-skip-btn" id="reenroll-later-btn" type="button">Do this later</button>
           </div>
 
@@ -3981,7 +3974,7 @@
 
           <!-- Screen heading -->
           <div class="hero">
-            <h1>Sign In</h1>
+            <h1>Sign in</h1>
             <p>Enter your password to continue</p>
           </div>
 
@@ -4021,7 +4014,7 @@
             </div>
           </div>
 
-          <button class="forgot-link" type="button">Forgot Password?</button>
+          <button class="forgot-link" type="button">Forgot password?</button>
 
           <!-- Cloudflare Turnstile widget (mockup) -->
           <div class="captcha-widget" aria-label="CAPTCHA verification">
@@ -4053,16 +4046,16 @@
             <span class="keep-signed-in-label">Keep me signed in for 30 days</span>
           </label>
 
-          <button class="sign-in-btn" id="pw-submit-btn" type="button">SIGN IN</button>
+          <button class="sign-in-btn" id="pw-submit-btn" type="button">Sign In</button>
 
           </div><!-- /form-group -->
 
-          <button class="sign-in-another-way-btn" id="pw-other-btn" type="button">SIGN IN ANOTHER WAY</button>
+          <button class="sign-in-another-way-btn" id="pw-other-btn" type="button">Sign in another way</button>
 
           <p class="legal">
             By choosing to continue, I confirm I have read and agree to the
             <a href="https://www.acehardware.com/customer-service?page=ace-rewards" target="_blank" rel="noopener noreferrer">Ace Rewards® Terms</a>,
-            <a href="https://www.acehardware.com/customer-service?page=terms-of-use" target="_blank" rel="noopener noreferrer">TERMS OF USE</a>,
+            <a href="https://www.acehardware.com/customer-service?page=terms-of-use" target="_blank" rel="noopener noreferrer">Terms of Use</a>,
             and <a href="https://www.acehardware.com/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy.</a>
           </p>
 
@@ -4075,7 +4068,7 @@
             <div class="locked-hero-icon" aria-hidden="true">
               <svg width="36" height="36" viewBox="0 -960 960 960" fill="currentColor"><path d="M220-80q-24.75 0-42.37-17.63Q160-115.25 160-140v-434q0-24.75 17.63-42.38Q195.25-634 220-634h70v-96q0-78.85 55.61-134.42Q401.21-920 480.11-920q78.89 0 134.39 55.58Q670-808.85 670-730v96h70q24.75 0 42.38 17.62Q800-598.75 800-574v434q0 24.75-17.62 42.37Q764.75-80 740-80H220Zm0-60h520v-434H220v434Zm314.5-162.03Q557-324.06 557-355q0-30-22.67-54.5t-54.5-24.5q-31.83 0-54.33 24.5t-22.5 55q0 30.5 22.67 52.5t54.5 22q31.83 0 54.33-22.03ZM350-634h260v-96q0-54.17-37.88-92.08-37.88-37.92-92-37.92T388-822.08q-38 37.91-38 92.08v96ZM220-140v-434 434Z"/></svg>
             </div>
-            <h1>Account Temporarily Locked</h1>
+            <h1>Account temporarily locked</h1>
             <p>Too many failed sign-in attempts. Please wait before trying again.</p>
           </div>
 
@@ -4085,8 +4078,8 @@
           </div>
 
           <div style="display:flex;flex-direction:column;gap:16px;width:100%;">
-            <button class="sign-in-btn" id="locked-reset-pw-btn" type="button">RESET YOUR PASSWORD</button>
-            <button class="sign-in-another-way-btn" id="locked-another-way-btn" type="button">BACK TO SIGN IN</button>
+            <button class="sign-in-btn" id="locked-reset-pw-btn" type="button">Reset Your Password</button>
+            <button class="sign-in-another-way-btn" id="locked-another-way-btn" type="button">Back to sign in</button>
           </div>
 
         </div><!-- /screen-account-locked -->
@@ -4095,7 +4088,7 @@
         <div id="screen-forgot-password" hidden>
 
           <div class="hero forgotpw-hero">
-            <h1>Reset Password</h1>
+            <h1>Reset password</h1>
             <p>Enter your email address and we’ll send you a link to reset your password.</p>
           </div>
 
@@ -4109,7 +4102,7 @@
                 <svg width="18" height="18" viewBox="0 -960 960 960" fill="#1f1f1f" aria-hidden="true"><path d="m249-207-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z"/></svg>
               </button>
             </div>
-            <button class="sign-in-btn" id="reset-send-btn" type="button">SEND RESET EMAIL</button>
+            <button class="sign-in-btn" id="reset-send-btn" type="button">Send Reset Email</button>
           </div>
 
 
@@ -4118,13 +4111,13 @@
             <div class="locked-hero-icon" aria-hidden="true">
               <svg width="36" height="36" viewBox="0 -960 960 960" fill="currentColor"><path d="M220-80q-24.75 0-42.37-17.63Q160-115.25 160-140v-434q0-24.75 17.63-42.38Q195.25-634 220-634h70v-96q0-78.85 55.61-134.42Q401.21-920 480.11-920q78.89 0 134.39 55.58Q670-808.85 670-730v96h70q24.75 0 42.38 17.62Q800-598.75 800-574v434q0 24.75-17.62 42.37Q764.75-80 740-80H220Zm0-60h520v-434H220v434Zm314.5-162.03Q557-324.06 557-355q0-30-22.67-54.5t-54.5-24.5q-31.83 0-54.33 24.5t-22.5 55q0 30.5 22.67 52.5t54.5 22q31.83 0 54.33-22.03ZM350-634h260v-96q0-54.17-37.88-92.08-37.88-37.92-92-37.92T388-822.08q-38 37.91-38 92.08v96ZM220-140v-434 434Z"/></svg>
             </div>
-            <h1>Too Many Requests</h1>
+            <h1>Too many requests</h1>
             <p>You&#8217;ve requested too many password resets. Please wait before trying again.</p>
             <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:100%;">
               <div class="locked-countdown" id="forgotpw-rate-countdown" aria-live="polite" aria-label="Time remaining">15:00</div>
               <p class="locked-countdown-label">minutes remaining</p>
             </div>
-            <button class="sign-in-another-way-btn" id="forgotpw-rate-back-btn" type="button">BACK TO SIGN IN</button>
+            <button class="sign-in-another-way-btn" id="forgotpw-rate-back-btn" type="button">Back to sign in</button>
           </div>
 
         </div><!-- /screen-forgot-password -->
@@ -4136,12 +4129,12 @@
             <div class="enroll-hero-icon enroll-hero-icon--success" aria-hidden="true">
               <svg width="40" height="40" viewBox="0 -960 960 960" fill="currentColor"><path d="M140-160q-24 0-42-18t-18-42v-520q0-24 18-42t42-18h680q24 0 42 18t18 42v520q0 24-18 42t-42 18H140Zm340-302L140-685v465h680v-465L480-462Zm0-60 336-218H145l335 218ZM140-685v-55 520-465Z"/></svg>
             </div>
-            <h1>Check Your Email</h1>
+            <h1>Check your email</h1>
             <p>If an account exists for <strong id="reset-sent-email">your email</strong>, we&#8217;ve sent a password reset link. The link expires in 15 minutes.</p>
           </div>
 
           <div style="display:flex;flex-direction:column;gap:12px;width:100%;">
-            <button class="reset-resend-btn" id="reset-resend-btn" type="button">RESEND EMAIL</button>
+            <button class="reset-resend-btn" id="reset-resend-btn" type="button">Resend email</button>
             <p class="reset-cooldown-text" id="reset-cooldown-text"></p>
             <!-- W2.5-lite · Demo "I received the link →" shortcut removed.
                  To preview the New Password screen, use the prototype navigator → "New password". -->
@@ -4153,7 +4146,7 @@
         <div id="screen-new-password" hidden>
 
           <div class="hero">
-            <h1>Create New Password</h1>
+            <h1>Create new password</h1>
             <p>Your new password must be at least 8 characters long.</p>
           </div>
 
@@ -4184,7 +4177,7 @@
                 </button>
               </div>
             </div>
-            <button class="sign-in-btn" id="save-pw-btn" type="button">SAVE NEW PASSWORD</button>
+            <button class="sign-in-btn" id="save-pw-btn" type="button">Save New Password</button>
           </div>
 
           <!-- Expired-link panel -->
@@ -4192,9 +4185,9 @@
             <div class="recovery-icon" aria-hidden="true">
               <svg width="40" height="40" viewBox="0 -960 960 960" fill="#121212"><path d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-60q142 0 241-99.5T820-480q0-58.08-18.5-109.54Q783-641 751-684L276-209q43 32 94.46 50.5Q421.92-140 480-140Zm-271-115 475-475q-43-33-94.08-51.5Q538.85-800 480-800q-142 0-241 99.5T140-480q0 58.85 18.5 110.42Q177-318 209-255Z"/></svg>
             </div>
-            <h2 class="recovery-heading">Link Expired</h2>
+            <h2 class="recovery-heading">Link expired</h2>
             <p class="recovery-subtext">This password reset link has expired. Reset links are only valid for a short time. Request a new one to continue.</p>
-            <button class="sign-in-btn" id="newpw-request-new-link-btn" type="button">REQUEST A NEW LINK</button>
+            <button class="sign-in-btn" id="newpw-request-new-link-btn" type="button">Request a New Link</button>
           </div>
 
         </div><!-- /screen-new-password -->
@@ -4206,11 +4199,11 @@
             <div class="enroll-hero-icon enroll-hero-icon--success" aria-hidden="true">
               <svg width="40" height="40" viewBox="0 -960 960 960" fill="currentColor"><path d="m421-298 283-283-46-45-237 237-120-120-45 45 165 166Zm59 218q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 31.5-156t86-127Q252-817 325-848.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 82-31.5 155T763-197.5q-54 54.5-127 86T480-80Zm0-60q142 0 241-99.5T820-480q0-142-99-241t-241-99q-141 0-240.5 99T140-480q0 141 99.5 240.5T480-140Zm0-340Z"/></svg>
             </div>
-            <h1>Password Updated</h1>
+            <h1>Password updated</h1>
             <p>Your password has been changed successfully. You can now sign in with your new password.</p>
           </div>
 
-          <button class="sign-in-btn" id="reset-success-signin-btn" type="button">SIGN IN NOW</button>
+          <button class="sign-in-btn" id="reset-success-signin-btn" type="button">Sign In Now</button>
 
         </div><!-- /screen-reset-success -->
 
@@ -4226,8 +4219,8 @@
           </div>
 
           <div class="recovery-options">
-            <button class="sign-in-btn" id="no-access-password-btn" type="button">USE PASSWORD INSTEAD</button>
-            <button class="recovery-alt-btn" id="no-access-support-btn" type="button">Contact Account Support</button>
+            <button class="sign-in-btn" id="no-access-password-btn" type="button">Use Password Instead</button>
+            <button class="recovery-alt-btn" id="no-access-support-btn" type="button">Contact account support</button>
           </div>
 
           <a href="#" class="recovery-help-link" id="no-access-back-link">Back to sign in</a>
@@ -4239,7 +4232,7 @@
 
           <!-- Screen heading (state-aware subtitle below) -->
           <div class="hero">
-            <h1>Sign In</h1>
+            <h1>Sign in</h1>
             <p class="otp-subtitle otp-subtitle-request">Send a one-time code to your email or phone</p>
             <p class="otp-subtitle otp-subtitle-entered" id="verify-destination-text">Please enter the verification code we sent to <strong>your email</strong> to verify your identity.</p>
             <p class="verify-expiry" style="font-size:14px;line-height:20px;letter-spacing:0.25px;color:rgba(18,18,18,0.93);">
@@ -4313,18 +4306,18 @@
               <p class="otp-delivery-helper">We'll text a 6-digit code to your phone</p>
             </div>
 
-            <button class="sign-in-btn" id="otp-send-btn" type="button">SEND CODE</button>
+            <button class="sign-in-btn" id="otp-send-btn" type="button">Send Code</button>
 
           </div><!-- /form-group -->
 
-          <button class="sign-in-another-way-btn" id="otp-other-btn" type="button">SIGN IN ANOTHER WAY</button>
+          <button class="sign-in-another-way-btn" id="otp-other-btn" type="button">Sign in another way</button>
 
           <a href="#" class="recovery-help-link" id="otp-cant-access-link">Can&#8217;t access your email or phone? <span>Get help</span></a>
 
           <p class="legal">
             By choosing to continue, I confirm I have read and agree to the
             <a href="https://www.acehardware.com/customer-service?page=ace-rewards" target="_blank" rel="noopener noreferrer">Ace Rewards® Terms</a>,
-            <a href="https://www.acehardware.com/customer-service?page=terms-of-use" target="_blank" rel="noopener noreferrer">TERMS OF USE</a>,
+            <a href="https://www.acehardware.com/customer-service?page=terms-of-use" target="_blank" rel="noopener noreferrer">Terms of Use</a>,
             and <a href="https://www.acehardware.com/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy.</a>
           </p>
 
@@ -4375,9 +4368,9 @@
 
             <!-- Actions -->
             <div style="display:flex;flex-direction:column;gap:16px;width:100%;">
-              <button class="sign-in-btn" id="verify-btn" type="button" disabled>VERIFY</button>
-              <button class="resend-btn" id="resend-btn" type="button">RESEND CODE</button>
-              <button class="sign-in-another-way-btn" id="verify-other-btn" type="button">SIGN IN ANOTHER WAY</button>
+              <button class="sign-in-btn" id="verify-btn" type="button" disabled>Verify</button>
+              <button class="resend-btn" id="resend-btn" type="button">Resend code</button>
+              <button class="sign-in-another-way-btn" id="verify-other-btn" type="button">Sign in another way</button>
             </div>
 
             <a href="#" class="recovery-help-link" id="verify-cant-access-btn">Can&#8217;t access this code? <span>Get help</span></a>
@@ -5344,13 +5337,13 @@
         case 'idle':
           setBiometricState('idle', 'Use Face ID to sign in', 'Your device will prompt you to authenticate');
           tryBtn.disabled = false;
-          tryBtn.textContent = 'USE FACE ID';
+          tryBtn.textContent = 'Use Face ID';
           break;
         case 'failed':
           setBiometricState('error', 'Face ID Could Not Sign You In',
             'Your account is still secure — try again or use a different method.');
           tryBtn.disabled = false;
-          tryBtn.textContent = 'TRY AGAIN';
+          tryBtn.textContent = 'Try Again';
           break;
         // NOTE: the 'notfound' state has been removed. When no credential
         // is discovered, the runtime now returns the user to the chooser
@@ -5372,7 +5365,7 @@
           // to re-trigger an already-successful ceremony.
           setBiometricState('success', 'You\u2019re signed in', 'Welcome back to Ace Hardware');
           tryBtn.disabled = true;
-          tryBtn.textContent = 'USE FACE ID';
+          tryBtn.textContent = 'Use Face ID';
           break;
       }
       updateBlurb();
@@ -5758,7 +5751,7 @@
       if (count === 0) {
         empty.removeAttribute('hidden');
         list.setAttribute('hidden', '');
-        if (addBtn) addBtn.textContent = 'ADD A PASSKEY';
+        if (addBtn) addBtn.textContent = 'Add a Passkey';
       } else {
         empty.setAttribute('hidden', '');
         list.removeAttribute('hidden');
@@ -6543,7 +6536,7 @@
         // Reset passkey ring when leaving or entering passkey screen
         if (currentScreen === screenPasskey || target === screenPasskey) {
           const tryBtn = document.getElementById('passkey-try-btn');
-          if (tryBtn) { tryBtn.disabled = false; tryBtn.textContent = 'USE FACE ID'; }
+          if (tryBtn) { tryBtn.disabled = false; tryBtn.textContent = 'Use Face ID'; }
           setBiometricState('idle', 'Use Face ID to sign in', 'Your device will prompt you to authenticate');
         }
 
@@ -6699,7 +6692,7 @@
           // Reset passkey ring if leaving or entering passkey screen
           if (currentScreen === screenPasskey || target === screenPasskey) {
             const tryBtn = document.getElementById('passkey-try-btn');
-            if (tryBtn) { tryBtn.disabled = false; tryBtn.textContent = 'USE FACE ID'; }
+            if (tryBtn) { tryBtn.disabled = false; tryBtn.textContent = 'Use Face ID'; }
             setBiometricState('idle', 'Use Face ID to sign in', 'Your device will prompt you to authenticate');
           }
 
@@ -7184,7 +7177,7 @@
         body: isAll
           ? 'You\u2019ll stay signed in here. Everyone else will need to sign in again to access your Ace Hardware account.'
           : `Sign out of \u201c${deviceName}\u201d? They\u2019ll need to sign in again to access your Ace Hardware account.`,
-        confirmLabel: 'SIGN OUT',
+        confirmLabel: 'Sign Out',
         cancelLabel: 'Cancel',
         kind: 'destructive',
         onConfirm: () => {
