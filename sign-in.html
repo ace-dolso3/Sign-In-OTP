@@ -577,11 +577,20 @@
       color: #c62828;
     }
 
-    /* CTA label swaps */
-    #screen-otp[data-otp-substate="expired"] #verify-btn::after  { content: 'RESEND CODE'; }
-    #screen-otp[data-otp-substate="expired"] #verify-btn          { font-size: 0; } /* hide original text */
-    #screen-otp[data-otp-substate="locked"]  #verify-btn::after  { content: 'SIGN IN WITH PASSWORD'; }
-    #screen-otp[data-otp-substate="locked"]  #verify-btn          { font-size: 0; }
+    /* CTA label swaps — hide original text via font-size:0 on the button,
+       restore typography on the ::after pseudo so the swapped label renders */
+    #screen-otp[data-otp-substate="expired"] #verify-btn,
+    #screen-otp[data-otp-substate="locked"]  #verify-btn { font-size: 0; }
+    #screen-otp[data-otp-substate="expired"] #verify-btn::after,
+    #screen-otp[data-otp-substate="locked"]  #verify-btn::after {
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 1.25px;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+    #screen-otp[data-otp-substate="expired"] #verify-btn::after { content: 'RESEND CODE'; }
+    #screen-otp[data-otp-substate="locked"]  #verify-btn::after { content: 'SIGN IN WITH PASSWORD'; }
 
     /* Resend btn disabled in cooldown + locked */
     #screen-otp[data-otp-substate="cooldown"] .resend-btn,
@@ -2706,6 +2715,8 @@
       background: #f5f5f5;
       border: 1px solid #e0e0e0;
       border-radius: 4px;
+      width: 100%;
+      align-self: stretch;
       margin: 0 0 12px;
     }
     .identifier-strip-row {
@@ -3911,15 +3922,6 @@
             <p class="verify-expiry" style="font-size:14px;line-height:20px;letter-spacing:0.25px;color:rgba(18,18,18,0.93);">
               Code expires in <strong data-otp-expiry-timer>03:00</strong>.
             </p>
-          </div>
-
-          <!-- W2.1 · Identifier strip (shown only when signInIdentifier is set) -->
-          <div class="identifier-strip" data-identifier-strip hidden>
-            <div class="identifier-strip-row">
-              <span class="identifier-strip-label">Signing in as</span>
-              <span class="identifier-strip-email" data-identifier-display></span>
-            </div>
-            <button class="identifier-strip-edit" type="button" data-identifier-edit aria-label="Use a different email">Edit</button>
           </div>
 
           <!-- ═══ Panel A · Request code (data-otp-state="request") ═══ -->
