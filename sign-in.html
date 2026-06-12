@@ -2262,19 +2262,86 @@
     }
 
     /* ─────────────────────────────────────────────────────────────
-       CHOOSER PANELS (state-driven display)
+       CHOOSER (W2.1 · single-panel identifier-first)
     ───────────────────────────────────────────────────────────── */
 
-    .chooser-panel { display: none; flex-direction: column; gap: 16px; }
+    /* Single panel — no more two-panel state swap. The chooser shows
+       the same surface in both states; passkey-first state just adds
+       emphasis to the passkey tile via the "Recommended" pill. */
 
-    #screen-chooser[data-chooser-state="default"]       .chooser-panel-default       { display: flex; }
-    #screen-chooser[data-chooser-state="passkey-first"] .chooser-panel-passkey-first { display: flex; }
+    /* Subtitle copy switches by state */
+    .chooser-subtitle-default,
+    .chooser-subtitle-passkey-first { margin: 0; }
+    #screen-chooser[data-chooser-state="default"]       .chooser-subtitle-passkey-first { display: none; }
+    #screen-chooser[data-chooser-state="passkey-first"] .chooser-subtitle-default       { display: none; }
 
-    /* ─────────────────────────────────────────────────────────────
-       CHOOSER BANNER (informational — only shown when chooser is
-       reached via a no-credential Face ID attempt). Hidden by
-       default; revealed when [data-chooser-banner] is set.
-    ──────────────────────────────────────────────────────────── */
+    /* Identifier-first form */
+    .chooser-id-form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin: 0;
+    }
+
+    /* "or sign in another way" divider */
+    .chooser-divider {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      margin: 4px 0;
+    }
+    .chooser-divider::before,
+    .chooser-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #e0e0e0;
+    }
+    .chooser-divider span {
+      padding: 0 12px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #6b6b6b;
+    }
+
+    /* Method tile content stack (label + optional pill) */
+    .method-tile-content {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+      flex: 1;
+      text-align: left;
+    }
+    .method-tile-label { display: block; }
+    .method-tile-pill {
+      display: none;
+      align-self: flex-start;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: #1a5235;
+      background: #e6f4ec;
+      border: 1px solid #b8e0c8;
+      border-radius: 999px;
+    }
+    /* Passkey-first state: emphasize the passkey tile + show the pill */
+    #screen-chooser[data-chooser-state="passkey-first"] #tile-passkey {
+      border-color: #121212;
+      border-width: 2px;
+      box-shadow: 0 0 0 3px rgba(18, 18, 18, 0.08);
+    }
+    #screen-chooser[data-chooser-state="passkey-first"] #tile-passkey .method-tile-pill {
+      display: inline-flex;
+    }
+
+    /* Banner: only shown when [data-chooser-banner] is set on
+       the chooser (e.g. after a no-credential Face ID attempt). */
     .chooser-banner {
       display: none;
       align-items: flex-start;
@@ -2296,33 +2363,6 @@
     .chooser-banner-text { flex: 1; }
     .chooser-banner-text strong { color: #3d3208; font-weight: 600; }
     #screen-chooser[data-chooser-banner="passkey-not-found"] .chooser-banner { display: flex; }
-
-    /* Passkey-first layout extras */
-    .chooser-pf-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 80px;
-      height: 80px;
-      background: #f5f5f5;
-      border-radius: 50%;
-      align-self: center;
-    }
-
-    .chooser-pf-alt {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .chooser-pf-alt-label {
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: #6b6b6b;
-      margin: 0;
-    }
 
     /* ─────────────────────────────────────────────────────────────
        ACCOUNT RECOVERY SCREEN
@@ -2648,6 +2688,68 @@
     }
 
     /* ════════════════════════════════════════════════════════════════
+       Wave 2 · Identifier strip (W2.1)
+       Shown on downstream sign-in screens when signInIdentifier is set.
+       Communicates "this is the account you're signing in to" and
+       provides an Edit affordance back to the chooser.
+    ════════════════════════════════════════════════════════════════ */
+    .identifier-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      background: #f5f5f5;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      margin: 0 0 12px;
+    }
+    .identifier-strip-row {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      flex: 1;
+    }
+    .identifier-strip-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #6b6b6b;
+    }
+    .identifier-strip-email {
+      font-size: 14px;
+      font-weight: 500;
+      color: #121212;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .identifier-strip-edit {
+      flex-shrink: 0;
+      background: transparent;
+      border: 0;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #121212;
+      text-decoration: underline;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .identifier-strip-edit:hover { background: rgba(0, 0, 0, 0.04); }
+    .identifier-strip-edit:focus-visible {
+      outline: 2px solid #121212;
+      outline-offset: 2px;
+    }
+
+    /* On the password screen, when the identifier strip is visible, hide
+       the redundant email input — the strip is the read-only identifier. */
+    #screen-password:has(.identifier-strip:not([hidden])) .text-field:has(> #pw-email) {
+      display: none;
+    }
+
+    /* ════════════════════════════════════════════════════════════════
        Wave 1 · Settings breadcrumb as interactive button (W1.9)
        Replaces <span class="settings-breadcrumb"> on detail screens.
     ════════════════════════════════════════════════════════════════ */
@@ -2798,158 +2900,105 @@
         <!-- ─── Screen: Choose Sign-In Method ───────────── -->
         <div id="screen-chooser" data-chooser-state="default" hidden>
 
-          <!-- ── Chooser: default (no passkey detected) ── -->
-          <div class="chooser-panel chooser-panel-default">
+          <!-- Banner: only shown when [data-chooser-banner] is set on
+               the chooser (e.g. after a no-credential Face ID attempt). -->
+          <div class="chooser-banner" role="status" aria-live="polite">
+            <svg class="chooser-banner-icon" width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M480-280q17 0 28.5-11.5T520-320q0-17-11.5-28.5T480-360q-17 0-28.5 11.5T440-320q0 17 11.5 28.5T480-280Zm-40-160h80v-240h-80v240ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/></svg>
+            <p class="chooser-banner-text"><strong>No passkey on this device.</strong> Sign in with your password or a one-time code below.</p>
+          </div>
 
-            <!-- Banner: only shown when [data-chooser-banner] is set on
-                 the chooser (e.g. after a no-credential Face ID attempt). -->
-            <div class="chooser-banner" role="status" aria-live="polite">
-              <svg class="chooser-banner-icon" width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M480-280q17 0 28.5-11.5T520-320q0-17-11.5-28.5T480-360q-17 0-28.5 11.5T440-320q0 17 11.5 28.5T480-280Zm-40-160h80v-240h-80v240ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/></svg>
-              <p class="chooser-banner-text"><strong>No passkey on this device.</strong> Sign in with your password or a one-time code below.</p>
-            </div>
+          <!-- Hero -->
+          <div class="hero">
+            <h1>Sign In</h1>
+            <p class="chooser-subtitle-default">Enter your email to get started</p>
+            <p class="chooser-subtitle-passkey-first">We recognize this device. Use Face ID for the fastest sign-in.</p>
+          </div>
 
-            <!-- Hero -->
-            <div class="hero">
-              <h1>Sign In</h1>
-              <p>Choose how you'd like to sign in</p>
-            </div>
-
-            <!-- Method tiles -->
-            <div class="method-tiles" role="list">
-
-              <!-- Face ID / Touch ID / Passkey -->
-              <button class="method-tile" id="tile-passkey" role="listitem" type="button"
-                aria-label="Sign in with Face ID or passkey">
-                <span class="method-tile-icon" aria-hidden="true">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 -960 960 960" fill="currentColor">
-                    <path d="M701-701q91 91 91 221t-91 221q-91 91-221 91t-221-91q-91-91-91-221t91-221q91-91 221-91t221 91Zm-43 399q74-74 74-178t-74-178q-74-74-178-74t-178 74q-74 74-74 178t74 178q74 74 178 74t178-74Zm-93-67q38-26 57-70H338q18 44 56.5 70t85.5 26q47 0 85-26ZM349-536q11 11 28 11t28-11q11-11 11-28t-11-28q-11-11-28-11t-28 11q-11 11-11 28t11 28Zm206 0q11 11 28 11t28-11q11-11 11-28t-11-28q-11-11-28-11t-28 11q-11 11-11 28t11 28ZM40-731v-129q0-24.75 17.63-42.38Q75.25-920 100-920h129v60H100v129H40ZM229-40H100q-24.75 0-42.37-17.63Q40-75.25 40-100v-129h60v129h129v60Zm502-4v-60h129v-130h60v130q0 24.75-17.62 42.37Q884.75-44 860-44H731Zm129-687v-129H731v-60h129q24.75 0 42.38 17.62Q920-884.75 920-860v129h-60ZM480-480Z"/>
-                  </svg>
-                </span>
-                Face ID / Passkey
-                <span class="method-tile-arrow" aria-hidden="true">
-                  <svg width="20" height="20" viewBox="0 -960 960 960" fill="#121212"><path d="M530-481 332-679l43-43 241 241-241 241-43-43 198-198Z"/></svg>
-                </span>
+          <!-- ── W2.1 · Identifier-first form ─────────────────────── -->
+          <form class="chooser-id-form" id="chooser-id-form" novalidate>
+            <div class="text-field">
+              <input type="email" id="chooser-email-input" name="chooser-email" placeholder=" "
+                autocomplete="username webauthn" inputmode="email" aria-label="Email address" />
+              <label class="text-field-label" for="chooser-email-input">Email</label>
+              <button class="text-field-clear" type="button" aria-label="Clear email" tabindex="-1">
+                <svg width="18" height="18" viewBox="0 -960 960 960" fill="#1f1f1f" aria-hidden="true"><path d="m249-207-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z"/></svg>
               </button>
-
-              <!-- Password -->
-              <button class="method-tile" id="tile-password-chooser" role="listitem" type="button"
-                aria-label="Sign in with password">
-                <span class="method-tile-icon" aria-hidden="true">
-                  <svg width="24" height="24" viewBox="0 -960 960 960" fill="#121212"><path d="M220-80q-24.75 0-42.37-17.63Q160-115.25 160-140v-434q0-24.75 17.63-42.38Q195.25-634 220-634h70v-96q0-78.85 55.61-134.42Q401.21-920 480.11-920q78.89 0 134.39 55.58Q670-808.85 670-730v96h70q24.75 0 42.38 17.62Q800-598.75 800-574v434q0 24.75-17.62 42.37Q764.75-80 740-80H220Zm0-60h520v-434H220v434Zm314.5-162.03Q557-324.06 557-355q0-30-22.67-54.5t-54.5-24.5q-31.83 0-54.33 24.5t-22.5 55q0 30.5 22.67 52.5t54.5 22q31.83 0 54.33-22.03ZM350-634h260v-96q0-54.17-37.88-92.08-37.88-37.92-92-37.92T388-822.08q-38 37.91-38 92.08v96ZM220-140v-434 434Z"/></svg>
-                </span>
-                Password
-                <span class="method-tile-arrow" aria-hidden="true">
-                  <svg width="20" height="20" viewBox="0 -960 960 960" fill="#121212"><path d="M530-481 332-679l43-43 241 241-241 241-43-43 198-198Z"/></svg>
-                </span>
-              </button>
-
-              <!-- One-Time Code -->
-              <button class="method-tile" id="tile-otp-chooser" role="listitem" type="button"
-                aria-label="Sign in with one-time code">
-                <span class="method-tile-icon" aria-hidden="true">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 -960 960 960" fill="currentColor">
-                    <path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm100-200h46v-240h-36l-70 50 24 36 36-26v180Zm124 0h156v-40h-94l-2-2q21-20 34.5-34t21.5-22q18-18 27-36t9-38q0-29-22-48.5T458-600q-26 0-47 15t-29 39l40 16q5-13 14.5-20.5T458-558q15 0 24.5 8t9.5 20q0 11-4 20.5T470-486l-32 32-54 54v40Zm296 0q36 0 58-20t22-52q0-18-10-32t-28-22v-2q14-8 22-20.5t8-29.5q0-27-21-44.5T678-600q-25 0-46.5 14.5T604-550l40 16q4-12 13-19t21-7q13 0 21.5 7.5T708-534q0 14-10 22t-26 8h-18v40h20q20 0 31 8t11 22q0 13-11 22.5t-25 9.5q-17 0-26-7.5T638-436l-40 16q7 29 28.5 44.5T680-360ZM160-240h640v-480H160v480Zm0 0v-480 480Z"/>
-                  </svg>
-                </span>
-                One-Time Code
-                <span class="method-tile-arrow" aria-hidden="true">
-                  <svg width="20" height="20" viewBox="0 -960 960 960" fill="#121212"><path d="M530-481 332-679l43-43 241 241-241 241-43-43 198-198Z"/></svg>
-                </span>
-              </button>
-
-              <!-- Scan with Phone (cross-device passkey) -->
-              <button class="method-tile" id="tile-cd-chooser" role="listitem" type="button"
-                aria-label="Scan with phone to use a passkey from another device">
-                <span class="method-tile-icon" aria-hidden="true">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 -960 960 960" fill="currentColor">
-                    <path d="M80-680v-200h200v80H160v120H80Zm0 600v-200h80v120h120v80H80Zm600 0v-80h120v-120h80v200H680Zm120-600v-120H680v-80h200v200h-80ZM700-260h60v60h-60v-60Zm0-120h60v60h-60v-60Zm-60 60h60v60h-60v-60Zm-60 60h60v60h-60v-60Zm-60-60h60v60h-60v-60Zm120-120h60v60h-60v-60Zm-60 60h60v60h-60v-60Zm-60-60h60v60h-60v-60Zm240-320v240H520v-240h240ZM440-440v240H200v-240h240Zm0-320v240H200v-240h240Zm-60 500v-120H260v120h120Zm0-320v-120H260v120h120Zm320 0v-120H580v120h120Z"/>
-                  </svg>
-                </span>
-                Scan with Phone
-                <span class="method-tile-arrow" aria-hidden="true">
-                  <svg width="20" height="20" viewBox="0 -960 960 960" fill="#121212"><path d="M530-481 332-679l43-43 241 241-241 241-43-43 198-198Z"/></svg>
-                </span>
-              </button>
-
-            </div><!-- /method-tiles -->
-
-            <!-- Create account footer -->
-            <div class="divider" role="separator"></div>
-            <p class="create-account">
-              Don't have an account? <a href="#">Create an Account</a>
-            </p>
-
-          </div><!-- /chooser-panel-default -->
-
-          <!-- ── Chooser: passkey-first (registered passkey detected) ── -->
-          <div class="chooser-panel chooser-panel-passkey-first">
-
-            <div class="hero">
-              <h1>Welcome Back</h1>
-              <p>Use Face ID to sign in quickly and securely</p>
             </div>
+            <button class="sign-in-btn" id="chooser-continue-btn" type="submit">CONTINUE</button>
+          </form>
 
-            <!-- Prominent Face ID icon -->
-            <div class="chooser-pf-icon" aria-hidden="true">
-              <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 -960 960 960" fill="currentColor">
-                <path d="M701-701q91 91 91 221t-91 221q-91 91-221 91t-221-91q-91-91-91-221t91-221q91-91 221-91t221 91Zm-43 399q74-74 74-178t-74-178q-74-74-178-74t-178 74q-74 74-74 178t74 178q74 74 178 74t178-74Zm-93-67q38-26 57-70H338q18 44 56.5 70t85.5 26q47 0 85-26ZM349-536q11 11 28 11t28-11q11-11 11-28t-11-28q-11-11-28-11t-28 11q-11 11-11 28t11 28Zm206 0q11 11 28 11t28-11q11-11 11-28t-11-28q-11-11-28-11t-28 11q-11 11-11 28t11 28ZM40-731v-129q0-24.75 17.63-42.38Q75.25-920 100-920h129v60H100v129H40ZM229-40H100q-24.75 0-42.37-17.63Q40-75.25 40-100v-129h60v129h129v60Zm502-4v-60h129v-130h60v130q0 24.75-17.62 42.37Q884.75-44 860-44H731Zm129-687v-129H731v-60h129q24.75 0 42.38 17.62Q920-884.75 920-860v129h-60ZM480-480Z"/>
-              </svg>
-            </div>
+          <!-- "or" divider -->
+          <div class="chooser-divider" role="separator" aria-label="Other sign-in methods">
+            <span>or sign in another way</span>
+          </div>
 
-            <!-- Primary CTA -->
-            <button class="sign-in-btn" id="chooser-pf-faceid-btn" type="button">SIGN IN WITH FACE ID</button>
+          <!-- Method tiles -->
+          <div class="method-tiles" role="list">
 
-            <!-- Secondary sign-in options -->
-            <div class="chooser-pf-alt">
-              <p class="chooser-pf-alt-label">Other ways to sign in</p>
-              <div class="method-tiles" role="list">
+            <!-- Face ID / Passkey on this device — gets "Recommended" pill in passkey-first state -->
+            <button class="method-tile method-tile-passkey" id="tile-passkey" role="listitem" type="button"
+              aria-label="Sign in with Face ID or a passkey on this device">
+              <span class="method-tile-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 -960 960 960" fill="currentColor">
+                  <path d="M701-701q91 91 91 221t-91 221q-91 91-221 91t-221-91q-91-91-91-221t91-221q91-91 221-91t221 91Zm-43 399q74-74 74-178t-74-178q-74-74-178-74t-178 74q-74 74-74 178t74 178q74 74 178 74t178-74Zm-93-67q38-26 57-70H338q18 44 56.5 70t85.5 26q47 0 85-26ZM349-536q11 11 28 11t28-11q11-11 11-28t-11-28q-11-11-28-11t-28 11q-11 11-11 28t11 28Zm206 0q11 11 28 11t28-11q11-11 11-28t-11-28q-11-11-28-11t-28 11q-11 11-11 28t11 28ZM40-731v-129q0-24.75 17.63-42.38Q75.25-920 100-920h129v60H100v129H40ZM229-40H100q-24.75 0-42.37-17.63Q40-75.25 40-100v-129h60v129h129v60Zm502-4v-60h129v-130h60v130q0 24.75-17.62 42.37Q884.75-44 860-44H731Zm129-687v-129H731v-60h129q24.75 0 42.38 17.62Q920-884.75 920-860v129h-60ZM480-480Z"/>
+                </svg>
+              </span>
+              <span class="method-tile-content">
+                <span class="method-tile-label">Face ID or passkey on this device</span>
+                <span class="method-tile-pill">Recommended for this device</span>
+              </span>
+              <span class="method-tile-arrow" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 -960 960 960" fill="#121212"><path d="M530-481 332-679l43-43 241 241-241 241-43-43 198-198Z"/></svg>
+              </span>
+            </button>
 
-                <button class="method-tile" id="tile-pf-password" role="listitem" type="button"
-                  aria-label="Sign in with password">
-                  <span class="method-tile-icon" aria-hidden="true">
-                    <svg width="24" height="24" viewBox="0 -960 960 960" fill="#121212"><path d="M220-80q-24.75 0-42.37-17.63Q160-115.25 160-140v-434q0-24.75 17.63-42.38Q195.25-634 220-634h70v-96q0-78.85 55.61-134.42Q401.21-920 480.11-920q78.89 0 134.39 55.58Q670-808.85 670-730v96h70q24.75 0 42.38 17.62Q800-598.75 800-574v434q0 24.75-17.62 42.37Q764.75-80 740-80H220Zm0-60h520v-434H220v434Zm314.5-162.03Q557-324.06 557-355q0-30-22.67-54.5t-54.5-24.5q-31.83 0-54.33 24.5t-22.5 55q0 30.5 22.67 52.5t54.5 22q31.83 0 54.33-22.03ZM350-634h260v-96q0-54.17-37.88-92.08-37.88-37.92-92-37.92T388-822.08q-38 37.91-38 92.08v96ZM220-140v-434 434Z"/></svg>
-                  </span>
-                  Password
-                  <span class="method-tile-arrow" aria-hidden="true">
-                    <svg width="20" height="20" viewBox="0 -960 960 960" fill="#121212"><path d="M530-481 332-679l43-43 241 241-241 241-43-43 198-198Z"/></svg>
-                  </span>
-                </button>
+            <!-- Use a passkey on another device (cross-device QR) -->
+            <button class="method-tile" id="tile-cd-chooser" role="listitem" type="button"
+              aria-label="Use a passkey on another device">
+              <span class="method-tile-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 -960 960 960" fill="currentColor">
+                  <path d="M80-680v-200h200v80H160v120H80Zm0 600v-200h80v120h120v80H80Zm600 0v-80h120v-120h80v200H680Zm120-600v-120H680v-80h200v200h-80ZM700-260h60v60h-60v-60Zm0-120h60v60h-60v-60Zm-60 60h60v60h-60v-60Zm-60 60h60v60h-60v-60Zm-60-60h60v60h-60v-60Zm120-120h60v60h-60v-60Zm-60 60h60v60h-60v-60Zm-60-60h60v60h-60v-60Zm240-320v240H520v-240h240ZM440-440v240H200v-240h240Zm0-320v240H200v-240h240Zm-60 500v-120H260v120h120Zm0-320v-120H260v120h120Zm320 0v-120H580v120h120Z"/>
+                </svg>
+              </span>
+              Use a passkey on another device
+              <span class="method-tile-arrow" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 -960 960 960" fill="#121212"><path d="M530-481 332-679l43-43 241 241-241 241-43-43 198-198Z"/></svg>
+              </span>
+            </button>
 
-                <button class="method-tile" id="tile-pf-otp" role="listitem" type="button"
-                  aria-label="Sign in with one-time code">
-                  <span class="method-tile-icon" aria-hidden="true">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 -960 960 960" fill="currentColor">
-                      <path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm100-200h46v-240h-36l-70 50 24 36 36-26v180Zm124 0h156v-40h-94l-2-2q21-20 34.5-34t21.5-22q18-18 27-36t9-38q0-29-22-48.5T458-600q-26 0-47 15t-29 39l40 16q5-13 14.5-20.5T458-558q15 0 24.5 8t9.5 20q0 11-4 20.5T470-486l-32 32-54 54v40Zm296 0q36 0 58-20t22-52q0-18-10-32t-28-22v-2q14-8 22-20.5t8-29.5q0-27-21-44.5T678-600q-25 0-46.5 14.5T604-550l40 16q4-12 13-19t21-7q13 0 21.5 7.5T708-534q0 14-10 22t-26 8h-18v40h20q20 0 31 8t11 22q0 13-11 22.5t-25 9.5q-17 0-26-7.5T638-436l-40 16q7 29 28.5 44.5T680-360ZM160-240h640v-480H160v480Zm0 0v-480 480Z"/>
-                    </svg>
-                  </span>
-                  One-Time Code
-                  <span class="method-tile-arrow" aria-hidden="true">
-                    <svg width="20" height="20" viewBox="0 -960 960 960" fill="#121212"><path d="M530-481 332-679l43-43 241 241-241 241-43-43 198-198Z"/></svg>
-                  </span>
-                </button>
+            <!-- Password -->
+            <button class="method-tile" id="tile-password-chooser" role="listitem" type="button"
+              aria-label="Sign in with password">
+              <span class="method-tile-icon" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 -960 960 960" fill="#121212"><path d="M220-80q-24.75 0-42.37-17.63Q160-115.25 160-140v-434q0-24.75 17.63-42.38Q195.25-634 220-634h70v-96q0-78.85 55.61-134.42Q401.21-920 480.11-920q78.89 0 134.39 55.58Q670-808.85 670-730v96h70q24.75 0 42.38 17.62Q800-598.75 800-574v434q0 24.75-17.62 42.37Q764.75-80 740-80H220Zm0-60h520v-434H220v434Zm314.5-162.03Q557-324.06 557-355q0-30-22.67-54.5t-54.5-24.5q-31.83 0-54.33 24.5t-22.5 55q0 30.5 22.67 52.5t54.5 22q31.83 0 54.33-22.03ZM350-634h260v-96q0-54.17-37.88-92.08-37.88-37.92-92-37.92T388-822.08q-38 37.91-38 92.08v96ZM220-140v-434 434Z"/></svg>
+              </span>
+              Use a password
+              <span class="method-tile-arrow" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 -960 960 960" fill="#121212"><path d="M530-481 332-679l43-43 241 241-241 241-43-43 198-198Z"/></svg>
+              </span>
+            </button>
 
-                <button class="method-tile" id="tile-pf-cd" role="listitem" type="button"
-                  aria-label="Scan with phone to use a passkey from another device">
-                  <span class="method-tile-icon" aria-hidden="true">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 -960 960 960" fill="currentColor">
-                      <path d="M80-680v-200h200v80H160v120H80Zm0 600v-200h80v120h120v80H80Zm600 0v-80h120v-120h80v200H680Zm120-600v-120H680v-80h200v200h-80ZM700-260h60v60h-60v-60Zm0-120h60v60h-60v-60Zm-60 60h60v60h-60v-60Zm-60 60h60v60h-60v-60Zm-60-60h60v60h-60v-60Zm120-120h60v60h-60v-60Zm-60 60h60v60h-60v-60Zm-60-60h60v60h-60v-60Zm240-320v240H520v-240h240ZM440-440v240H200v-240h240Zm0-320v240H200v-240h240Zm-60 500v-120H260v120h120Zm0-320v-120H260v120h120Zm320 0v-120H580v120h120Z"/>
-                    </svg>
-                  </span>
-                  Scan with Phone
-                  <span class="method-tile-arrow" aria-hidden="true">
-                    <svg width="20" height="20" viewBox="0 -960 960 960" fill="#121212"><path d="M530-481 332-679l43-43 241 241-241 241-43-43 198-198Z"/></svg>
-                  </span>
-                </button>
+            <!-- One-Time Code -->
+            <button class="method-tile" id="tile-otp-chooser" role="listitem" type="button"
+              aria-label="Get a one-time code">
+              <span class="method-tile-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 -960 960 960" fill="currentColor">
+                  <path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm100-200h46v-240h-36l-70 50 24 36 36-26v180Zm124 0h156v-40h-94l-2-2q21-20 34.5-34t21.5-22q18-18 27-36t9-38q0-29-22-48.5T458-600q-26 0-47 15t-29 39l40 16q5-13 14.5-20.5T458-558q15 0 24.5 8t9.5 20q0 11-4 20.5T470-486l-32 32-54 54v40Zm296 0q36 0 58-20t22-52q0-18-10-32t-28-22v-2q14-8 22-20.5t8-29.5q0-27-21-44.5T678-600q-25 0-46.5 14.5T604-550l40 16q4-12 13-19t21-7q13 0 21.5 7.5T708-534q0 14-10 22t-26 8h-18v40h20q20 0 31 8t11 22q0 13-11 22.5t-25 9.5q-17 0-26-7.5T638-436l-40 16q7 29 28.5 44.5T680-360ZM160-240h640v-480H160v480Zm0 0v-480 480Z"/>
+                </svg>
+              </span>
+              Get a one-time code
+              <span class="method-tile-arrow" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 -960 960 960" fill="#121212"><path d="M530-481 332-679l43-43 241 241-241 241-43-43 198-198Z"/></svg>
+              </span>
+            </button>
 
-              </div><!-- /method-tiles -->
-            </div><!-- /chooser-pf-alt -->
+          </div><!-- /method-tiles -->
 
-            <div class="divider" role="separator"></div>
-            <p class="create-account">
-              Don't have an account? <a href="#">Create an Account</a>
-            </p>
-
-          </div><!-- /chooser-panel-passkey-first -->
+          <!-- Create account footer -->
+          <div class="divider" role="separator"></div>
+          <p class="create-account">
+            Don't have an account? <a href="#">Create an Account</a>
+          </p>
 
         </div><!-- /screen-chooser -->
 
@@ -3660,7 +3709,16 @@
           <!-- Screen heading -->
           <div class="hero">
             <h1>Sign In</h1>
-            <p>Enter your email and password</p>
+            <p>Enter your password to continue</p>
+          </div>
+
+          <!-- W2.1 · Identifier strip (shown only when signInIdentifier is set) -->
+          <div class="identifier-strip" data-identifier-strip hidden>
+            <div class="identifier-strip-row">
+              <span class="identifier-strip-label">Signing in as</span>
+              <span class="identifier-strip-email" data-identifier-display></span>
+            </div>
+            <button class="identifier-strip-edit" type="button" data-identifier-edit aria-label="Use a different email">Edit</button>
           </div>
 
           <div class="form-group">
@@ -3909,6 +3967,15 @@
           <div class="hero">
             <h1>Sign In</h1>
             <p>Send a verification code to sign in</p>
+          </div>
+
+          <!-- W2.1 · Identifier strip (shown only when signInIdentifier is set) -->
+          <div class="identifier-strip" data-identifier-strip hidden>
+            <div class="identifier-strip-row">
+              <span class="identifier-strip-label">Signing in as</span>
+              <span class="identifier-strip-email" data-identifier-display></span>
+            </div>
+            <button class="identifier-strip-edit" type="button" data-identifier-edit aria-label="Use a different email">Edit</button>
           </div>
 
           <div class="form-group">
@@ -4578,8 +4645,8 @@
 
     // ── Screen description blurbs ──────────────────────────────
     const SCREEN_BLURBS = {
-      'screen-chooser:default':               'The sign-in entry point when no passkey is detected on this device. Users arrive here from any "Sign In" link across Ace Hardware.',
-      'screen-chooser:passkey-first':         'The sign-in entry point when a saved passkey is detected on this device. Face ID is offered as the primary action, with other methods listed below.',
+      'screen-chooser:default':               'Identifier-first sign-in entry. Users enter their email up top; downstream screens reuse it. Method tiles below offer Face ID / passkey, cross-device passkey, password, or one-time code.',
+      'screen-chooser:passkey-first':         'Identifier-first sign-in entry with a known passkey on this device. The Face ID tile is highlighted with a “Recommended for this device” pill so the fastest path is obvious.',
       'screen-passkey:idle':                  'Shown when the passkey ceremony begins. The user can tap USE FACE ID to authenticate with a saved local passkey, or tap \u201cUse a passkey from another device\u201d to scan a QR code and authenticate via a nearby phone.',
       'screen-passkey:idle-cross-device':       'The same passkey idle screen, shown as the second step of the cross-device happy path. The \u201cUse a passkey from another device\u201d button is the interactive trigger that advances to the QR screen.',
       'screen-passkey:failed':                'Shown when Face ID fails or is canceled by the OS. Offers a retry or a fallback to another sign-in method.',
@@ -4953,6 +5020,53 @@
     }
     function clearChooserBanner() { setChooserBanner(null); }
 
+    // ── W2.1 · signInIdentifier (single source of truth for email across screens) ───
+    let signInIdentifier = null;
+    function setSignInIdentifier(email) {
+      signInIdentifier = (email || '').trim() || null;
+      // Pre-fill downstream email inputs so the user doesn't re-type
+      const pwEmail = document.getElementById('pw-email');
+      if (pwEmail && signInIdentifier && !pwEmail.value) pwEmail.value = signInIdentifier;
+      const otpEmail = document.getElementById('otp-screen-email');
+      if (otpEmail && signInIdentifier && !otpEmail.value) otpEmail.value = signInIdentifier;
+      const resetEmail = document.getElementById('reset-email');
+      if (resetEmail && signInIdentifier && !resetEmail.value) resetEmail.value = signInIdentifier;
+      // Keep the chooser input in sync if it exists
+      const chooserEmail = document.getElementById('chooser-email-input');
+      if (chooserEmail && signInIdentifier) chooserEmail.value = signInIdentifier;
+      // Reflect on any "signing in as" strips
+      document.querySelectorAll('[data-identifier-display]').forEach(el => {
+        el.textContent = signInIdentifier || '';
+      });
+      document.querySelectorAll('[data-identifier-strip]').forEach(strip => {
+        if (signInIdentifier) strip.removeAttribute('hidden');
+        else                   strip.setAttribute('hidden', '');
+      });
+    }
+
+    // ── Chooser → identifier-first form submit ───────────────
+    document.getElementById('chooser-id-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = document.getElementById('chooser-email-input');
+      const email = (input.value || '').trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        input.focus();
+        input.setAttribute('aria-invalid', 'true');
+        showToast({ message: 'Enter a valid email address.', kind: 'error' });
+        return;
+      }
+      input.removeAttribute('aria-invalid');
+      setSignInIdentifier(email);
+      // Focus the recommended method tile silently — no toast.
+      const recommended = screenChooser.getAttribute('data-chooser-state') === 'passkey-first'
+        ? document.getElementById('tile-passkey')
+        : document.getElementById('tile-password-chooser');
+      if (recommended) recommended.focus();
+    });
+    document.getElementById('chooser-email-input').addEventListener('input', () => {
+      document.getElementById('chooser-email-input').removeAttribute('aria-invalid');
+    });
+
     // ── Chooser → Passkey ─────────────────────────────────────
     document.getElementById('tile-passkey').addEventListener('click', () => {
       clearChooserBanner();
@@ -4997,7 +5111,6 @@
     });
 
     // ── Chooser → Cross-device QR (passkey on another device) ──
-    // Wired for both chooser panels: default + passkey-first.
     function goToCrossDevice() {
       clearChooserBanner();
       setPasskeyState('cross-device');
@@ -5005,7 +5118,6 @@
       currentScreen = screenPasskey;
     }
     document.getElementById('tile-cd-chooser').addEventListener('click', goToCrossDevice);
-    document.getElementById('tile-pf-cd').addEventListener('click', goToCrossDevice);
 
     // ── OTP screen: delivery tile toggle ──────────────────────
     document.getElementById('otp-screen-tile-email').addEventListener('click', () => {
@@ -5338,20 +5450,9 @@
       setPasskeyState('cross-device');
     });
 
-    // ── Chooser passkey-first panel → Passkey screen ────────────
-    document.getElementById('chooser-pf-faceid-btn').addEventListener('click', () => {
-      setPasskeyState('idle');
-      switchScreen(currentScreen, screenPasskey, 'forward');
-      currentScreen = screenPasskey;
-    });
-    document.getElementById('tile-pf-password').addEventListener('click', () => {
-      switchScreen(currentScreen, screenPassword, 'forward');
-      currentScreen = screenPassword;
-    });
-    document.getElementById('tile-pf-otp').addEventListener('click', () => {
-      switchScreen(currentScreen, screenOtp, 'forward');
-      currentScreen = screenOtp;
-    });
+    // The legacy chooser-panel-passkey-first variant has been removed (W2.1).
+    // The single-panel chooser uses [data-chooser-state="passkey-first"] purely
+    // as an emphasis modifier on #tile-passkey — same surface, same handlers.
 
     // The legacy "notfound" state on screen-passkey has been removed.
     // Previously it housed dedicated handlers for:
@@ -6673,6 +6774,19 @@
       if (!targetEl || targetEl === currentScreen) return;
       switchScreen(currentScreen, targetEl, 'backward');
       currentScreen = targetEl;
+    });
+
+    // ── Identifier strip "Edit" → back to chooser (W2.1) ───
+    document.addEventListener('click', (e) => {
+      const editBtn = e.target.closest('[data-identifier-edit]');
+      if (!editBtn) return;
+      if (currentScreen === screenChooser) return;
+      switchScreen(currentScreen, screenChooser, 'backward');
+      currentScreen = screenChooser;
+      setTimeout(() => {
+        const input = document.getElementById('chooser-email-input');
+        if (input) { input.focus(); input.select(); }
+      }, 250);
     });
 
   </script>
