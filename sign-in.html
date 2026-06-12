@@ -2447,10 +2447,6 @@
     #screen-password[data-pw-state="error"] .pw-error-alert { display: flex; }
     #screen-password[data-pw-state="error"] #pw-password-field { border-color: #c62828; }
 
-    /* ─── Forgot-password inline error ─────────────────────────── */
-    #screen-forgot-password[data-forgotpw-state="not-found"] .forgotpw-error-alert { display: flex; }
-    #screen-forgot-password[data-forgotpw-state="not-found"] #reset-email-field { border-color: #c62828; }
-
     /* Forgot-password: rate-limited state */
     #screen-forgot-password[data-forgotpw-state="rate-limited"] .forgotpw-form    { display: none; }
     #screen-forgot-password[data-forgotpw-state="rate-limited"] .forgotpw-hero    { display: none; }
@@ -2570,6 +2566,138 @@
       font-family: 'Roboto', sans-serif;
       padding: 0 4px;
       min-height: 36px;
+    }
+
+    /* ════════════════════════════════════════════════════════════════
+       Wave 1 · Shared Toast component (W1.1)
+       role="status" for success/info; role="alert" for error.
+       Replaces every alert() callsite in the prototype.
+    ════════════════════════════════════════════════════════════════ */
+    .toast-host {
+      position: fixed;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 1000;
+      pointer-events: none;
+      width: max-content;
+      max-width: calc(100vw - 32px);
+    }
+    .toast {
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 48px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      background: #121212;
+      color: #fff;
+      font-family: 'Roboto', sans-serif;
+      font-size: 14px;
+      line-height: 20px;
+      letter-spacing: 0.25px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.12);
+      animation: toast-in 220ms ease-out;
+    }
+    .toast[data-kind="success"] { background: #1B5E20; }
+    .toast[data-kind="error"]   { background: #B71C1C; }
+    .toast[data-kind="info"]    { background: #121212; }
+    .toast-icon {
+      flex: 0 0 auto;
+      width: 18px;
+      height: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .toast-message {
+      flex: 1 1 auto;
+      margin: 0;
+    }
+    .toast-action {
+      flex: 0 0 auto;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 4px 8px;
+      margin-left: 4px;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+    .toast-action:hover { background: rgba(255,255,255,0.12); }
+    .toast.toast-leaving { animation: toast-out 180ms ease-in forwards; }
+    @keyframes toast-in {
+      from { opacity: 0; transform: translateY(-12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes toast-out {
+      from { opacity: 1; transform: translateY(0); }
+      to   { opacity: 0; transform: translateY(-12px); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .toast { animation: none; }
+      .toast.toast-leaving { animation: none; opacity: 0; }
+    }
+
+    /* ════════════════════════════════════════════════════════════════
+       Wave 1 · Settings breadcrumb as interactive button (W1.9)
+       Replaces <span class="settings-breadcrumb"> on detail screens.
+    ════════════════════════════════════════════════════════════════ */
+    .settings-breadcrumb-link {
+      background: transparent;
+      border: 0;
+      padding: 0;
+      margin: 0;
+      font: inherit;
+      color: #5F6368;
+      cursor: pointer;
+      text-align: left;
+      letter-spacing: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .settings-breadcrumb-link:hover { color: #121212; text-decoration: underline; }
+    .settings-breadcrumb-link:focus-visible {
+      outline: 2px solid #1976d2;
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+    .settings-breadcrumb-link::before {
+      content: '\2039';
+      font-size: 18px;
+      line-height: 1;
+      margin-right: 2px;
+    }
+
+    /* ════════════════════════════════════════════════════════════════
+       Wave 1 · Passkey list empty state (W1.5)
+       Rendered when #passkey-list has zero .passkey-list-item children.
+    ════════════════════════════════════════════════════════════════ */
+    .passkey-list-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 24px 16px;
+      border: 1px dashed rgba(18,18,18,0.18);
+      border-radius: 12px;
+      background: rgba(18,18,18,0.02);
+    }
+    .passkey-list-empty-text {
+      margin: 0;
+      font-size: 14px;
+      line-height: 20px;
+      color: #5F6368;
+      text-align: center;
     }
 
   </style>
@@ -3189,7 +3317,7 @@
         <div id="screen-activity" hidden>
 
           <div class="settings-topbar">
-            <span class="settings-breadcrumb">Account Settings &rsaquo; Sign-In &amp; Security</span>
+            <button class="settings-breadcrumb-link" type="button" data-breadcrumb-target="screen-settings-security">Account Settings &rsaquo; Sign-In &amp; Security</button>
             <h2 class="settings-section-heading">Sign-In Activity</h2>
           </div>
 
@@ -3248,7 +3376,7 @@
         <div id="screen-active-devices" hidden>
 
           <div class="settings-topbar">
-            <span class="settings-breadcrumb">Account Settings &rsaquo; Sign-In &amp; Security</span>
+            <button class="settings-breadcrumb-link" type="button" data-breadcrumb-target="screen-settings-security">Account Settings &rsaquo; Sign-In &amp; Security</button>
             <h2 class="settings-section-heading">Active Devices</h2>
           </div>
 
@@ -3272,7 +3400,7 @@
                 <p class="device-full-label">MacBook Pro</p>
                 <p class="device-full-meta">Active 2 hours ago &middot; Chicago, IL &middot; macOS 15.2</p>
               </div>
-              <button class="device-signout-btn" type="button" data-device-name="MacBook Pro">Sign out</button>
+              <button class="device-signout-btn" type="button" data-device-name="MacBook Pro">SIGN OUT</button>
             </li>
             <li class="device-full-item" data-device-id="d3">
               <span class="device-full-icon" aria-hidden="true">
@@ -3282,11 +3410,11 @@
                 <p class="device-full-label">iPad Air</p>
                 <p class="device-full-meta">Active 3 days ago &middot; Seattle, WA &middot; iPadOS 18.1</p>
               </div>
-              <button class="device-signout-btn" type="button" data-device-name="iPad Air">Sign out</button>
+              <button class="device-signout-btn" type="button" data-device-name="iPad Air">SIGN OUT</button>
             </li>
           </ul>
 
-          <button class="device-signout-all-btn" type="button" id="device-signout-all-btn">Sign out of all other devices</button>
+          <button class="device-signout-all-btn" type="button" id="device-signout-all-btn">SIGN OUT OF ALL OTHER DEVICES</button>
 
           <!-- Remote sign-out confirmation (modal overlay) -->
           <div class="signout-modal-backdrop" id="signout-modal-backdrop" hidden></div>
@@ -3307,7 +3435,7 @@
 
           <!-- fake settings chrome -->
           <div class="settings-topbar">
-            <span class="settings-breadcrumb">Account Settings &rsaquo; Sign-In &amp; Security</span>
+            <button class="settings-breadcrumb-link" type="button" data-breadcrumb-target="screen-settings-security">Account Settings &rsaquo; Sign-In &amp; Security</button>
             <h2 class="settings-section-heading">Passkeys</h2>
           </div>
 
@@ -3341,6 +3469,10 @@
                 </div>
               </li>
             </ul>
+            <!-- Wave 1 (W1.5): Empty state shown when zero passkey-list-item children -->
+            <div class="passkey-list-empty" id="passkey-list-empty" hidden>
+              <p class="passkey-list-empty-text">You don&#8217;t have any passkeys saved. Adding one lets you sign in instantly with Face ID or Touch ID on this device.</p>
+            </div>
             <button class="sign-in-btn" id="settings-add-passkey-btn" type="button">ADD A PASSKEY</button>
           </div>
 
@@ -3389,7 +3521,7 @@
 
           <!-- fake settings chrome -->
           <div class="settings-topbar">
-            <span class="settings-breadcrumb">Account Settings &rsaquo; Sign-In &amp; Security</span>
+            <button class="settings-breadcrumb-link" type="button" data-breadcrumb-target="screen-settings-security">Account Settings &rsaquo; Sign-In &amp; Security</button>
             <h2 class="settings-section-heading">Recovery Email</h2>
           </div>
 
@@ -3421,7 +3553,7 @@
               <h2>Check your inbox</h2>
               <p>We sent a verification link to <strong id="recovery-email-sent-address">your email</strong>. Click it to confirm this address as your backup.</p>
             </div>
-            <p class="recovery-email-sent-meta">The link expires in <strong>30 minutes</strong>. Didn&#8217;t get it? Check spam or resend below.</p>
+            <p class="recovery-email-sent-meta">The link expires in <strong>15 minutes</strong>. Didn&#8217;t get it? Check spam or resend below.</p>
             <div class="settings-action-row">
               <button class="reset-resend-btn" id="recovery-email-resend-btn" type="button">RESEND EMAIL</button>
               <p class="reset-cooldown-text" id="recovery-email-cooldown-text"></p>
@@ -3638,12 +3770,6 @@
 
           <div class="form-group forgotpw-form">
 
-            <!-- Inline error alert (not-found state) -->
-            <div class="pw-error-alert forgotpw-error-alert" role="alert" aria-live="polite">
-              <svg width="16" height="16" viewBox="0 -960 960 960" fill="#c62828" aria-hidden="true"><path d="M503.5-289.48q9.5-9.48 9.5-23.5t-9.48-23.52q-9.48-9.5-23.5-9.5t-23.52 9.48q-9.5 9.48-9.5 23.5t9.48 23.52q9.48 9.5 23.5 9.5t23.52-9.48ZM453-433h60v-253h-60v253Zm27.27 353q-82.74 0-155.5-31.5Q252-143 197.5-197.5t-86-127.34Q80-397.68 80-480.5t31.5-155.66Q143-709 197.5-763t127.34-85.5Q397.68-880 480.5-880t155.66 31.5Q709-817 763-763t85.5 127Q880-563 880-480.27q0 82.74-31.5 155.5Q817-252 763-197.68q-54 54.31-127 86Q563-80 480.27-80Zm.23-60Q622-140 721-239.5t99-241Q820-622 721.19-721T480-820q-141 0-240.5 98.81T140-480q0 141 99.5 240.5t241 99.5Zm-.5-340Z"/></svg>
-              <span>We couldn&#8217;t find an account with that email address.</span>
-            </div>
-
             <div class="text-field" id="reset-email-field">
               <input type="email" id="reset-email" name="reset-email" placeholder=" "
                 autocomplete="email" aria-label="Email address" />
@@ -3680,7 +3806,7 @@
               <svg width="40" height="40" viewBox="0 -960 960 960" fill="currentColor"><path d="M140-160q-24 0-42-18t-18-42v-520q0-24 18-42t42-18h680q24 0 42 18t18 42v520q0 24-18 42t-42 18H140Zm340-302L140-685v465h680v-465L480-462Zm0-60 336-218H145l335 218ZM140-685v-55 520-465Z"/></svg>
             </div>
             <h1>Check Your Email</h1>
-            <p>We sent a password reset link to <strong id="reset-sent-email">your email</strong>. Check your inbox and follow the link to create a new password.</p>
+            <p>If an account exists for <strong id="reset-sent-email">your email</strong>, we&#8217;ve sent a password reset link. The link expires in 15 minutes.</p>
           </div>
 
           <div style="display:flex;flex-direction:column;gap:12px;width:100%;">
@@ -3688,8 +3814,6 @@
             <p class="reset-cooldown-text" id="reset-cooldown-text"></p>
             <button class="enroll-skip-btn" id="reset-simulate-link-btn" type="button">I received the link →</button>
           </div>
-
-          <a href="#" class="recovery-help-link" id="reset-wrong-email-link">Wrong email? <span>Sign in with a different account</span></a>
 
         </div><!-- /screen-reset-sent -->
 
@@ -4029,12 +4153,6 @@
         </button>
       </li>
       <li>
-        <button class="proto-nav-item" data-nav-target="screen-forgot-password" data-nav-state="not-found">
-          <span class="proto-nav-dot" aria-hidden="true"></span>
-          Email not found
-        </button>
-      </li>
-      <li>
         <button class="proto-nav-item" data-nav-target="screen-forgot-password" data-nav-state="rate-limited">
           <span class="proto-nav-dot" aria-hidden="true"></span>
           Rate limited
@@ -4252,6 +4370,191 @@
   </div>
 
   <script>
+    /* ════════════════════════════════════════════════════════════════
+       Wave 1 · Shared scaffolding
+       Sequenced before any DOM lookups: time constants, toast, modal,
+       signInOrigin, and the lockout-countdown helper. Everything below
+       depends on these.
+    ════════════════════════════════════════════════════════════════ */
+
+    // ── W1.8 · Time constants (single source of truth) ─────────────────
+    const QR_TTL_MS                  = 120_000;   // 2 min  · cross-device QR
+    const OTP_TTL_MS                 = 180_000;   // 3 min  · OTP code TTL
+    const LOCKOUT_MS                 = 900_000;   // 15 min · password / forgot-pw / OTP lockout
+    const RESEND_COOLDOWN_MS         = 60_000;    // 1 min  · resend cooldown across flows
+    const RESET_LINK_TTL_MS          = 900_000;   // 15 min · password-reset link
+    const RECOVERY_EMAIL_LINK_TTL_MS = 900_000;   // 15 min · recovery-email verification link
+
+    // ── W1.1 · Toast component (shared) ────────────────────────────────
+    // Replaces every alert() callsite. role="status" for non-error,
+    // role="alert" for errors. Reduced-motion-aware via CSS.
+    let _toastSeq = 0;
+    function showToast({ message, kind = 'info', duration, action } = {}) {
+      const host = document.getElementById('toast-host');
+      if (!host) return null;
+      const dur = typeof duration === 'number'
+        ? duration
+        : (kind === 'error' ? 8000 : 4000);
+      const el = document.createElement('div');
+      el.className = 'toast';
+      el.dataset.kind = kind;
+      el.id = `toast-${++_toastSeq}`;
+      el.setAttribute('role', kind === 'error' ? 'alert' : 'status');
+      el.setAttribute('aria-live', kind === 'error' ? 'assertive' : 'polite');
+
+      const icon = document.createElement('span');
+      icon.className = 'toast-icon';
+      icon.setAttribute('aria-hidden', 'true');
+      if (kind === 'success') {
+        icon.innerHTML = '<svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M382-208 122-468l90-90 170 170 366-366 90 90-456 456Z"/></svg>';
+      } else if (kind === 'error') {
+        icon.innerHTML = '<svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="m336-280 144-144 144 144 56-56-144-144 144-144-56-56-144 144-144-144-56 56 144 144-144 144 56 56ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z"/></svg>';
+      } else {
+        icon.innerHTML = '<svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M440-280h80v-240h-80v240Zm40-320q17 0 28.5-11.5T520-640q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640q0 17 11.5 28.5T480-600Zm0 520q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z"/></svg>';
+      }
+      el.appendChild(icon);
+
+      const msg = document.createElement('p');
+      msg.className = 'toast-message';
+      msg.textContent = message || '';
+      el.appendChild(msg);
+
+      if (action && action.label && typeof action.onClick === 'function') {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'toast-action';
+        btn.textContent = action.label;
+        btn.addEventListener('click', () => {
+          try { action.onClick(); } finally { dismissToast(el); }
+        });
+        el.appendChild(btn);
+      }
+
+      host.appendChild(el);
+      const t = setTimeout(() => dismissToast(el), dur);
+      el._dismissTimer = t;
+      return el;
+    }
+    function dismissToast(el) {
+      if (!el || !el.parentNode) return;
+      if (el._dismissTimer) clearTimeout(el._dismissTimer);
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduceMotion) { el.remove(); return; }
+      el.classList.add('toast-leaving');
+      setTimeout(() => el.remove(), 200);
+    }
+
+    // ── W1.2 · Modal component (shared confirm dialog) ─────────────────
+    // Built from the existing #signout-modal pattern, generalized.
+    // Adds focus trap, Escape dismiss, focus return, aria-describedby.
+    // Per A3: used for destructive / state-reversing actions.
+    const _modalState = { open: false, root: null, lastFocus: null, keyHandler: null };
+    function openConfirmModal({ title, body, confirmLabel = 'Confirm', cancelLabel = 'Cancel', kind = 'default', onConfirm, onCancel } = {}) {
+      // If we already have the sign-out modal markup, reuse it as a generic shell.
+      const backdrop = document.getElementById('signout-modal-backdrop');
+      const modal    = document.getElementById('signout-modal');
+      const titleEl  = document.getElementById('signout-modal-title');
+      const bodyEl   = document.querySelector('#signout-modal .signout-modal-body');
+      const deviceEl = document.querySelector('#signout-modal .signout-modal-device-line');
+      const cancel   = document.getElementById('signout-modal-cancel');
+      const confirm  = document.getElementById('signout-modal-confirm');
+      if (!backdrop || !modal || !titleEl || !bodyEl || !cancel || !confirm) return false;
+
+      _modalState.lastFocus = document.activeElement;
+      titleEl.textContent = title || 'Are you sure?';
+      bodyEl.textContent  = body  || '';
+      if (deviceEl) deviceEl.style.display = 'none';
+      modal.setAttribute('aria-describedby', bodyEl.id || (bodyEl.id = 'modal-body-' + (++_toastSeq)));
+      cancel.textContent  = cancelLabel;
+      confirm.textContent = confirmLabel;
+      confirm.classList.toggle('signout-confirm-btn', kind === 'destructive' || true); // destructive style is fine for all confirms in v1
+
+      backdrop.removeAttribute('hidden');
+      modal.removeAttribute('hidden');
+      _modalState.open = true;
+      _modalState.root = modal;
+
+      // Replace the click handlers with one-shot wrappers.
+      const close = (committed) => {
+        backdrop.setAttribute('hidden', '');
+        modal.setAttribute('hidden', '');
+        if (deviceEl) deviceEl.style.display = '';
+        confirm.replaceWith(confirm.cloneNode(true));
+        cancel.replaceWith(cancel.cloneNode(true));
+        backdrop.replaceWith(backdrop.cloneNode(true));
+        document.removeEventListener('keydown', _modalState.keyHandler);
+        _modalState.open = false;
+        _modalState.keyHandler = null;
+        if (_modalState.lastFocus && typeof _modalState.lastFocus.focus === 'function') {
+          _modalState.lastFocus.focus();
+        }
+        if (committed && typeof onConfirm === 'function') onConfirm();
+        else if (!committed && typeof onCancel === 'function') onCancel();
+      };
+      // Re-grab fresh references after potential clone (above runs only on close)
+      document.getElementById('signout-modal-confirm').addEventListener('click', () => close(true));
+      document.getElementById('signout-modal-cancel').addEventListener('click', () => close(false));
+      document.getElementById('signout-modal-backdrop').addEventListener('click', () => close(false));
+      _modalState.keyHandler = (e) => {
+        if (e.key === 'Escape') { e.preventDefault(); close(false); }
+        if (e.key === 'Tab') {
+          // Simple two-button focus trap
+          const focusables = [document.getElementById('signout-modal-cancel'), document.getElementById('signout-modal-confirm')].filter(Boolean);
+          if (!focusables.length) return;
+          const first = focusables[0], last = focusables[focusables.length - 1];
+          if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+          else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        }
+      };
+      document.addEventListener('keydown', _modalState.keyHandler);
+      setTimeout(() => document.getElementById('signout-modal-confirm').focus(), 0);
+      return true;
+    }
+
+    // ── W1.3 · signInOrigin (mirror of enrollOrigin shape) ─────────────
+    // Set on entry to a sign-in screen; consumed at completion to route
+    // back to where the user came from. For v1 prototype we only carry
+    // a kind tag — cart/product/home/settings/null. The toast on landing
+    // is the user-visible signal; surface routing is conceptual until
+    // there are real origin surfaces in the prototype.
+    let signInOrigin = null;
+    function setSignInOrigin(kind, payload) { signInOrigin = kind ? { from: kind, payload } : null; }
+    function clearSignInOrigin() { signInOrigin = null; }
+    function welcomeToastForFirstName(firstName) {
+      return showToast({
+        message: firstName ? `Welcome back, ${firstName}.` : 'You\u2019re signed in.',
+        kind: 'success',
+      });
+    }
+
+    // ── W1.4 · Shared lockout-countdown helper ─────────────────────────
+    // Used by forgot-password rate-limit, account-locked, and recovery
+    // (and any future OTP lockout). Always two-digit MM:SS padding.
+    // On expiry: clears the data-state attribute on the host element
+    // and fires the optional onExpiry callback.
+    function startLockoutCountdown({ timerEl, durationMs, hostEl, stateAttr, onExpiry } = {}) {
+      if (!timerEl) return null;
+      let secs = Math.max(0, Math.floor(durationMs / 1000));
+      const fmt = (s) => String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+      timerEl.textContent = fmt(secs);
+      const id = setInterval(() => {
+        secs--;
+        if (secs <= 0) {
+          clearInterval(id);
+          timerEl.textContent = '00:00';
+          if (hostEl && stateAttr) hostEl.removeAttribute(stateAttr);
+          if (typeof onExpiry === 'function') onExpiry();
+          return;
+        }
+        timerEl.textContent = fmt(secs);
+      }, 1000);
+      return { stop: () => clearInterval(id) };
+    }
+
+    /* ════════════════════════════════════════════════════════════════
+       End Wave 1 scaffold
+    ════════════════════════════════════════════════════════════════ */
+
     const screenVerify   = document.getElementById('screen-verify');
     const screenPassword = document.getElementById('screen-password');
     const screenOtp      = document.getElementById('screen-otp');
@@ -4310,8 +4613,7 @@
       'screen-password':                      'Shown after choosing Password from the chooser. The user enters their email and password to sign in.',
       'screen-password:error':                'Shown after an incorrect password entry. Displays remaining attempts before the account is temporarily locked.',
       'screen-account-locked':                'Triggered after too many failed password attempts. The account is locked with a countdown; the user can reset their password instead.',
-      'screen-forgot-password':               'Reached by tapping "Forgot password?" from the password screen. The user enters their email to receive a reset link.',
-      'screen-forgot-password:not-found':      'Shown after submitting an email address that has no matching account. An inline error appears below the field; the user can correct the address and try again.',
+      'screen-forgot-password':               'Reached by tapping "Forgot password?" from the password screen. The user enters their email; the response is non-confirming for security (it doesn\'t reveal whether the account exists).',
       'screen-forgot-password:rate-limited':   'Shown after too many reset requests from the same account or IP. The form is replaced with a lockout panel showing a countdown timer; the user can return to sign in.',
       'screen-reset-sent':                    'Confirmation that a password reset email has been sent. Instructs the user to check their inbox and provides a resend option.',
       'screen-new-password':                  'Reached via the reset link in the user\'s email. The user creates a new password to replace the forgotten one.',
@@ -4850,39 +5152,107 @@
       if (!btn) return;
       const action = btn.dataset.action;
       const pkItem = btn.closest('.passkey-list-item');
+      const pkId = pkItem ? pkItem.dataset.pkId : null;
       const pkName = pkItem ? pkItem.querySelector('.passkey-list-name').textContent : '';
       const isLast = document.querySelectorAll('.passkey-list-item').length === 1;
       if (action === 'rename') {
-        document.getElementById('rename-input').value = pkName;
+        const input = document.getElementById('rename-input');
+        input.value = pkName;
+        input.dataset.targetPkId = pkId || '';
         setSettingsState('rename');
       } else if (action === 'remove') {
+        if (isLast) {
+          document.getElementById('remove-last-confirm-btn').dataset.targetPkId = pkId || '';
+        } else {
+          document.getElementById('remove-confirm-btn').dataset.targetPkId = pkId || '';
+        }
         setSettingsState(isLast ? 'remove-last' : 'remove', pkName);
       }
     });
 
-    // Rename: save → back to list (prototype: just update label)
+    // Rename: save → mutate the DOM, toast, back to list (W1.5)
     document.getElementById('rename-save-btn').addEventListener('click', () => {
+      const input = document.getElementById('rename-input');
+      const newName = (input.value || '').trim();
+      if (!newName) { input.focus(); return; }
+      const targetId = input.dataset.targetPkId;
+      const targetItem = targetId
+        ? document.querySelector(`.passkey-list-item[data-pk-id="${targetId}"]`)
+        : null;
+      const oldName = targetItem ? (targetItem.querySelector('.passkey-list-name')?.textContent || '') : '';
+      if (targetItem) {
+        const nameEl = targetItem.querySelector('.passkey-list-name');
+        if (nameEl) nameEl.textContent = newName;
+        // Update accessible labels on the action buttons
+        targetItem.querySelectorAll('[data-action]').forEach(btn => {
+          const action = btn.dataset.action;
+          btn.setAttribute('aria-label', (action === 'rename' ? 'Rename ' : 'Remove ') + newName);
+        });
+      }
       setSettingsState('list');
+      showToast({
+        message: oldName && oldName !== newName
+          ? `“${oldName}” renamed to “${newName}.”`
+          : `“${newName}” saved.`,
+        kind: 'success',
+      });
     });
     document.getElementById('rename-cancel-btn').addEventListener('click', () => {
       setSettingsState('list');
     });
 
-    // Remove: confirm (2+ passkeys) → back to list
+    // Remove: confirm (2+ passkeys) → mutate, toast, back to list (W1.5)
     document.getElementById('remove-confirm-btn').addEventListener('click', () => {
+      const targetId = document.getElementById('remove-confirm-btn').dataset.targetPkId;
+      const item = targetId
+        ? document.querySelector(`.passkey-list-item[data-pk-id="${targetId}"]`)
+        : null;
+      const removedName = item ? (item.querySelector('.passkey-list-name')?.textContent || 'Passkey') : 'Passkey';
+      if (item) item.remove();
+      refreshPasskeyEmptyState();
       setSettingsState('list');
+      showToast({ message: `“${removedName}” removed.`, kind: 'success' });
     });
     document.getElementById('remove-cancel-btn').addEventListener('click', () => {
       setSettingsState('list');
     });
 
-    // Remove: confirm last passkey → back to list
+    // Remove last: confirm → mutate, escalated toast, back to list (W1.5)
     document.getElementById('remove-last-confirm-btn').addEventListener('click', () => {
+      const targetId = document.getElementById('remove-last-confirm-btn').dataset.targetPkId;
+      const item = targetId
+        ? document.querySelector(`.passkey-list-item[data-pk-id="${targetId}"]`)
+        : document.querySelector('.passkey-list-item');
+      const removedName = item ? (item.querySelector('.passkey-list-name')?.textContent || 'Passkey') : 'Passkey';
+      if (item) item.remove();
+      refreshPasskeyEmptyState();
       setSettingsState('list');
+      showToast({
+        message: `“${removedName}” removed. You can sign in with password or a one-time code.`,
+        kind: 'success',
+        duration: 8000,
+      });
     });
     document.getElementById('remove-last-cancel-btn').addEventListener('click', () => {
       setSettingsState('list');
     });
+
+    // Empty-state visibility helper for the passkey list (W1.5)
+    function refreshPasskeyEmptyState() {
+      const list = document.getElementById('passkey-list');
+      const empty = document.getElementById('passkey-list-empty');
+      const addBtn = document.getElementById('settings-add-passkey-btn');
+      if (!list || !empty) return;
+      const count = list.querySelectorAll('.passkey-list-item').length;
+      if (count === 0) {
+        empty.removeAttribute('hidden');
+        list.setAttribute('hidden', '');
+        if (addBtn) addBtn.textContent = 'ADD A PASSKEY';
+      } else {
+        empty.setAttribute('hidden', '');
+        list.removeAttribute('hidden');
+      }
+    }
 
     // “ADD A PASSKEY” from settings → go to enrollment screen
     document.getElementById('settings-add-passkey-btn').addEventListener('click', () => {
@@ -4913,10 +5283,10 @@
         switchScreen(screenEnroll, screenSettings, 'backward');
         currentScreen = screenSettings;
       } else {
-        // Post-login: user is signed in — show confirmation
+        // Post-login: user is signed in — land at chooser, show welcome toast (W1.1 + W1.3)
         switchScreen(screenEnroll, screenChooser, 'backward');
         currentScreen = screenChooser;
-        alert('\u2713 You\u2019re signed in. (Passkey setup skipped for now)');
+        welcomeToastForFirstName('David');
       }
     }
     document.getElementById('enroll-skip-btn').addEventListener('click', () => setEnrollState('declined'));
@@ -4943,9 +5313,9 @@
       setEnrollState('prompt');
     });
 
-    // "CONTINUE SHOPPING" → prototype confirmation
+    // "CONTINUE SHOPPING" → toast confirmation (W1.1)
     document.getElementById('enroll-continue-btn').addEventListener('click', () => {
-      alert('✓ Passkey saved. Continuing to shop… (prototype)');
+      showToast({ message: 'Passkey saved. You’ll sign in instantly next time.', kind: 'success' });
     });
 
     // "GOT IT" on already-enrolled panel → back to passkey screen
@@ -5004,17 +5374,23 @@
       setReenrollState('success');
     });
     document.getElementById('reenroll-skip-btn').addEventListener('click', () => {
-      // Skip → treat as signed in, go home (no-op in prototype)
-      alert('Continuing to shop. Face ID can be set up later in Account Settings. (prototype)');
+      // Skip → treat as signed in, return to chooser with welcome toast (W1.1)
+      switchScreen(screenReenroll, screenChooser, 'backward');
+      currentScreen = screenChooser;
+      welcomeToastForFirstName('David');
     });
     document.getElementById('reenroll-continue-btn').addEventListener('click', () => {
-      alert('Proceeding to shop. (prototype)');
+      switchScreen(screenReenroll, screenChooser, 'backward');
+      currentScreen = screenChooser;
+      welcomeToastForFirstName('David');
     });
     document.getElementById('reenroll-retry-btn').addEventListener('click', () => {
       setReenrollState('success');
     });
     document.getElementById('reenroll-later-btn').addEventListener('click', () => {
-      alert('Continuing to shop. Face ID can be set up later in Account Settings. (prototype)');
+      switchScreen(screenReenroll, screenChooser, 'backward');
+      currentScreen = screenChooser;
+      welcomeToastForFirstName('David');
     });
 
     // ── New-password state helpers ────────────────────────────────
@@ -5036,23 +5412,21 @@
       updateBlurb();
     }
     let recoveryAttempts = 0;
-    let recoveryInterval = null;
+    let recoveryController = null;
     function startRecoveryCountdown() {
-      if (recoveryInterval) { clearInterval(recoveryInterval); recoveryInterval = null; }
-      let secs = 15 * 60;
-      const timerEl = document.getElementById('recovery-countdown-timer');
-      function fmt(s) { return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); }
-      timerEl.textContent = fmt(secs);
-      recoveryInterval = setInterval(() => {
-        secs--;
-        timerEl.textContent = fmt(secs);
-        if (secs <= 0) {
-          clearInterval(recoveryInterval);
-          recoveryInterval = null;
+      if (recoveryController) recoveryController.stop();
+      recoveryController = startLockoutCountdown({
+        timerEl:    document.getElementById('recovery-countdown-timer'),
+        durationMs: LOCKOUT_MS,
+        hostEl:     screenRecovery,
+        stateAttr:  'data-recovery-state',
+        onExpiry: () => {
+          recoveryController = null;
           recoveryAttempts = 0;
           setRecoveryState('default');
-        }
-      }, 1000);
+          showToast({ message: 'You can request a one-time code again now.', kind: 'info' });
+        },
+      });
     }
 
     // ── Recovery screen → OTP / Password / Help ───────────────
@@ -5072,7 +5446,7 @@
     });
     document.getElementById('recovery-help-link').addEventListener('click', (e) => {
       e.preventDefault();
-      alert('This would open account support. (prototype)');
+      showToast({ message: 'Account support would open here. (prototype)', kind: 'info' });
     });
     document.getElementById('recovery-password-locked-btn').addEventListener('click', () => {
       switchScreen(screenRecovery, screenPassword, 'forward');
@@ -5080,7 +5454,7 @@
     });
     document.getElementById('recovery-locked-support-link').addEventListener('click', (e) => {
       e.preventDefault();
-      alert('This would open account support. (prototype)');
+      showToast({ message: 'Account support would open here. (prototype)', kind: 'info' });
     });
 
     // ── Back button: unified handler for all screen states ──────
@@ -5488,15 +5862,6 @@
             { screen: 'screen-forgot-password', state: null,      label: 'Forgot password — email entry' },
             { screen: 'screen-reset-sent',      state: null,      label: 'Reset email sent' },
             { screen: 'screen-new-password',    state: 'expired', label: 'New password — link expired' },
-          ],
-        },
-        {
-          id: 'reset-email-not-found', group: 'Password Reset',
-          label: 'Email Not Found',
-          figmaUrl: FIGMA + '198-335',
-          steps: [
-            { screen: 'screen-forgot-password', state: null,        label: 'Forgot password — email entry' },
-            { screen: 'screen-forgot-password', state: 'not-found', label: 'Forgot password — email not found' },
           ],
         },
         {
@@ -5953,67 +6318,67 @@
       currentScreen = screenForgotPw;
     });
 
-    // ── Forgot Password rate-limit countdown ────────────────────────
-    let forgotpwRateInterval = null;
+    // ── Forgot Password rate-limit countdown (W1.4 shared helper) ───
+    let forgotpwRateController = null;
     function startForgotpwRateCountdown() {
-      if (forgotpwRateInterval) { clearInterval(forgotpwRateInterval); forgotpwRateInterval = null; }
-      let secs = 15 * 60;
-      const timerEl = document.getElementById('forgotpw-rate-countdown');
-      function fmt(s) { return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); }
-      timerEl.textContent = fmt(secs);
-      forgotpwRateInterval = setInterval(() => {
-        secs--;
-        timerEl.textContent = fmt(secs);
-        if (secs <= 0) { clearInterval(forgotpwRateInterval); forgotpwRateInterval = null; }
-      }, 1000);
+      if (forgotpwRateController) forgotpwRateController.stop();
+      forgotpwRateController = startLockoutCountdown({
+        timerEl:    document.getElementById('forgotpw-rate-countdown'),
+        durationMs: LOCKOUT_MS,
+        hostEl:     screenForgotPw,
+        stateAttr:  'data-forgotpw-state',
+        onExpiry: () => {
+          forgotpwRateController = null;
+          if (currentScreen === screenForgotPw) updateBlurb();
+          showToast({ message: 'You can request a password reset again now.', kind: 'info' });
+        },
+      });
     }
     document.getElementById('forgotpw-rate-back-btn').addEventListener('click', () => {
-      if (forgotpwRateInterval) { clearInterval(forgotpwRateInterval); forgotpwRateInterval = null; }
+      if (forgotpwRateController) { forgotpwRateController.stop(); forgotpwRateController = null; }
       screenForgotPw.removeAttribute('data-forgotpw-state');
       switchScreen(screenForgotPw, screenChooser, 'backward');
       currentScreen = screenChooser;
     });
 
-    // ── Account Locked countdown + navigation ──────────────────
-    let lockedInterval = null;
+    // ── Account Locked countdown + navigation (W1.4 shared helper) ──
+    let lockedController = null;
     function startLockedCountdown() {
-      if (lockedInterval) { clearInterval(lockedInterval); lockedInterval = null; }
-      let secs = 15 * 60;
-      const timerEl = document.getElementById('locked-countdown-timer');
-      function fmtLocked(s) {
-        return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
-      }
-      timerEl.textContent = fmtLocked(secs);
-      lockedInterval = setInterval(() => {
-        secs--;
-        timerEl.textContent = fmtLocked(secs);
-        if (secs <= 0) { clearInterval(lockedInterval); lockedInterval = null; }
-      }, 1000);
+      if (lockedController) lockedController.stop();
+      lockedController = startLockoutCountdown({
+        timerEl:    document.getElementById('locked-countdown-timer'),
+        durationMs: LOCKOUT_MS,
+        onExpiry: () => {
+          lockedController = null;
+          if (currentScreen === screenAccountLocked) {
+            showToast({ message: 'Your account is unlocked. Try signing in again.', kind: 'info' });
+          }
+        },
+      });
     }
     document.getElementById('locked-reset-pw-btn').addEventListener('click', () => {
-      if (lockedInterval) { clearInterval(lockedInterval); lockedInterval = null; }
+      if (lockedController) { lockedController.stop(); lockedController = null; }
       switchScreen(screenAccountLocked, screenForgotPw, 'forward');
       currentScreen = screenForgotPw;
     });
     document.getElementById('locked-another-way-btn').addEventListener('click', () => {
-      if (lockedInterval) { clearInterval(lockedInterval); lockedInterval = null; }
+      if (lockedController) { lockedController.stop(); lockedController = null; }
       switchScreen(screenAccountLocked, screenChooser, 'backward');
       currentScreen = screenChooser;
     });
 
-    // ── Forgot Password → Reset Sent ───────────────────────────
+    // ── Forgot Password → Reset Sent (W1.7 · non-confirming, no enumeration) ───
     document.getElementById('reset-send-btn').addEventListener('click', () => {
-      // If already in not-found state, the user is retrying — clear error and proceed
-      const alreadyErrored = screenForgotPw.getAttribute('data-forgotpw-state') === 'not-found';
-      if (!alreadyErrored) {
-        // First tap: show not-found error (prototype always shows it to demo the state)
-        screenForgotPw.setAttribute('data-forgotpw-state', 'not-found');
-        updateBlurb();
+      const input = document.getElementById('reset-email');
+      const emailVal = (input.value || '').trim();
+      const looksLikeEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal);
+      if (!looksLikeEmail) {
+        input.focus();
+        input.setAttribute('aria-invalid', 'true');
+        showToast({ message: 'Enter a valid email address.', kind: 'error' });
         return;
       }
-      // Second tap (retry): clear error and proceed to reset-sent
-      screenForgotPw.removeAttribute('data-forgotpw-state');
-      const emailVal = document.getElementById('reset-email').value.trim() || 'your email';
+      input.removeAttribute('aria-invalid');
       const sentEl = document.getElementById('reset-sent-email');
       if (sentEl) sentEl.textContent = emailVal;
       switchScreen(screenForgotPw, screenResetSent, 'forward');
@@ -6021,10 +6386,7 @@
       startResetCooldown();
     });
     document.getElementById('reset-email').addEventListener('input', () => {
-      if (screenForgotPw.getAttribute('data-forgotpw-state') === 'not-found') {
-        screenForgotPw.removeAttribute('data-forgotpw-state');
-        updateBlurb();
-      }
+      document.getElementById('reset-email').removeAttribute('aria-invalid');
     });
 
     // ── Reset Sent: resend cooldown ────────────────────────────
@@ -6056,11 +6418,6 @@
       switchScreen(screenResetSent, screenNewPw, 'forward');
       currentScreen = screenNewPw;
     });
-    document.getElementById('reset-wrong-email-link').addEventListener('click', (e) => {
-      e.preventDefault();
-      switchScreen(screenResetSent, screenForgotPw, 'backward');
-      currentScreen = screenForgotPw;
-    });
 
     // ── New Password: strength bar + save ───────────────────────
     document.getElementById('new-pw-1').addEventListener('input', function () {
@@ -6081,10 +6438,14 @@
       currentScreen = screenResetSuccess;
     });
 
-    // ── Reset Success → Sign In ───────────────────────────────
+    // ── Reset Success → Sign In (W1.3 · land at chooser with re-auth toast per A1) ───
     document.getElementById('reset-success-signin-btn').addEventListener('click', () => {
       switchScreen(screenResetSuccess, screenChooser, 'backward');
       currentScreen = screenChooser;
+      showToast({
+        message: 'Password updated. Sign in to continue.',
+        kind: 'success',
+      });
     });
 
     // ── OTP No Access ────────────────────────────────────────
@@ -6103,7 +6464,7 @@
       currentScreen = screenPassword;
     });
     document.getElementById('no-access-support-btn').addEventListener('click', () => {
-      alert('This would open account support. (prototype)');
+      showToast({ message: 'Account support would open here. (prototype)', kind: 'info' });
     });
     document.getElementById('no-access-back-link').addEventListener('click', (e) => {
       e.preventDefault();
@@ -6258,19 +6619,39 @@
       this.disabled = true;
     });
 
-    // ── Active Devices: remote sign-out ───────────────────────────────
+    // ── Active Devices: remote sign-out (W1.2 · uses shared modal) ───
     let pendingSignoutDeviceId = null;
     function openSignoutModal(deviceName, deviceId) {
-      document.getElementById('signout-modal-device-name').textContent = deviceName;
       pendingSignoutDeviceId = deviceId;
-      document.getElementById('signout-modal-backdrop').removeAttribute('hidden');
-      document.getElementById('signout-modal').removeAttribute('hidden');
-      document.getElementById('signout-modal-confirm').focus();
-    }
-    function closeSignoutModal() {
-      document.getElementById('signout-modal-backdrop').setAttribute('hidden', '');
-      document.getElementById('signout-modal').setAttribute('hidden', '');
-      pendingSignoutDeviceId = null;
+      const isAll = deviceId === 'all';
+      openConfirmModal({
+        title: isAll ? 'Sign out of all other devices?' : 'Sign out of this device?',
+        body: isAll
+          ? 'You\u2019ll stay signed in here. Everyone else will need to sign in again to access your Ace Hardware account.'
+          : `Sign out of \u201c${deviceName}\u201d? They\u2019ll need to sign in again to access your Ace Hardware account.`,
+        confirmLabel: 'SIGN OUT',
+        cancelLabel: 'Cancel',
+        kind: 'destructive',
+        onConfirm: () => {
+          if (pendingSignoutDeviceId === 'all') {
+            document.querySelectorAll('#devices-full-list [data-device-id]:not([data-device-id="d1"])').forEach(el => el.remove());
+            document.getElementById('device-signout-all-btn').textContent = 'No other active devices';
+            document.getElementById('device-signout-all-btn').disabled = true;
+            showToast({ message: 'Signed out of all other devices.', kind: 'success' });
+          } else if (pendingSignoutDeviceId) {
+            const item = document.querySelector(`#devices-full-list [data-device-id="${pendingSignoutDeviceId}"]`);
+            if (item) item.remove();
+            const others = document.querySelectorAll('#devices-full-list [data-device-id]:not([data-device-id="d1"])');
+            if (others.length === 0) {
+              document.getElementById('device-signout-all-btn').textContent = 'No other active devices';
+              document.getElementById('device-signout-all-btn').disabled = true;
+            }
+            showToast({ message: `Signed out of \u201c${deviceName}\u201d.`, kind: 'success' });
+          }
+          pendingSignoutDeviceId = null;
+        },
+        onCancel: () => { pendingSignoutDeviceId = null; },
+      });
     }
 
     document.querySelectorAll('.device-signout-btn').forEach(btn => {
@@ -6283,29 +6664,21 @@
       openSignoutModal('all other devices', 'all');
     });
 
-    document.getElementById('signout-modal-cancel').addEventListener('click', closeSignoutModal);
-    document.getElementById('signout-modal-backdrop').addEventListener('click', closeSignoutModal);
-
-    document.getElementById('signout-modal-confirm').addEventListener('click', () => {
-      if (pendingSignoutDeviceId === 'all') {
-        // Remove all non-current devices
-        document.querySelectorAll('#devices-full-list [data-device-id]:not([data-device-id="d1"])').forEach(el => el.remove());
-        document.getElementById('device-signout-all-btn').textContent = 'No other active devices';
-        document.getElementById('device-signout-all-btn').disabled = true;
-      } else if (pendingSignoutDeviceId) {
-        const item = document.querySelector(`#devices-full-list [data-device-id="${pendingSignoutDeviceId}"]`);
-        if (item) item.remove();
-        // Check if any non-current devices remain
-        const others = document.querySelectorAll('#devices-full-list [data-device-id]:not([data-device-id="d1"])');
-        if (others.length === 0) {
-          document.getElementById('device-signout-all-btn').textContent = 'No other active devices';
-          document.getElementById('device-signout-all-btn').disabled = true;
-        }
-      }
-      closeSignoutModal();
+    // ── Settings breadcrumb buttons (W1.9 · click navigates to security hub) ───
+    document.addEventListener('click', (e) => {
+      const crumb = e.target.closest('[data-breadcrumb-target]');
+      if (!crumb) return;
+      const targetId = crumb.dataset.breadcrumbTarget;
+      const targetEl = document.getElementById(targetId);
+      if (!targetEl || targetEl === currentScreen) return;
+      switchScreen(currentScreen, targetEl, 'backward');
+      currentScreen = targetEl;
     });
 
   </script>
+
+  <!-- Wave 1 · Shared toast host (W1.1) -->
+  <div class="toast-host" id="toast-host" aria-live="polite" aria-atomic="true"></div>
 
 </body>
 </html>
