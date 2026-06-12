@@ -2407,7 +2407,8 @@
     }
     .chooser-banner-text { flex: 1; }
     .chooser-banner-text strong { color: #3d3208; font-weight: 600; }
-    #screen-chooser[data-chooser-banner="passkey-not-found"] .chooser-banner { display: flex; }
+    #screen-chooser[data-chooser-banner="passkey-not-found"] .chooser-banner,
+    #screen-chooser[data-chooser-banner="already-tried"]    .chooser-banner { display: flex; }
 
     /* ─────────────────────────────────────────────────────────────
        ACCOUNT RECOVERY SCREEN
@@ -2499,10 +2500,100 @@
     }
 
     /* Recovery: rate-limited state */
-    #screen-recovery[data-recovery-state="locked"] .recovery-hero { display: none; }
-    #screen-recovery[data-recovery-state="locked"] .recovery-options { display: none; }
+    #screen-recovery[data-recovery-state="locked"] > .recovery-hero { display: none; }
+    #screen-recovery[data-recovery-state="locked"] > .recovery-options { display: none; }
     #screen-recovery[data-recovery-state="locked"] > .recovery-help-link { display: none; }
     #screen-recovery[data-recovery-state="locked"] .recovery-locked-panel { display: flex; }
+
+    /* W2.4 · Recovery: inline support card + passkey-help placeholder.
+       Both hide hero + top-level options + help link and reveal one panel.
+       Uses direct-child selectors so the panel's own nested .recovery-options
+       (action buttons inside passkey-help) is unaffected. */
+    #screen-recovery[data-recovery-state="support"] > .recovery-hero,
+    #screen-recovery[data-recovery-state="support"] > .recovery-options,
+    #screen-recovery[data-recovery-state="support"] > .recovery-help-link,
+    #screen-recovery[data-recovery-state="passkey-help"] > .recovery-hero,
+    #screen-recovery[data-recovery-state="passkey-help"] > .recovery-options,
+    #screen-recovery[data-recovery-state="passkey-help"] > .recovery-help-link {
+      display: none;
+    }
+    #screen-recovery[data-recovery-state="support"] .recovery-support-panel,
+    #screen-recovery[data-recovery-state="passkey-help"] .recovery-passkey-help-panel {
+      display: flex;
+    }
+
+    .recovery-support-panel,
+    .recovery-passkey-help-panel {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .recovery-support-card {
+      width: 100%;
+      background: #f8f8f8;
+      border: 1px solid rgba(18,18,18,0.08);
+      border-radius: 8px;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      text-align: left;
+    }
+    .recovery-support-channel {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .recovery-support-channel-icon {
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #fff;
+      border: 1px solid rgba(18,18,18,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #121212;
+    }
+    .recovery-support-channel-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+    .recovery-support-channel-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      color: rgba(18,18,18,0.55);
+    }
+    .recovery-support-channel-value {
+      font-size: 14px;
+      color: #121212;
+      font-weight: 500;
+    }
+    .recovery-support-channel-meta {
+      font-size: 12px;
+      color: rgba(18,18,18,0.5);
+    }
+
+    .recovery-back-btn {
+      background: transparent;
+      border: none;
+      color: #6b6b6b;
+      font-family: inherit;
+      font-size: 13px;
+      cursor: pointer;
+      padding: 6px 10px;
+      text-decoration: underline;
+    }
+    .recovery-back-btn:hover { color: #121212; }
     .recovery-locked-panel {
       display: none;
       flex-direction: column;
@@ -3617,17 +3708,73 @@
             <div class="recovery-icon" aria-hidden="true">
               <svg width="40" height="40" viewBox="0 -960 960 960" fill="#121212"><path d="m627-287 45-45-159-160v-201h-60v225l174 181ZM480-80q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-82 31.5-155t86-127.5Q252-817 325-848.5T480-880q82 0 155 31.5t127.5 86Q817-708 848.5-635T880-480q0 82-31.5 155t-86 127.5Q708-143 635-111.5T480-80Zm0-400Zm0 340q140 0 240-100t100-240q0-140-100-240T480-820q-140 0-240 100T140-480q0 140 100 240t240 100Z"/></svg>
             </div>
-            <h2 class="recovery-heading">Having trouble signing in?</h2>
-            <p class="recovery-subtext">Face ID sign-in didn&#8217;t work. We can verify it&#8217;s you another way and help you get back in.</p>
+            <h2 class="recovery-heading">Trouble getting in?</h2>
+            <p class="recovery-subtext">It looks like you&#8217;ve tried a few ways already. Let&#8217;s help you get back to your account.</p>
           </div>
 
-          <!-- Recovery options -->
+          <!-- W2.4 · Recovery options (4 routes per ratified spec).
+               Primary path = try another method (banner-augmented chooser).
+               Secondary paths = forgot password, lost device, contact support. -->
           <div class="recovery-options">
-            <button class="sign-in-btn" id="recovery-otp-btn" type="button">SEND A ONE-TIME CODE</button>
-            <button class="recovery-alt-btn" id="recovery-password-btn" type="button">Use password instead</button>
+            <button class="sign-in-btn" id="recovery-try-other-btn" type="button">TRY A DIFFERENT SIGN-IN METHOD</button>
+            <button class="recovery-alt-btn" id="recovery-forgot-pw-btn" type="button">I forgot my password</button>
+            <button class="recovery-alt-btn" id="recovery-lost-passkey-btn" type="button">I lost my passkey or phone</button>
           </div>
 
-          <a href="#" class="recovery-help-link" id="recovery-help-link">Need more help? <span>Get account support &#8594;</span></a>
+          <a href="#" class="recovery-help-link" id="recovery-help-link">Still stuck? <span>Contact account support &#8594;</span></a>
+
+          <!-- W2.4 · Inline support contact card (replaces alert/toast stubs).
+               Shown when [data-recovery-state="support"]. -->
+          <div class="recovery-support-panel">
+            <div class="recovery-icon" aria-hidden="true">
+              <svg width="40" height="40" viewBox="0 -960 960 960" fill="#121212"><path d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm-40-110v-80q-33 0-56.5-23.5T360-350v-40L168-582q-3 18-5.5 36t-2.5 36q0 121 79.5 212T440-190Zm276-102q20-22 36-47.5t26.5-53q10.5-27.5 16-56.5t5.5-59q0-98-54.5-179T600-727v17q0 33-23.5 56.5T520-630h-80v80q0 17-11.5 28.5T400-510h-80v80h240q17 0 28.5 11.5T600-390v120h40q26 0 47 15.5t29 38.5Z"/></svg>
+            </div>
+            <h2 class="recovery-heading">Talk to account support</h2>
+            <p class="recovery-subtext">Our team can help verify it&#8217;s you and restore access. Have your account email ready.</p>
+
+            <div class="recovery-support-card" role="group" aria-label="Account support contact options">
+              <div class="recovery-support-channel">
+                <span class="recovery-support-channel-icon" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M798-120q-125 0-247-54.5T329-329Q229-429 174.5-551T120-798q0-18 12-30t30-12h162q14 0 25 9.5t13 22.5l26 140q2 16-1 27t-11 19l-97 98q20 37 47.5 71.5T386-386q31 31 65 57.5t72 48.5l94-94q9-9 23.5-13.5T670-390l138 28q14 4 23 14.5t9 24.5v162q0 18-12 30t-30 12Z"/></svg>
+                </span>
+                <div class="recovery-support-channel-info">
+                  <span class="recovery-support-channel-label">Phone</span>
+                  <span class="recovery-support-channel-value">1-888-827-4223</span>
+                  <span class="recovery-support-channel-meta">Mon–Fri 7am–9pm CT · Sat–Sun 8am–6pm CT</span>
+                </div>
+              </div>
+              <div class="recovery-support-channel">
+                <span class="recovery-support-channel-icon" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M140-160q-24 0-42-18t-18-42v-520q0-24 18-42t42-18h680q24 0 42 18t18 42v520q0 24-18 42t-42 18H140Zm340-302L140-685v465h680v-465L480-462Zm0-60 336-218H145l335 218ZM140-685v-55 520-465Z"/></svg>
+                </span>
+                <div class="recovery-support-channel-info">
+                  <span class="recovery-support-channel-label">Email</span>
+                  <span class="recovery-support-channel-value">support@acehardware.com</span>
+                  <span class="recovery-support-channel-meta">We typically reply within 1 business day</span>
+                </div>
+              </div>
+            </div>
+
+            <button class="recovery-back-btn" id="recovery-support-back-btn" type="button">Back to recovery options</button>
+          </div>
+
+          <!-- W2.4 · Lost-passkey placeholder (v2 design lives here later).
+               Shown when [data-recovery-state="passkey-help"]. -->
+          <div class="recovery-passkey-help-panel">
+            <div class="recovery-icon" aria-hidden="true">
+              <svg width="40" height="40" viewBox="0 -960 960 960" fill="#121212"><path d="M701-701q91 91 91 221t-91 221q-91 91-221 91t-221-91q-91-91-91-221t91-221q91-91 221-91t221 91Zm-43 399q74-74 74-178t-74-178q-74-74-178-74t-178 74q-74 74-74 178t74 178q74 74 178 74t178-74ZM349-536q11 11 28 11t28-11q11-11 11-28t-11-28q-11-11-28-11t-28 11q-11 11-11 28t11 28Zm206 0q11 11 28 11t28-11q11-11 11-28t-11-28q-11-11-28-11t-28 11q-11 11-11 28t11 28ZM480-480Z"/></svg>
+            </div>
+            <h2 class="recovery-heading">Recover access without your passkey</h2>
+            <p class="recovery-subtext">We&#8217;ll verify it&#8217;s you using your recovery email and a one-time code, then help you set up a new passkey on this device.</p>
+            <p class="recovery-subtext" style="font-size:13px;color:rgba(18,18,18,0.55);">If you don&#8217;t have access to your recovery email either, contact account support and we&#8217;ll guide you through manual verification.</p>
+
+            <div class="recovery-options" style="margin-top:4px;">
+              <button class="sign-in-btn" id="recovery-passkey-help-otp-btn" type="button">SEND A ONE-TIME CODE TO MY EMAIL</button>
+              <button class="recovery-alt-btn" id="recovery-passkey-help-support-btn" type="button">Contact account support</button>
+            </div>
+
+            <button class="recovery-back-btn" id="recovery-passkey-help-back-btn" type="button">Back to recovery options</button>
+          </div>
 
           <!-- Rate-limited panel (self-contained locked state) -->
           <div class="recovery-locked-panel">
@@ -5098,8 +5245,7 @@
     });
     document.getElementById('passkey-transport-cancel-btn').addEventListener('click', () => {
       setPasskeyState('idle');
-      switchScreen(screenPasskey, screenChooser, 'backward');
-      currentScreen = screenChooser;
+      goToSignInOptions(screenPasskey);   // W2.4 · SIAW counter
     });
 
     // ── Cross-device no-credential CTAs ───────────────────────
@@ -5108,8 +5254,7 @@
     });
     document.getElementById('passkey-qr-no-cred-cancel').addEventListener('click', () => {
       setPasskeyState('idle');
-      switchScreen(screenPasskey, screenChooser, 'backward');
-      currentScreen = screenChooser;
+      goToSignInOptions(screenPasskey);   // W2.4 · SIAW counter
     });
 
     // URL param: ?passkey=found|failed|notfound  (default: found)
@@ -5117,11 +5262,23 @@
 
     // ── Chooser banner helper ───────────────────────────────
     // Only shown when explicitly set (e.g. after a no-credential
-    // Face ID attempt). Cleared whenever the user actively chooses
-    // a method, so it never lingers across visits.
+    // Face ID attempt, or after the user is routed back from recovery
+    // hub via "Try a different sign-in method"). Cleared whenever the
+    // user actively chooses a method, so it never lingers across visits.
+    const CHOOSER_BANNER_TEXT = {
+      'passkey-not-found': '<strong>No passkey on this device.</strong> Sign in with your password or a one-time code below.',
+      // W2.4 · Set when user arrives from recovery hub → "Try a different
+      // sign-in method", reminding them what failed already this session.
+      'already-tried':     '<strong>Let&#8217;s try something different.</strong> Pick another sign-in method below — the ones you&#8217;ve tried this session won&#8217;t be the issue.',
+    };
     function setChooserBanner(reason) {
-      if (reason) screenChooser.setAttribute('data-chooser-banner', reason);
-      else        screenChooser.removeAttribute('data-chooser-banner');
+      const textEl = screenChooser.querySelector('.chooser-banner-text');
+      if (reason && CHOOSER_BANNER_TEXT[reason]) {
+        screenChooser.setAttribute('data-chooser-banner', reason);
+        if (textEl) textEl.innerHTML = CHOOSER_BANNER_TEXT[reason];
+      } else {
+        screenChooser.removeAttribute('data-chooser-banner');
+      }
     }
     function clearChooserBanner() { setChooserBanner(null); }
 
@@ -5297,8 +5454,7 @@
     });
     document.getElementById('passkey-qr-cancel-expired').addEventListener('click', () => {
       setPasskeyState('idle');
-      switchScreen(screenPasskey, screenChooser, 'back');
-      currentScreen = screenChooser;
+      goToSignInOptions(screenPasskey);   // W2.4 · SIAW counter (QR expired → try another way)
     });
 
     // Passkey fallback tiles → navigate to respective screens
@@ -5542,11 +5698,10 @@
       currentScreen = screenPasskey;
     });
 
-    // ── Passkey "Sign in another way" → back to chooser ───────
+    // ── Passkey "Sign in another way" → chooser (or recovery hub on 2nd tap) ──
     document.getElementById('passkey-other-btn').addEventListener('click', () => {
       setPasskeyState('idle');
-      switchScreen(currentScreen, screenChooser, 'backward');
-      currentScreen = screenChooser;
+      goToSignInOptions(currentScreen);   // W2.4 · SIAW counter
     });
 
     // ── Passkey "Use a passkey from another device" → cross-device ──
@@ -5616,7 +5771,6 @@
       else screenRecovery.setAttribute('data-recovery-state', s);
       updateBlurb();
     }
-    let recoveryAttempts = 0;
     let recoveryController = null;
     function startRecoveryCountdown() {
       if (recoveryController) recoveryController.stop();
@@ -5627,39 +5781,89 @@
         stateAttr:  'data-recovery-state',
         onExpiry: () => {
           recoveryController = null;
-          recoveryAttempts = 0;
           setRecoveryState('default');
           showToast({ message: 'You can request a one-time code again now.', kind: 'info' });
         },
       });
     }
 
-    // ── Recovery screen → OTP / Password / Help ───────────────
-    document.getElementById('recovery-otp-btn').addEventListener('click', () => {
-      recoveryAttempts++;
-      if (recoveryAttempts >= 3) {
-        setRecoveryState('locked');
-        startRecoveryCountdown();
-        return;
+    // ── W2.4 · SIAW-twice escalation counter ─────────────────
+    // Session-scoped: every "Sign In Another Way" tap increments;
+    // on the 2nd tap we route to the recovery hub instead of the
+    // bare chooser, surfacing dedicated recovery options + support.
+    // Reset whenever a fresh chooser interaction begins (any tile
+    // click) or when the recovery hub is entered.
+    let siawTaps = 0;
+    function resetSiawTaps() { siawTaps = 0; }
+    /** Route a "Sign In Another Way" tap to chooser (1st time) or
+     *  recovery hub (2nd+). Caller passes its source screen so
+     *  switchScreen can animate cleanly. */
+    function goToSignInOptions(fromScreen) {
+      siawTaps++;
+      if (siawTaps >= 2) {
+        setRecoveryState('default');
+        resetSiawTaps();              // reset so user can SIAW from recovery → chooser → SIAW → recovery again
+        switchScreen(fromScreen, screenRecovery, 'forward');
+        currentScreen = screenRecovery;
+      } else {
+        switchScreen(fromScreen, screenChooser, 'backward');
+        currentScreen = screenChooser;
       }
-      switchScreen(screenRecovery, screenOtp, 'forward');
-      currentScreen = screenOtp;
+    }
+
+    // ── Recovery hub → 4 route options ────────────────────────
+    // (W2.4 · A5/B5 — promoted from deprecated to v1)
+    document.getElementById('recovery-try-other-btn').addEventListener('click', () => {
+      setRecoveryState('default');
+      resetSiawTaps();
+      setChooserBanner('already-tried');
+      switchScreen(screenRecovery, screenChooser, 'backward');
+      currentScreen = screenChooser;
     });
-    document.getElementById('recovery-password-btn').addEventListener('click', () => {
-      switchScreen(screenRecovery, screenPassword, 'forward');
-      currentScreen = screenPassword;
+    document.getElementById('recovery-forgot-pw-btn').addEventListener('click', () => {
+      setRecoveryState('default');
+      // Identifier-first (W2.1) means signInIdentifier may already be set;
+      // pre-fill the forgot-password email field so the user doesn't re-type.
+      const resetEmail = document.getElementById('reset-email');
+      if (resetEmail && signInIdentifier && !resetEmail.value) resetEmail.value = signInIdentifier;
+      switchScreen(screenRecovery, screenForgotPw, 'forward');
+      currentScreen = screenForgotPw;
+    });
+    document.getElementById('recovery-lost-passkey-btn').addEventListener('click', () => {
+      setRecoveryState('passkey-help');
     });
     document.getElementById('recovery-help-link').addEventListener('click', (e) => {
       e.preventDefault();
-      showToast({ message: 'Account support would open here. (prototype)', kind: 'info' });
+      setRecoveryState('support');
     });
+
+    // ── Lost-passkey placeholder panel actions ─────────────────
+    document.getElementById('recovery-passkey-help-otp-btn').addEventListener('click', () => {
+      setRecoveryState('default');
+      setOtpRequestState();
+      switchScreen(screenRecovery, screenOtp, 'forward');
+      currentScreen = screenOtp;
+    });
+    document.getElementById('recovery-passkey-help-support-btn').addEventListener('click', () => {
+      setRecoveryState('support');
+    });
+    document.getElementById('recovery-passkey-help-back-btn').addEventListener('click', () => {
+      setRecoveryState('default');
+    });
+
+    // ── Support card actions ───────────────────────────────────
+    document.getElementById('recovery-support-back-btn').addEventListener('click', () => {
+      setRecoveryState('default');
+    });
+
+    // ── Locked panel (rate-limited demo state) ─────────────────
     document.getElementById('recovery-password-locked-btn').addEventListener('click', () => {
       switchScreen(screenRecovery, screenPassword, 'forward');
       currentScreen = screenPassword;
     });
     document.getElementById('recovery-locked-support-link').addEventListener('click', (e) => {
       e.preventDefault();
-      showToast({ message: 'Account support would open here. (prototype)', kind: 'info' });
+      setRecoveryState('support');
     });
 
     // ── Back button: unified handler for all screen states ──────
@@ -6523,8 +6727,7 @@
     document.getElementById('pw-other-btn').addEventListener('click', () => {
       screenPassword.removeAttribute('data-pw-state');
       pwAttempts = 0;
-      switchScreen(currentScreen, screenChooser, 'backward');
-      currentScreen = screenChooser;
+      goToSignInOptions(currentScreen);   // W2.4 · SIAW counter
     });
 
     // ── Forgot Password link → Forgot Password screen ─────────────
@@ -6556,8 +6759,7 @@
     document.getElementById('forgotpw-rate-back-btn').addEventListener('click', () => {
       if (forgotpwRateController) { forgotpwRateController.stop(); forgotpwRateController = null; }
       screenForgotPw.removeAttribute('data-forgotpw-state');
-      switchScreen(screenForgotPw, screenChooser, 'backward');
-      currentScreen = screenChooser;
+      goToSignInOptions(screenForgotPw);  // W2.4 · SIAW counter (forgot-pw rate-limit → try another way)
     });
 
     // ── Account Locked countdown + navigation (W1.4 shared helper) ──
@@ -6582,8 +6784,7 @@
     });
     document.getElementById('locked-another-way-btn').addEventListener('click', () => {
       if (lockedController) { lockedController.stop(); lockedController = null; }
-      switchScreen(screenAccountLocked, screenChooser, 'backward');
-      currentScreen = screenChooser;
+      goToSignInOptions(screenAccountLocked);  // W2.4 · SIAW counter (account-locked terminal → try another way)
     });
 
     // ── Forgot Password → Reset Sent (W1.7 · non-confirming, no enumeration) ───
@@ -6693,8 +6894,7 @@
 
     // ── OTP screen → Chooser (sign in another way) ───────────────
     document.getElementById('otp-other-btn').addEventListener('click', () => {
-      switchScreen(currentScreen, screenChooser, 'backward');
-      currentScreen = screenChooser;
+      goToSignInOptions(currentScreen);   // W2.4 · SIAW counter
     });
     // ── Security hub → Passkeys screen ─────────────────────────────
     document.getElementById('security-passkeys-btn').addEventListener('click', () => {
