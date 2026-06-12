@@ -1,4 +1,6 @@
-
+// ARCHIVE — original ideation; not the source of truth.
+// See sign-in.html (live prototype) for current behavior.
+//
 /* BEGIN USAGE */
 // DesignCanvas.jsx — Figma-ish design canvas wrapper
 // Warm gray grid bg + Sections + Artboards + PostIt notes.

@@ -1,3 +1,6 @@
+// ARCHIVE — original ideation; not the source of truth.
+// See sign-in.html (live prototype) for current behavior.
+//
 // flow-components.jsx — Reusable flow diagram primitives
 
 const FC = {

@@ -24,8 +24,8 @@ All screens currently in `sign-in.html`, including their `data-state` values:
 
 | Screen ID | States | Notes |
 |-----------|--------|-------|
-| `screen-chooser` | `default`, `passkey-first` | Entry point; state driven by passkey detection on device |
-| `screen-passkey` | `idle`, `failed`, `notfound`, `cross-device`, `cross-device-failed`, `cross-device-no-credential`, `cross-device-transport-error` | Passkey sign-in; multiple error/fallback states |
+| `screen-chooser` | `default`, `passkey-first` | Entry point; state driven by passkey detection on device. Both variants present four sign-in methods (Face ID/Passkey, Password, One-Time Code, Scan with Phone). |
+| `screen-passkey` | `idle`, `failed`, `cross-device`, `cross-device-failed`, `cross-device-no-credential`, `cross-device-transport-error` | Passkey sign-in; multiple error/fallback states. The legacy `notfound` state has been removed — no-passkey is now handled by returning the user to the chooser with an inline banner. |
 | `screen-passkey-enroll` | `prompt`, `success`, `error`, `declined`, `already-enrolled` | Post-login enrollment upsell |
 | `screen-verify` | `default`, `cooldown`, `expired`, `locked`, `wrong`, `resent` | OTP / MFA code entry |
 | `screen-password` | `default`, `error` | Password sign-in |
@@ -40,8 +40,8 @@ All screens currently in `sign-in.html`, including their `data-state` values:
 | `screen-activity` | — | Sign-in activity log |
 | `screen-active-devices` | — | Active session list + remote sign-out |
 | `screen-settings-passkeys` | `list`, `rename`, `remove`, `remove-last` | Passkey management; `remove-last` has stricter confirm |
-| `screen-recovery` | `default`, `locked` | Account recovery entry; `locked` = OTP rate-limited |
-| `screen-reenroll` | `prompt`, `success`, `error` | Passkey re-enrollment after account recovery |
+| `screen-recovery` | `default`, `locked` | **Legacy / reference only.** The dedicated recovery hub is no longer wired into any user flow. Recovery now happens in-method (Forgot Password, "Can't access code"). Screen remains reachable via the Screens tab. |
+| `screen-reenroll` | `prompt`, `success`, `error` | **Legacy / reference only.** Post-recovery re-enrollment is covered by the standard Passkey Registration & Enrollment group. |
 
 > **Still missing from all happy paths:** A signed-in / home destination screen. Every authenticated flow terminates at the final prototype screen rather than a post-login state.
 
@@ -54,7 +54,7 @@ Each flow has:
 - **Design intent** — why this flow or screen exists; what UX problem it solves
 - **A step table** — the screen sequence with a purpose note for each step
 
-Screen states are referenced as `screen-id:state` (e.g. `screen-passkey:notfound`). When state is omitted, the screen has only one visual state.
+Screen states are referenced as `screen-id:state` (e.g. `screen-password:error`). When state is omitted, the screen has only one visual state.
 
 ---
 
@@ -89,17 +89,17 @@ Screen states are referenced as `screen-id:state` (e.g. `screen-passkey:notfound
 
 ---
 
-### 1c · No Passkey Found `81:31`
+### 1c · No Passkey Found `463:886`
 
 **Scenario:** The user tapped "Face ID / Passkey" from the default chooser (no passkey detected on this device), but after initiating the WebAuthn lookup, the browser confirms there is no credential registered for this account on this device. Common when signing in on a new device, after resetting a device, or for an account that has never had passkeys set up.
 
-**Design intent:** This screen serves three distinct needs simultaneously: (1) explain why Face ID didn't work without making the user feel like they did something wrong, (2) offer every realistic forward path — use another device, set up Face ID right now, sign in with password or OTP, (3) provide an escape valve to account recovery for users who are truly locked out. The "Having trouble? Get account help" recovery link is intentionally a small text link at the bottom — recovery is a last resort and shouldn't compete visually with the primary paths.
+**Design intent:** Rather than landing on a dedicated dead-end screen, the user is returned to the chooser with an inline banner explaining that no passkey was found on this device. The chooser already presents every realistic forward path — Password, One-Time Code, and Scan with Phone (cross-device) — so the banner just gives context and lets the user pick a method without losing their place. Account recovery remains accessible via the per-method "Can't access..." links and Forgot Password flows; there is no longer a dedicated recovery hub.
 
 | Step | Screen | Purpose | Status |
 |------|--------|---------|--------|
 | 1 | `screen-chooser:default` | Entry point when no passkey is detected. Face ID / Passkey tile is present but signals it will trigger a lookup first. | ✅ |
 | 2 | `screen-passkey:idle` | OS credential lookup runs. For the `notfound` case this is brief — the OS returns immediately with no credential. | ✅ |
-| 3 | `screen-passkey:notfound` | Explains the situation and presents: SCAN WITH PHONE (cross-device), Password, One-Time Code, SET UP FACE ID (enrollment), and "Having trouble? Get account help" (recovery). The SET UP FACE ID CTA is specific to this state — it's only shown here, not on the `failed` or `idle` states. | ✅ |
+| 3 | `screen-chooser:default` + banner | User is returned to the chooser with an inline `passkey-not-found` banner. They pick Password, One-Time Code, or Scan with Phone to continue. | ✅ |
 
 ---
 
@@ -130,7 +130,8 @@ Screen states are referenced as `screen-id:state` (e.g. `screen-passkey:notfound
 | 2 | `screen-passkey:idle` | The "Use a passkey from another device" option is visible. User taps it. | ✅ |
 | 3 | `screen-passkey:cross-device` | Displays the QR code and instructions. The user scans with their phone. The phone handles biometric confirmation and returns the assertion to this session over the encrypted caBLE channel. | ✅ |
 | 4 | Phone-side biometric | OS-native on the phone. Not part of the app's UI. | — |
-| 5 | Authenticated → home | Session completes on the original device. | ❌ Missing |
+| 5 | `screen-passkey-enroll:prompt` | Post-login enrollment offer. The user just proved they want passkeys but doesn't have one on *this* device yet — ideal moment to offer setup. | ✅ |
+| 6 | Authenticated → home | Session completes on the original device. | ❌ Missing |
 
 ---
 
@@ -488,57 +489,23 @@ Screen states are referenced as `screen-id:state` (e.g. `screen-passkey:notfound
 
 ---
 
-## Group 7 · Account Recovery
+## Group 7 · Account Recovery — *(deprecated as a dedicated flow)*
 
-**About this group:** Account recovery is the path of last resort — for users who have lost access to *all* standard sign-in methods. They can't use Face ID (no passkey on this device), they don't know their password (or are locked out), and they can't receive OTP codes on their registered channels.
+**About this group:** The previous design routed every recovery scenario through a dedicated recovery hub (`screen-recovery` → `screen-verify` → `screen-reenroll`). That hub has been **deprecated**. The screens still exist in the prototype for reference and remain reachable from the Screens tab, but they are no longer wired into any user flow.
 
-**Entry point — intentional design:** Every recovery flow starts at `screen-passkey:notfound`. This is by design: to enter recovery, the user must first prove that passkey sign-in failed on this device. The "Having trouble? Get account help" link is a plain text link at the bottom of the notfound screen — visually subordinate to all other options. This placement is deliberate: recovery is high-friction by design because it bypasses normal authentication. It should not be the first thing users reach for.
+**Why it changed:** The recovery hub only exposed Password and One-Time Code as verification channels — both of which are already first-class tiles on the chooser. Routing a user through the hub added an extra layer between them and the method they actually wanted to use, with no incremental security benefit.
 
----
+**Where recovery happens now:** Each sign-in method owns its own in-context escape valve, so users never have to leave the path they started on:
 
-### 7a · Happy Path — Account Recovery `154:31`
+| Original recovery scenario | New in-method path |
+|----------------------------|--------------------|
+| Forgot password | `screen-password` → **"Forgot password?"** → Password Reset flow (Group 6) |
+| Can't receive OTP code | `screen-verify` → **"Can't access this code?"** → `screen-otp-no-access` |
+| OTP rate-limited | `screen-verify:locked` → user can fall back to Password tile on chooser |
+| No passkey on device | `screen-chooser:default` + `passkey-not-found` banner → user picks Password, OTP, or Scan with Phone (Group 1c) |
+| Post-recovery passkey re-enrollment | Covered by Group 4 (Passkey Registration & Enrollment) after any successful sign-in |
 
-**Scenario:** User successfully proves their identity via OTP during recovery and re-enrolls a passkey so they won't be locked out again.
-
-**Design intent:** The recovery triage screen (`screen-recovery`) focuses on identity verification, not authentication — the user needs to prove who they are, not sign in. OTP is the primary verification channel. After verification, the re-enrollment prompt closes the loop: if the user just recovered their account because they had no passkey, now is the ideal moment to set one up so this doesn't happen again.
-
-| Step | Screen | Purpose | Status |
-|------|--------|---------|--------|
-| 1 | `screen-passkey:notfound` | User taps "Having trouble? Get account help." | ✅ |
-| 2 | `screen-recovery` | Recovery triage. Offers: "Send a one-time code" (primary) or "Use password instead" (if they remember it). This is identity verification, not sign-in. | ✅ |
-| 3 | `screen-verify:default` | OTP code entry for identity verification. | ✅ |
-| 4 | `screen-reenroll:prompt` | Post-recovery re-enrollment offer. Framed specifically around recovery prevention — "Don't get locked out again." | ✅ |
-| 5 | `screen-reenroll:success` | Face ID re-enrolled. Account is fully recovered. | ✅ |
-
----
-
-### 7b · Recovery Rate Limited `154:57`
-
-**Scenario:** The user (or someone using their credentials maliciously) has requested too many OTP codes during the recovery flow in a short window.
-
-**Design intent:** Recovery OTP requests are rate-limited separately from standard OTP sign-in because recovery is a higher-risk path. The lockout is intentionally 15 minutes and blocks OTP and the recovery help link — both are the vectors being rate-limited. Critically, the password sign-in path remains available as an escape valve for legitimate users who were just hitting retry too fast.
-
-| Step | Screen | Purpose | Status |
-|------|--------|---------|--------|
-| 1 | `screen-passkey:notfound` | Recovery entry. | ✅ |
-| 2 | `screen-recovery` | OTP requested too many times. | ✅ |
-| 3 | `screen-recovery:locked` | Rate-limited panel with 15-min countdown. OTP and help link blocked. Password path still available. | ✅ |
-
----
-
-### 7c · Re-Enroll Failed `154:73`
-
-**Scenario:** The user successfully recovered their account via OTP verification, but the passkey re-enrollment step failed — either Face ID failed or they cancelled the OS dialog.
-
-**Design intent:** The account is recovered — the user is authenticated. The failed re-enrollment is a missed opportunity to strengthen their account going forward, not a blocker to using it now. The screen treats it that way: the failure is acknowledged, a retry is offered, and a "Continue without re-enrolling" path exits cleanly. They can always set up Face ID later from Account Settings.
-
-| Step | Screen | Purpose | Status |
-|------|--------|---------|--------|
-| 1 | `screen-passkey:notfound` | Recovery entry. | ✅ |
-| 2 | `screen-recovery` | Verification channel chosen. | ✅ |
-| 3 | `screen-verify:default` | Identity verified via OTP. | ✅ |
-| 4 | `screen-reenroll:prompt` | Re-enrollment attempted. | ✅ |
-| 5 | `screen-reenroll:error` | Biometric failed or cancelled. Account is recovered; re-enrollment is optional. Retry or continue. | ✅ |
+**Legacy screens still present (Screens-tab reference only):** `screen-recovery`, `screen-recovery:locked`, `screen-reenroll:prompt`, `screen-reenroll:success`, `screen-reenroll:error`.
 
 ---
 
@@ -636,5 +603,5 @@ Screen states are referenced as `screen-id:state` (e.g. `screen-passkey:notfound
 
 | # | Gap | Fix |
 |---|-----|-----|
-| ~~1~~ | ~~`screen-passkey-enroll:prompt` is only reachable via the Settings "Add Passkey" button — it is not automatically surfaced after a password or OTP sign-in on a device with no passkey~~ | ✅ Fixed — `verify-btn` happy path sets `enrollOrigin = 'post-login'` and navigates to `screen-passkey-enroll:prompt`; both `password-happy` and `otp-happy` FLOWS include enrollment as the final step |
+| ~~1~~ | ~~`screen-passkey-enroll:prompt` is only reachable via the Settings "Add Passkey" button — it is not automatically surfaced after a password or OTP sign-in on a device with no passkey~~ | ✅ Fixed — `verify-btn` happy path sets `enrollOrigin = 'post-login'` and navigates to `screen-passkey-enroll:prompt`; the `password-happy`, `otp-happy`, and `cross-device-happy` FLOWS all include enrollment as the final step |
 | ~~2~~ | ~~`screen-passkey:notfound` — the "SET UP FACE ID" button (`passkey-setup-enroll-btn`) exists on screen but has no click handler routing it to `screen-passkey-enroll:prompt`~~ | ✅ Fixed — handler added; `enrollOrigin = 'post-login'` set so that skipping enrollment routes to the signed-in confirmation rather than Security Settings |

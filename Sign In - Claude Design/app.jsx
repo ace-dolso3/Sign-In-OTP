@@ -1,3 +1,6 @@
+// ARCHIVE — original ideation; not the source of truth.
+// See sign-in.html (live prototype) for current behavior.
+//
 // app.jsx — All screens organized by user flow
 
 const App = () => (

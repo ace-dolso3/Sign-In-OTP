@@ -1,3 +1,6 @@
+// ARCHIVE — original ideation; not the source of truth.
+// See sign-in.html (live prototype) for current behavior.
+//
 // screens-flow.jsx — Groups 1–4: Sign-in, Passkey Creation, Happy Path, Fallbacks
 
 /* ================================================================

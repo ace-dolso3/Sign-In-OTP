@@ -904,7 +904,7 @@
       text-align: center;
     }
 
-    /* ─── Passkey fallback options (failed / notfound states) ─── */
+    /* ─── Passkey fallback options (failed state) ─── */
     #passkey-qr-area        { display: none; }
     #passkey-fallback-options { display: none; }
 
@@ -1002,31 +1002,26 @@
     .passkey-cd-btn:hover { border-color: rgba(18,18,18,0.5); color: #121212; }
     #screen-passkey[data-passkey-state="idle"] .passkey-cd-btn { display: flex; }
 
-    #screen-passkey[data-passkey-state="failed"]   #passkey-fallback-options,
-    #screen-passkey[data-passkey-state="notfound"] #passkey-fallback-options {
+    #screen-passkey[data-passkey-state="failed"]   #passkey-fallback-options {
       display: flex;
       flex-direction: column;
       gap: 8px;
       width: 100%;
     }
-    #screen-passkey[data-passkey-state="failed"]   #passkey-other-btn,
-    #screen-passkey[data-passkey-state="notfound"] #passkey-other-btn { display: none; }
+    #screen-passkey[data-passkey-state="failed"]   #passkey-other-btn { display: none; }
 
-    /* Show setup CTA only in notfound state */
-    .passkey-setup-divider {
-      display: none;
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
-      color: rgba(18,18,18,0.45);
-      text-align: center;
-      width: 100%;
-      padding-top: 4px;
-    }
-    .passkey-setup-btn-wrap { display: none; }
-    #screen-passkey[data-passkey-state="notfound"] .passkey-setup-divider { display: block; }
-    #screen-passkey[data-passkey-state="notfound"] .passkey-setup-btn-wrap { display: block; }
+    /* Success: hide all action buttons — the ceremony is done and the
+       user shouldn't be tempted to re-trigger it. */
+    #screen-passkey[data-passkey-state="success"] #passkey-try-btn,
+    #screen-passkey[data-passkey-state="success"] #passkey-cd-btn,
+    #screen-passkey[data-passkey-state="success"] #passkey-fallback-options,
+    #screen-passkey[data-passkey-state="success"] #passkey-other-btn,
+    #screen-passkey[data-passkey-state="success"] .passkey-state-blurb { display: none; }
+
+    /* Legacy standalone "Set up Face ID" block — kept hidden; moved into
+       the Account Settings flows. */
+    .passkey-setup-divider,
+    .passkey-setup-btn-wrap { display: none !important; }
 
     .passkey-fallback-divider {
       font-size: 11px;
@@ -1125,10 +1120,50 @@
     #screen-settings-passkeys[data-settings-state="list"]        .settings-panel-list,
     #screen-settings-passkeys[data-settings-state="rename"]      .settings-panel-rename,
     #screen-settings-passkeys[data-settings-state="remove"]      .settings-panel-remove,
-    #screen-settings-passkeys[data-settings-state="remove-last"] .settings-panel-remove-last {
+    #screen-settings-passkeys[data-settings-state="remove-last"] .settings-panel-remove-last,
+    #screen-settings-recovery-email[data-recovery-email-state="request"] .settings-panel-request,
+    #screen-settings-recovery-email[data-recovery-email-state="sent"]    .settings-panel-sent {
       display: flex;
       flex-direction: column;
       gap: 16px;
+    }
+
+    /* ─── Recovery Email screen ─────────────────────────────── */
+    .recovery-email-hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .recovery-email-hero h2 {
+      font-size: 20px;
+      font-weight: 500;
+      color: rgba(18,18,18,0.93);
+      margin: 0;
+    }
+    .recovery-email-hero p {
+      font-size: 14px;
+      line-height: 22px;
+      color: rgba(18,18,18,0.6);
+      margin: 0;
+    }
+    .recovery-email-sent-meta {
+      font-size: 13px;
+      color: rgba(18,18,18,0.55);
+      text-align: center;
+      margin: 0;
+    }
+    .recovery-email-sent-meta strong {
+      color: rgba(18,18,18,0.93);
+      font-weight: 500;
+    }
+    /* Status pill variant for the Security hub row (muted gray for Not set) */
+    .security-row-badge--muted {
+      background: rgba(18,18,18,0.06);
+      color: rgba(18,18,18,0.55);
     }
 
     /* Passkey list */
@@ -2235,6 +2270,33 @@
     #screen-chooser[data-chooser-state="default"]       .chooser-panel-default       { display: flex; }
     #screen-chooser[data-chooser-state="passkey-first"] .chooser-panel-passkey-first { display: flex; }
 
+    /* ─────────────────────────────────────────────────────────────
+       CHOOSER BANNER (informational — only shown when chooser is
+       reached via a no-credential Face ID attempt). Hidden by
+       default; revealed when [data-chooser-banner] is set.
+    ──────────────────────────────────────────────────────────── */
+    .chooser-banner {
+      display: none;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 14px;
+      background: #fff7e6;
+      border: 1px solid #f5d27a;
+      border-left: 3px solid #d6a019;
+      border-radius: 4px;
+      color: #5a4a1a;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    .chooser-banner-icon {
+      flex-shrink: 0;
+      color: #b87a06;
+      margin-top: 1px;
+    }
+    .chooser-banner-text { flex: 1; }
+    .chooser-banner-text strong { color: #3d3208; font-weight: 600; }
+    #screen-chooser[data-chooser-banner="passkey-not-found"] .chooser-banner { display: flex; }
+
     /* Passkey-first layout extras */
     .chooser-pf-icon {
       display: flex;
@@ -2261,26 +2323,6 @@
       color: #6b6b6b;
       margin: 0;
     }
-
-    /* ─────────────────────────────────────────────────────────────
-       PASSKEY RECOVERY LINK (only in notfound state)
-    ───────────────────────────────────────────────────────────── */
-
-    .passkey-recovery-link {
-      display: none;
-      text-align: center;
-      font-size: 13px;
-      color: #6b6b6b;
-      text-decoration: none;
-      padding-top: 2px;
-    }
-    .passkey-recovery-link span {
-      color: #d6001c;
-      font-weight: 500;
-    }
-    .passkey-recovery-link:hover span { color: #a8001a; }
-
-    #screen-passkey[data-passkey-state="notfound"] .passkey-recovery-link { display: block; }
 
     /* ─────────────────────────────────────────────────────────────
        ACCOUNT RECOVERY SCREEN
@@ -2631,6 +2673,13 @@
           <!-- ── Chooser: default (no passkey detected) ── -->
           <div class="chooser-panel chooser-panel-default">
 
+            <!-- Banner: only shown when [data-chooser-banner] is set on
+                 the chooser (e.g. after a no-credential Face ID attempt). -->
+            <div class="chooser-banner" role="status" aria-live="polite">
+              <svg class="chooser-banner-icon" width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M480-280q17 0 28.5-11.5T520-320q0-17-11.5-28.5T480-360q-17 0-28.5 11.5T440-320q0 17 11.5 28.5T480-280Zm-40-160h80v-240h-80v240ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/></svg>
+              <p class="chooser-banner-text"><strong>No passkey on this device.</strong> Sign in with your password or a one-time code below.</p>
+            </div>
+
             <!-- Hero -->
             <div class="hero">
               <h1>Sign In</h1>
@@ -2675,6 +2724,20 @@
                   </svg>
                 </span>
                 One-Time Code
+                <span class="method-tile-arrow" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 -960 960 960" fill="#121212"><path d="M530-481 332-679l43-43 241 241-241 241-43-43 198-198Z"/></svg>
+                </span>
+              </button>
+
+              <!-- Scan with Phone (cross-device passkey) -->
+              <button class="method-tile" id="tile-cd-chooser" role="listitem" type="button"
+                aria-label="Scan with phone to use a passkey from another device">
+                <span class="method-tile-icon" aria-hidden="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 -960 960 960" fill="currentColor">
+                    <path d="M80-680v-200h200v80H160v120H80Zm0 600v-200h80v120h120v80H80Zm600 0v-80h120v-120h80v200H680Zm120-600v-120H680v-80h200v200h-80ZM700-260h60v60h-60v-60Zm0-120h60v60h-60v-60Zm-60 60h60v60h-60v-60Zm-60 60h60v60h-60v-60Zm-60-60h60v60h-60v-60Zm120-120h60v60h-60v-60Zm-60 60h60v60h-60v-60Zm-60-60h60v60h-60v-60Zm240-320v240H520v-240h240ZM440-440v240H200v-240h240Zm0-320v240H200v-240h240Zm-60 500v-120H260v120h120Zm0-320v-120H260v120h120Zm320 0v-120H580v120h120Z"/>
+                  </svg>
+                </span>
+                Scan with Phone
                 <span class="method-tile-arrow" aria-hidden="true">
                   <svg width="20" height="20" viewBox="0 -960 960 960" fill="#121212"><path d="M530-481 332-679l43-43 241 241-241 241-43-43 198-198Z"/></svg>
                 </span>
@@ -2732,6 +2795,19 @@
                     </svg>
                   </span>
                   One-Time Code
+                  <span class="method-tile-arrow" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 -960 960 960" fill="#121212"><path d="M530-481 332-679l43-43 241 241-241 241-43-43 198-198Z"/></svg>
+                  </span>
+                </button>
+
+                <button class="method-tile" id="tile-pf-cd" role="listitem" type="button"
+                  aria-label="Scan with phone to use a passkey from another device">
+                  <span class="method-tile-icon" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 -960 960 960" fill="currentColor">
+                      <path d="M80-680v-200h200v80H160v120H80Zm0 600v-200h80v120h120v80H80Zm600 0v-80h120v-120h80v200H680Zm120-600v-120H680v-80h200v200h-80ZM700-260h60v60h-60v-60Zm0-120h60v60h-60v-60Zm-60 60h60v60h-60v-60Zm-60 60h60v60h-60v-60Zm-60-60h60v60h-60v-60Zm120-120h60v60h-60v-60Zm-60 60h60v60h-60v-60Zm-60-60h60v60h-60v-60Zm240-320v240H520v-240h240ZM440-440v240H200v-240h240Zm0-320v240H200v-240h240Zm-60 500v-120H260v120h120Zm0-320v-120H260v120h120Zm320 0v-120H580v120h120Z"/>
+                    </svg>
+                  </span>
+                  Scan with Phone
                   <span class="method-tile-arrow" aria-hidden="true">
                     <svg width="20" height="20" viewBox="0 -960 960 960" fill="#121212"><path d="M530-481 332-679l43-43 241 241-241 241-43-43 198-198Z"/></svg>
                   </span>
@@ -2871,7 +2947,7 @@
               Use a passkey from another device
             </button>
 
-            <!-- Fallback options (shown in failed / notfound states) -->
+            <!-- Fallback options (shown in failed state) -->
             <div id="passkey-fallback-options" aria-label="Alternative sign-in methods">
               <p class="passkey-fallback-divider">Or continue with</p>
               <button class="passkey-fallback-tile" id="passkey-fallback-password" type="button">
@@ -2888,14 +2964,15 @@
 
             <button class="sign-in-another-way-btn" id="passkey-other-btn" type="button">SIGN IN ANOTHER WAY</button>
 
-            <!-- Set-up CTA (shown only in notfound state) -->
-            <p class="passkey-setup-divider">Don't have a passkey yet?</p>
-            <div class="passkey-setup-btn-wrap">
-              <button class="sign-in-btn" id="passkey-setup-enroll-btn" type="button">SET UP FACE ID</button>
-            </div>
-
-            <!-- Recovery entry (shown only in notfound state) -->
-            <a href="#" class="passkey-recovery-link" id="passkey-recovery-link">Having trouble? <span>Get account help</span></a>
+            <!--
+              The "notfound" state UI (More ways to sign in disclosure,
+              Sign in with a different account, and Get account help
+              recovery link) has been removed. In the redesigned flow,
+              missing credentials return the user to the chooser with an
+              inline "No passkey on this device" banner instead of
+              morphing the passkey screen into a fallback hub. Per-method
+              escape valves handle recovery from there.
+            -->
           </div>
 
         </div><!-- /screen-passkey -->
@@ -3014,6 +3091,26 @@
                   <span class="security-row-meta">2 passkeys saved</span>
                 </span>
                 <span class="security-row-badge security-row-badge--success">Active</span>
+                <svg class="security-row-chevron" width="16" height="16" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M530-481 332-679l43-43 241 241-241 241-43-43 198-198Z"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Recovery email row -->
+          <div class="security-section">
+            <h3 class="security-section-title">Account Recovery</h3>
+            <div class="security-row-card">
+              <button class="security-row" id="security-recovery-email-btn" type="button" aria-label="Manage recovery email">
+                <span class="security-row-icon" aria-hidden="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 -960 960 960" fill="currentColor">
+                    <path d="M140-160q-24 0-42-18t-18-42v-520q0-24 18-42t42-18h680q24 0 42 18t18 42v520q0 24-18 42t-42 18H140Zm340-302L140-685v465h680v-465L480-462Zm0-60 336-218H145l335 218ZM140-685v-55 520-465Z"/>
+                  </svg>
+                </span>
+                <span class="security-row-info">
+                  <span class="security-row-label">Recovery Email</span>
+                  <span class="security-row-meta" id="security-recovery-email-meta">Not set — add a backup way to get back in</span>
+                </span>
+                <span class="security-row-badge security-row-badge--muted" id="security-recovery-email-badge">Not set</span>
                 <svg class="security-row-chevron" width="16" height="16" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M530-481 332-679l43-43 241 241-241 241-43-43 198-198Z"/></svg>
               </button>
             </div>
@@ -3286,6 +3383,54 @@
           </div>
 
         </div><!-- /screen-settings-passkeys -->
+
+        <!-- ══ Account Settings — Recovery Email Enrollment ═══════ -->
+        <div id="screen-settings-recovery-email" data-recovery-email-state="request" hidden>
+
+          <!-- fake settings chrome -->
+          <div class="settings-topbar">
+            <span class="settings-breadcrumb">Account Settings &rsaquo; Sign-In &amp; Security</span>
+            <h2 class="settings-section-heading">Recovery Email</h2>
+          </div>
+
+          <!-- ① Request panel — enter / edit recovery email -->
+          <div class="settings-panel settings-panel-request">
+            <div class="recovery-email-hero">
+              <div class="enroll-hero-icon enroll-hero-icon--setup" aria-hidden="true">
+                <svg width="36" height="36" viewBox="0 -960 960 960" fill="currentColor"><path d="M140-160q-24 0-42-18t-18-42v-520q0-24 18-42t42-18h680q24 0 42 18t18 42v520q0 24-18 42t-42 18H140Zm340-302L140-685v465h680v-465L480-462Zm0-60 336-218H145l335 218ZM140-685v-55 520-465Z"/></svg>
+              </div>
+              <h2>Add a recovery email</h2>
+              <p>If you ever lose access to Face ID and your phone, we&#8217;ll send a sign-in link to this address so you can get back in.</p>
+            </div>
+            <label class="settings-field-label" for="recovery-email-input">Recovery email address</label>
+            <input class="settings-text-input" id="recovery-email-input" type="email"
+              placeholder="backup@example.com" autocomplete="email" inputmode="email" />
+            <p class="settings-char-hint" id="recovery-email-hint" style="text-align:left;">Use an address that&#8217;s different from your account email.</p>
+            <div class="settings-action-row">
+              <button class="sign-in-btn" id="recovery-email-send-btn" type="button">SEND VERIFICATION EMAIL</button>
+              <button class="enroll-skip-btn" id="recovery-email-cancel-btn" type="button">Cancel</button>
+            </div>
+          </div>
+
+          <!-- ② Sent panel — verification email confirmation -->
+          <div class="settings-panel settings-panel-sent">
+            <div class="recovery-email-hero">
+              <div class="enroll-hero-icon enroll-hero-icon--success" aria-hidden="true">
+                <svg width="36" height="36" viewBox="0 -960 960 960" fill="currentColor"><path d="M140-160q-24 0-42-18t-18-42v-520q0-24 18-42t42-18h680q24 0 42 18t18 42v520q0 24-18 42t-42 18H140Zm340-302L140-685v465h680v-465L480-462Zm0-60 336-218H145l335 218ZM140-685v-55 520-465Z"/></svg>
+              </div>
+              <h2>Check your inbox</h2>
+              <p>We sent a verification link to <strong id="recovery-email-sent-address">your email</strong>. Click it to confirm this address as your backup.</p>
+            </div>
+            <p class="recovery-email-sent-meta">The link expires in <strong>30 minutes</strong>. Didn&#8217;t get it? Check spam or resend below.</p>
+            <div class="settings-action-row">
+              <button class="reset-resend-btn" id="recovery-email-resend-btn" type="button">RESEND EMAIL</button>
+              <p class="reset-cooldown-text" id="recovery-email-cooldown-text"></p>
+              <button class="enroll-skip-btn" id="recovery-email-simulate-verify-btn" type="button">I verified my email &rarr;</button>
+              <button class="enroll-skip-btn" id="recovery-email-change-btn" type="button">Use a different email</button>
+            </div>
+          </div>
+
+        </div><!-- /screen-settings-recovery-email -->
 
         <!-- ─── Screen: Account Recovery ─────────────────── -->
         <div id="screen-recovery" hidden>
@@ -3781,12 +3926,12 @@
           Face ID failed
         </button>
       </li>
-      <li>
-        <button class="proto-nav-item" data-nav-target="screen-passkey" data-nav-state="notfound">
-          <span class="proto-nav-dot" aria-hidden="true"></span>
-          Passkey not found
-        </button>
-      </li>
+      <!--
+        The standalone "Passkey not found" screen state has been removed.
+        When no credential is discovered the user is returned to the
+        chooser with a "No passkey on this device" banner — see the
+        "No Passkey Found" entry in the Flows panel.
+      -->
 
       <!-- ─ Cross-Device Passkey Sign-In ───────────────────── -->
       <li><p class="proto-nav-section">Cross-Device Passkey Sign-In</p></li>
@@ -4048,6 +4193,18 @@
           Remove last passkey
         </button>
       </li>
+      <li>
+        <button class="proto-nav-item" data-nav-target="screen-settings-recovery-email" data-nav-state="request">
+          <span class="proto-nav-dot" aria-hidden="true"></span>
+          Recovery email — request
+        </button>
+      </li>
+      <li>
+        <button class="proto-nav-item" data-nav-target="screen-settings-recovery-email" data-nav-state="sent">
+          <span class="proto-nav-dot" aria-hidden="true"></span>
+          Recovery email — sent
+        </button>
+      </li>
 
     </ul>
 
@@ -4111,6 +4268,7 @@
     const screenSecurity      = document.getElementById('screen-settings-security');
     const screenActivity      = document.getElementById('screen-activity');
     const screenActiveDevices = document.getElementById('screen-active-devices');
+    const screenRecoveryEmail = document.getElementById('screen-settings-recovery-email');
     const backBtn        = document.getElementById('back-btn');
     const ANIM_DUR = 280;
     let animating = false;
@@ -4122,7 +4280,9 @@
       'screen-passkey:idle':                  'Shown when the passkey ceremony begins. The user can tap USE FACE ID to authenticate with a saved local passkey, or tap \u201cUse a passkey from another device\u201d to scan a QR code and authenticate via a nearby phone.',
       'screen-passkey:idle-cross-device':       'The same passkey idle screen, shown as the second step of the cross-device happy path. The \u201cUse a passkey from another device\u201d button is the interactive trigger that advances to the QR screen.',
       'screen-passkey:failed':                'Shown when Face ID fails or is canceled by the OS. Offers a retry or a fallback to another sign-in method.',
-      'screen-passkey:notfound':              'Shown when no passkey for this account exists on this device. The user can scan with a different device, set up Face ID on this device, or sign in another way.',
+      // 'screen-passkey:notfound' has been removed. When no credential is
+      // discovered, the user is returned to the chooser with a "No passkey
+      // on this device" banner instead.
       'screen-passkey:cross-device':          'Shown when the user wants to authenticate via a passkey on a different device. Displays a QR code for the nearby device to scan.',
       'screen-passkey:cross-device-failed':        'Shown when the cross-device QR session expires before authentication completes. Offers a retry or fallback to another sign-in method.',
       'screen-passkey:cross-device-no-credential':  'Shown when the phone scanned the QR code successfully but has no passkey enrolled for this account. Offers the user a chance to try a different phone or fall back to another sign-in method.',
@@ -4140,6 +4300,8 @@
       'screen-settings-passkeys:rename':      'A dialog for renaming a passkey entry to help distinguish between multiple registered devices.',
       'screen-settings-passkeys:remove':      'Confirmation step before deleting a passkey. Warns that another sign-in method will be required after removal.',
       'screen-settings-passkeys:remove-last': 'Stricter confirmation for removing the last remaining passkey. Makes clear that Face ID sign-in will be fully unavailable.',
+      'screen-settings-recovery-email:request': 'Reached from the Security hub. The user enters a backup email address that Ace can use to send a sign-in link if they ever lose access to Face ID and their phone.',
+      'screen-settings-recovery-email:sent':    'Confirms a verification link has been sent to the backup address. The user must click the link in their email to activate the recovery channel. Includes a 60-second resend cooldown.',
       'screen-recovery':                      'Reached when the user has lost access to all standard sign-in methods. Initiates identity verification through available fallback channels.',
       'screen-recovery:locked':               'Shown after too many one-time code requests in quick succession. OTP and the help link are blocked for 15 minutes; the password path remains available as an escape valve.',  
       'screen-reenroll:prompt':               'Shown post-recovery to encourage re-enrolling a passkey. Helps restore strong authentication and prevent future lockouts.',
@@ -4430,12 +4592,11 @@
           tryBtn.disabled = false;
           tryBtn.textContent = 'TRY AGAIN';
           break;
-        case 'notfound':
-          setBiometricState('error', 'No Passkey Found on This Device',
-            'Your passkey may be on another device, or you haven\'t set one up yet.');
-          tryBtn.disabled = false;
-          tryBtn.textContent = 'SCAN WITH PHONE';
-          break;
+        // NOTE: the 'notfound' state has been removed. When no credential
+        // is discovered, the runtime now returns the user to the chooser
+        // with a "No passkey on this device" banner instead of morphing
+        // this screen into a fallback hub. See the passkey-try-btn
+        // handler for the redirect logic.
         case 'cross-device':
           // Biometric hero + try-btn hidden via CSS; QR area shown
           break;
@@ -4444,6 +4605,14 @@
           break;
         case 'cross-device-transport-error':
           // Biometric hero + try-btn hidden via CSS; transport-error panel shown
+          break;
+        case 'success':
+          // Happy path landing: green ring, friendly confirmation,
+          // action buttons hidden via CSS so the user isn't tempted
+          // to re-trigger an already-successful ceremony.
+          setBiometricState('success', 'You\u2019re signed in', 'Welcome back to Ace Hardware');
+          tryBtn.disabled = true;
+          tryBtn.textContent = 'USE FACE ID';
           break;
       }
       updateBlurb();
@@ -4472,8 +4641,19 @@
     // URL param: ?passkey=found|failed|notfound  (default: found)
     const passkeyOutcome = new URLSearchParams(location.search).get('passkey') || 'found';
 
+    // ── Chooser banner helper ───────────────────────────────
+    // Only shown when explicitly set (e.g. after a no-credential
+    // Face ID attempt). Cleared whenever the user actively chooses
+    // a method, so it never lingers across visits.
+    function setChooserBanner(reason) {
+      if (reason) screenChooser.setAttribute('data-chooser-banner', reason);
+      else        screenChooser.removeAttribute('data-chooser-banner');
+    }
+    function clearChooserBanner() { setChooserBanner(null); }
+
     // ── Chooser → Passkey ─────────────────────────────────────
     document.getElementById('tile-passkey').addEventListener('click', () => {
+      clearChooserBanner();
       setPasskeyState('idle');
       switchScreen(currentScreen, screenPasskey, 'forward');
       currentScreen = screenPasskey;
@@ -4481,6 +4661,7 @@
 
     // ── Chooser → Password screen ─────────────────────────────
     document.getElementById('tile-password-chooser').addEventListener('click', () => {
+      clearChooserBanner();
       switchScreen(currentScreen, screenPassword, 'forward');
       currentScreen = screenPassword;
     });
@@ -4508,9 +4689,21 @@
 
     // ── Chooser → OTP (legacy tab screen, OTP tab) ────────────
     document.getElementById('tile-otp-chooser').addEventListener('click', () => {
+      clearChooserBanner();
       switchScreen(currentScreen, screenOtp, 'forward');
       currentScreen = screenOtp;
     });
+
+    // ── Chooser → Cross-device QR (passkey on another device) ──
+    // Wired for both chooser panels: default + passkey-first.
+    function goToCrossDevice() {
+      clearChooserBanner();
+      setPasskeyState('cross-device');
+      switchScreen(currentScreen, screenPasskey, 'forward');
+      currentScreen = screenPasskey;
+    }
+    document.getElementById('tile-cd-chooser').addEventListener('click', goToCrossDevice);
+    document.getElementById('tile-pf-cd').addEventListener('click', goToCrossDevice);
 
     // ── OTP screen: delivery tile toggle ──────────────────────
     document.getElementById('otp-screen-tile-email').addEventListener('click', () => {
@@ -4573,9 +4766,11 @@
       hideOsModal(() => { setPasskeyState('idle'); });
     });
 
-    // QR cancel → back to notfound (most likely origin) or idle
+    // QR cancel → back to chooser (the new origin for cross-device sign-in)
     document.getElementById('passkey-qr-cancel').addEventListener('click', () => {
-      setPasskeyState('notfound');
+      setPasskeyState('idle');
+      switchScreen(screenPasskey, screenChooser, 'back');
+      currentScreen = screenChooser;
     });
 
     // QR expired: refresh → back to cross-device; cancel → back to chooser
@@ -4600,16 +4795,9 @@
       currentScreen = screenOtp;
     });
 
-    // ── Passkey "Use Face ID" / "TRY AGAIN" / "SCAN WITH PHONE" button ───
+    // ── Passkey "Use Face ID" / "TRY AGAIN" button ───────────────────────
     document.getElementById('passkey-try-btn').addEventListener('click', function () {
       const tryBtn  = this;
-      const pkState = document.getElementById('screen-passkey').getAttribute('data-passkey-state') || 'idle';
-
-      // In notfound state the button is "SCAN WITH PHONE" → go to QR
-      if (pkState === 'notfound') {
-        setPasskeyState('cross-device');
-        return;
-      }
 
       // idle or failed → run biometric simulation
       tryBtn.disabled = true;
@@ -4629,25 +4817,29 @@
           osStatusEl.textContent = 'No Passkey Found';
           osStatusEl.className = 'os-modal-status os-status-error';
           setTimeout(() => {
-            hideOsModal(() => { setPasskeyState('notfound'); });
+            // No-credential outcome: return to the chooser and surface
+            // a banner so the user understands why their Face ID prompt
+            // didn't proceed.
+            hideOsModal(() => {
+              setPasskeyState('idle');
+              setChooserBanner('passkey-not-found');
+              switchScreen(screenPasskey, screenChooser, 'back');
+              currentScreen = screenChooser;
+            });
           }, 1400);
 
         } else {
-          // success
+          // success — settle on a polished, persistent success state.
+          // No alert(), no auto-reset — the user can navigate away via
+          // the Back button when they're ready.
           osStatusEl.textContent = 'Identity Confirmed ✓';
           osStatusEl.className = 'os-modal-status os-status-success';
           osCancelBtn.disabled = true;
           setTimeout(() => {
             hideOsModal(() => {
-              setBiometricState('success', 'Identity Confirmed', 'Signing you in…');
-              setTimeout(() => {
-                alert('✓ Signed in successfully! (prototype)');
-                setBiometricState('idle', 'Use Face ID to sign in', 'Your device will prompt you to authenticate');
-                tryBtn.disabled = false;
-                tryBtn.textContent = 'USE FACE ID';
-              }, 1200);
+              setPasskeyState('success');
             });
-          }, 1000);
+          }, 700);
         }
       }, 1600);
     });
@@ -4791,22 +4983,16 @@
       currentScreen = screenOtp;
     });
 
-    // ── Passkey recovery entry link → Recovery screen ─────────
-    document.getElementById('passkey-recovery-link').addEventListener('click', (e) => {
-      e.preventDefault();
-      setPasskeyState('idle');
-      switchScreen(screenPasskey, screenRecovery, 'forward');
-      currentScreen = screenRecovery;
-    });
-
-    // ── Passkey notfound → Enrollment ───────────────────────────────
-    document.getElementById('passkey-setup-enroll-btn').addEventListener('click', () => {
-      enrollOrigin = 'post-login'; // user is mid-sign-in; skip → "you're signed in" not settings
-      setPasskeyState('idle');
-      setEnrollState('prompt');
-      switchScreen(screenPasskey, screenEnroll, 'forward');
-      currentScreen = screenEnroll;
-    });
+    // The legacy "notfound" state on screen-passkey has been removed.
+    // Previously it housed dedicated handlers for:
+    //   • passkey-recovery-link      → screen-recovery (deprecated hub)
+    //   • passkey-setup-enroll-btn   → screen-enroll  (post-fail enroll)
+    //   • passkey-scan-phone-btn     → cross-device QR
+    //   • passkey-different-account-link → back to chooser
+    // In the redesigned flow, a missing credential returns the user to
+    // the chooser with a "No passkey on this device" banner (see
+    // passkey-try-btn handler), where these alternatives are already
+    // first-class tiles.
 
     // ── Post-Recovery Re-Enrollment ──────────────────────────────────────
     function setReenrollState(s) {
@@ -5000,7 +5186,7 @@
         {
           id: 'passkey-happy', group: 'Passkey Sign-In',
           label: 'Happy Path — Passkey / Face ID',
-          figmaUrl: FIGMA + '78-31',
+          figmaUrl: FIGMA + '198-36',
           steps: [
             { screen: 'screen-chooser',  state: 'passkey-first', label: 'Chooser — passkey detected' },
             { screen: 'screen-passkey',  state: 'idle',          label: 'Passkey prompt — biometric idle' },
@@ -5009,7 +5195,7 @@
         {
           id: 'passkey-biometric-failed', group: 'Passkey Sign-In',
           label: 'Biometric Failed',
-          figmaUrl: FIGMA + '80-31',
+          figmaUrl: FIGMA + '198-44',
           steps: [
             { screen: 'screen-chooser', state: 'passkey-first', label: 'Chooser — passkey detected' },
             { screen: 'screen-passkey', state: 'idle',          label: 'Passkey prompt — biometric idle' },
@@ -5019,35 +5205,39 @@
         {
           id: 'passkey-not-found', group: 'Passkey Sign-In',
           label: 'No Passkey Found',
-          figmaUrl: FIGMA + '81-31',
+          figmaUrl: FIGMA + '463-886',
           steps: [
-            { screen: 'screen-chooser', state: 'default',  label: 'Chooser — no passkey' },
-            { screen: 'screen-passkey', state: 'idle',     label: 'Passkey prompt — initiating auth' },
-            { screen: 'screen-passkey', state: 'notfound', label: 'Passkey — not found' },
+            { screen: 'screen-chooser', state: 'default', label: 'Chooser — no passkey' },
+            { screen: 'screen-passkey', state: 'idle',    label: 'Passkey prompt — initiating auth' },
+            // No credential discovered → user is returned to the chooser
+            // with an inline banner. They pick Password, OTP, or scan a
+            // QR with their phone. Per-method escape valves handle
+            // recovery from here (Forgot password? / OTP fallbacks).
+            { screen: 'screen-chooser', state: 'default', banner: 'passkey-not-found', label: 'Chooser — no passkey on this device (banner)' },
           ],
         },
         {
           id: 'passkey-os-sheet-happy', group: 'Passkey Sign-In',
           label: 'OS Native Sheet — Happy Path',
-          figmaUrl: FIGMA + '100-31',
+          figmaUrl: FIGMA + '198-63',
           steps: null,
         },
         {
           id: 'passkey-os-sheet-biometric-fail', group: 'Passkey Sign-In',
           label: 'Biometric Fails (OS Sheet)',
-          figmaUrl: FIGMA + '101-31',
+          figmaUrl: FIGMA + '198-68',
           steps: null,
         },
         {
           id: 'passkey-os-sheet-no-passkey', group: 'Passkey Sign-In',
           label: 'No Passkey Enrolled (OS Sheet)',
-          figmaUrl: FIGMA + '102-31',
+          figmaUrl: FIGMA + '198-73',
           steps: null,
         },
         {
           id: 'passkey-os-sheet-enroll-nudge', group: 'Passkey Sign-In',
           label: 'Enrollment Nudge (OS Sheet)',
-          figmaUrl: FIGMA + '103-31',
+          figmaUrl: FIGMA + '198-78',
           steps: null,
         },
 
@@ -5055,17 +5245,18 @@
         {
           id: 'cross-device-happy', group: 'Cross-Device Passkey Sign-In',
           label: 'Happy Path — Cross-Device via QR',
-          figmaUrl: FIGMA + '116-31',
+          figmaUrl: FIGMA + '198-87',
           steps: [
-            { screen: 'screen-chooser', state: 'default',        label: 'Chooser — no passkey' },
-            { screen: 'screen-passkey', state: 'idle',           label: 'Passkey prompt — use another device' },
-            { screen: 'screen-passkey', state: 'cross-device',   label: 'Cross-device — QR shown' },
+            { screen: 'screen-chooser',        state: 'default',      label: 'Chooser — no passkey' },
+            { screen: 'screen-passkey',        state: 'idle',         label: 'Passkey prompt — use another device' },
+            { screen: 'screen-passkey',        state: 'cross-device', label: 'Cross-device — QR shown' },
+            { screen: 'screen-passkey-enroll', state: 'prompt',       label: 'Post-login — passkey enrollment offer' },
           ],
         },
         {
           id: 'cross-device-qr-expired', group: 'Cross-Device Passkey Sign-In',
           label: 'QR Code Expired',
-          figmaUrl: FIGMA + '120-31',
+          figmaUrl: FIGMA + '198-98',
           steps: [
             { screen: 'screen-passkey', state: 'cross-device',        label: 'Cross-device — QR shown' },
             { screen: 'screen-passkey', state: 'cross-device-failed', label: 'Cross-device — QR expired' },
@@ -5074,7 +5265,7 @@
         {
           id: 'cross-device-no-passkey', group: 'Cross-Device Passkey Sign-In',
           label: 'No Passkey on Phone',
-          figmaUrl: FIGMA + '123-31',
+          figmaUrl: FIGMA + '198-106',
           steps: [
             { screen: 'screen-passkey', state: 'cross-device',               label: 'Cross-device — QR shown' },
             { screen: 'screen-passkey', state: 'cross-device-no-credential', label: 'Cross-device — no passkey on phone' },
@@ -5083,7 +5274,7 @@
         {
           id: 'cross-device-bluetooth-error', group: 'Cross-Device Passkey Sign-In',
           label: 'Bluetooth / Proximity Error',
-          figmaUrl: FIGMA + '126-31',
+          figmaUrl: FIGMA + '198-114',
           steps: [
             { screen: 'screen-passkey', state: 'cross-device',                label: 'Cross-device — QR shown' },
             { screen: 'screen-passkey', state: 'cross-device-transport-error', label: 'Cross-device — Bluetooth error' },
@@ -5092,7 +5283,7 @@
         {
           id: 'cross-device-transport-fork', group: 'Cross-Device Passkey Sign-In',
           label: 'Transport Error Fork',
-          figmaUrl: FIGMA + '183-31',
+          figmaUrl: FIGMA + '198-122',
           steps: [
             { screen: 'screen-passkey', state: 'cross-device-transport-error', label: 'Cross-device — Bluetooth error' },
             { screen: 'screen-passkey', state: 'cross-device',                 label: 'Retry — QR shown again' },
@@ -5104,7 +5295,7 @@
         {
           id: 'password-happy', group: 'Password Sign-In',
           label: 'Happy Path — Password Sign-In',
-          figmaUrl: FIGMA + '86-31',
+          figmaUrl: FIGMA + '198-137',
           steps: [
             { screen: 'screen-chooser',        state: 'default', label: 'Chooser — no passkey' },
             { screen: 'screen-password',       state: null,      label: 'Password — entry' },
@@ -5115,7 +5306,7 @@
         {
           id: 'password-wrong', group: 'Password Sign-In',
           label: 'Wrong Password',
-          figmaUrl: FIGMA + '90-31',
+          figmaUrl: FIGMA + '198-145',
           steps: [
             { screen: 'screen-chooser',  state: 'default', label: 'Chooser — no passkey' },
             { screen: 'screen-password', state: null,      label: 'Password — entry' },
@@ -5125,7 +5316,7 @@
         {
           id: 'password-account-locked', group: 'Password Sign-In',
           label: 'Account Locked',
-          figmaUrl: FIGMA + '169-32',
+          figmaUrl: FIGMA + '198-156',
           steps: [
             { screen: 'screen-chooser',       state: 'default', label: 'Chooser — no passkey' },
             { screen: 'screen-password',      state: null,      label: 'Password — entry' },
@@ -5136,7 +5327,7 @@
         {
           id: 'password-forgot', group: 'Password Sign-In',
           label: 'Forgot Password → Reset',
-          figmaUrl: FIGMA + '92-31',
+          figmaUrl: FIGMA + '198-170',
           steps: [
             { screen: 'screen-chooser',         state: 'default', label: 'Chooser — no passkey' },
             { screen: 'screen-password',        state: null,      label: 'Password — entry' },
@@ -5151,7 +5342,7 @@
         {
           id: 'otp-happy', group: 'One-Time Code (OTP) Sign-In',
           label: 'Happy Path — OTP Sign-In',
-          figmaUrl: FIGMA + '93-31',
+          figmaUrl: FIGMA + '198-185',
           steps: [
             { screen: 'screen-chooser',        state: 'default', label: 'Chooser — no passkey' },
             { screen: 'screen-otp',            state: null,      label: 'OTP — request code' },
@@ -5162,7 +5353,7 @@
         {
           id: 'otp-wrong-code', group: 'One-Time Code (OTP) Sign-In',
           label: 'Wrong Code',
-          figmaUrl: FIGMA + '94-31',
+          figmaUrl: FIGMA + '198-196',
           steps: [
             { screen: 'screen-chooser', state: 'default', label: 'Chooser — no passkey' },
             { screen: 'screen-otp',     state: null,      label: 'OTP — request code' },
@@ -5173,7 +5364,7 @@
         {
           id: 'otp-resend-cooldown', group: 'One-Time Code (OTP) Sign-In',
           label: 'Resend Cooldown',
-          figmaUrl: FIGMA + '96-31',
+          figmaUrl: FIGMA + '198-210',
           steps: [
             { screen: 'screen-otp',    state: null,       label: 'OTP — request code' },
             { screen: 'screen-verify', state: 'default',  label: 'Code entry' },
@@ -5183,7 +5374,7 @@
         {
           id: 'otp-expired', group: 'One-Time Code (OTP) Sign-In',
           label: 'Expired Code',
-          figmaUrl: FIGMA + '97-31',
+          figmaUrl: FIGMA + '198-221',
           steps: [
             { screen: 'screen-otp',    state: null,      label: 'OTP — request code' },
             { screen: 'screen-verify', state: 'default', label: 'Code entry' },
@@ -5193,7 +5384,7 @@
         {
           id: 'otp-locked', group: 'One-Time Code (OTP) Sign-In',
           label: 'Account Locked',
-          figmaUrl: FIGMA + '98-31',
+          figmaUrl: FIGMA + '198-232',
           steps: [
             { screen: 'screen-otp',    state: null,      label: 'OTP — request code' },
             { screen: 'screen-verify', state: 'default', label: 'Code entry' },
@@ -5204,7 +5395,7 @@
         {
           id: 'otp-resent-confirm', group: 'One-Time Code (OTP) Sign-In',
           label: 'Code Resent',
-          figmaUrl: FIGMA + '169-53',
+          figmaUrl: FIGMA + '198-246',
           steps: [
             { screen: 'screen-verify', state: 'default', label: 'Code entry' },
             { screen: 'screen-verify', state: 'resent',  label: 'Code entry — code resent' },
@@ -5213,7 +5404,7 @@
         {
           id: 'otp-no-access', group: 'One-Time Code (OTP) Sign-In',
           label: "Can't Access Code",
-          figmaUrl: FIGMA + '169-74',
+          figmaUrl: FIGMA + '198-254',
           steps: [
             { screen: 'screen-verify',       state: 'default', label: 'Code entry' },
             { screen: 'screen-otp-no-access', state: null,     label: "Can't access code" },
@@ -5224,7 +5415,7 @@
         {
           id: 'enroll-happy', group: 'Passkey Registration & Enrollment',
           label: 'Happy Path — Passkey Registration',
-          figmaUrl: FIGMA + '129-31',
+          figmaUrl: FIGMA + '198-266',
           steps: [
             { screen: 'screen-passkey-enroll', state: 'prompt',  label: 'Enrollment — opt-in prompt' },
             { screen: 'screen-passkey-enroll', state: 'success', label: 'Enrollment — success' },
@@ -5233,7 +5424,7 @@
         {
           id: 'enroll-biometric-fail', group: 'Passkey Registration & Enrollment',
           label: 'Biometric Fails / User Cancels',
-          figmaUrl: FIGMA + '137-31',
+          figmaUrl: FIGMA + '198-274',
           steps: [
             { screen: 'screen-passkey-enroll', state: 'prompt', label: 'Enrollment — opt-in prompt' },
             { screen: 'screen-passkey-enroll', state: 'error',  label: 'Enrollment — failed / cancelled' },
@@ -5242,7 +5433,7 @@
         {
           id: 'enroll-already-enrolled', group: 'Passkey Registration & Enrollment',
           label: 'Passkey Already Exists',
-          figmaUrl: FIGMA + '139-31',
+          figmaUrl: FIGMA + '198-282',
           steps: [
             { screen: 'screen-passkey-enroll', state: 'prompt',           label: 'Enrollment — opt-in prompt' },
             { screen: 'screen-passkey-enroll', state: 'already-enrolled', label: 'Enrollment — already enrolled' },
@@ -5251,7 +5442,7 @@
         {
           id: 'enroll-declined', group: 'Passkey Registration & Enrollment',
           label: 'User Declines Setup',
-          figmaUrl: FIGMA + '141-31',
+          figmaUrl: FIGMA + '198-290',
           steps: [
             { screen: 'screen-passkey-enroll', state: 'prompt',   label: 'Enrollment — opt-in prompt' },
             { screen: 'screen-passkey-enroll', state: 'declined', label: 'Enrollment — declined / skipped' },
@@ -5260,7 +5451,7 @@
         {
           id: 'enroll-declined-fork', group: 'Passkey Registration & Enrollment',
           label: 'Declined Fork — Maybe Later',
-          figmaUrl: FIGMA + '176-31',
+          figmaUrl: FIGMA + '198-298',
           steps: [
             { screen: 'screen-passkey-enroll', state: 'declined',   label: 'Declined — choice shown' },
             { screen: 'screen-chooser',        state: 'default',    label: 'Maybe Later — returns to chooser' },
@@ -5269,7 +5460,7 @@
         {
           id: 'enroll-declined-never', group: 'Passkey Registration & Enrollment',
           label: 'Declined Fork — Don\'t Ask Again',
-          figmaUrl: FIGMA + '176-31',
+          figmaUrl: FIGMA + '198-298',
           steps: [
             { screen: 'screen-passkey-enroll', state: 'declined',   label: 'Declined — choice shown' },
             { screen: 'screen-passkey-enroll', state: 'suppressed', label: 'Don\'t ask again — preference confirmed' },
@@ -5281,7 +5472,7 @@
         {
           id: 'reset-happy', group: 'Password Reset',
           label: 'Happy Path — Password Reset',
-          figmaUrl: FIGMA + '104-31',
+          figmaUrl: FIGMA + '198-310',
           steps: [
             { screen: 'screen-forgot-password', state: null,      label: 'Forgot password — email entry' },
             { screen: 'screen-reset-sent',      state: null,      label: 'Reset email sent' },
@@ -5292,7 +5483,7 @@
         {
           id: 'reset-link-expired', group: 'Password Reset',
           label: 'Reset Link Expired',
-          figmaUrl: FIGMA + '109-31',
+          figmaUrl: FIGMA + '198-324',
           steps: [
             { screen: 'screen-forgot-password', state: null,      label: 'Forgot password — email entry' },
             { screen: 'screen-reset-sent',      state: null,      label: 'Reset email sent' },
@@ -5302,7 +5493,7 @@
         {
           id: 'reset-email-not-found', group: 'Password Reset',
           label: 'Email Not Found',
-          figmaUrl: FIGMA + '107-31',
+          figmaUrl: FIGMA + '198-335',
           steps: [
             { screen: 'screen-forgot-password', state: null,        label: 'Forgot password — email entry' },
             { screen: 'screen-forgot-password', state: 'not-found', label: 'Forgot password — email not found' },
@@ -5311,7 +5502,7 @@
         {
           id: 'reset-rate-limited', group: 'Password Reset',
           label: 'Rate Limiting',
-          figmaUrl: FIGMA + '113-31',
+          figmaUrl: FIGMA + '198-343',
           steps: [
             { screen: 'screen-forgot-password', state: null,           label: 'Forgot password — email entry' },
             { screen: 'screen-forgot-password', state: 'rate-limited', label: 'Forgot password — rate limited' },
@@ -5319,38 +5510,51 @@
         },
 
         // ── Account Recovery ─────────────────────────────────────────────
+        // INTENTIONALLY OMITTED. In the new design, the multi-method "Recovery
+        // hub" junction is redundant: it only offers Password and One-Time
+        // Code, which are already first-class tiles on the Chooser. Each
+        // method now handles its own escape valve in-context:
+        //   • Password    → "Forgot password?" → Password Reset flow
+        //   • OTP code    → "Can't access this code?" → Can't Access Code
+        //   • OTP request → fall back to Password tile on Chooser
+        // The screen-recovery and screen-reenroll screens remain reachable
+        // from the Screens tab for reference, but are no longer documented as
+        // primary user flows. Post-recovery passkey re-enrollment is covered
+        // by the "Passkey Registration & Enrollment" group.
+
+        // ── Recovery Email Setup ─────────────────────────────────────────
+        // Documents the backup-email enrollment journey from the Security hub.
+        // Mirrors Figma frame 463-475 "flow:recovery-email-enrollment".
         {
-          id: 'recovery-happy', group: 'Account Recovery',
-          label: 'Happy Path — Account Recovery',
-          figmaUrl: FIGMA + '154-31',
+          id: 'recovery-email-setup-happy', group: 'Recovery Email Setup',
+          label: 'Happy Path — Add Recovery Email',
+          figmaUrl: FIGMA + '463-475',
           steps: [
-            { screen: 'screen-passkey', state: 'notfound', label: 'No passkey found — tap “Get account help”' },
-            { screen: 'screen-recovery', state: null,      label: 'Recovery — choose fallback method' },
-            { screen: 'screen-verify',   state: 'default', label: 'Recovery — verify code' },
-            { screen: 'screen-reenroll', state: 'prompt',  label: 'Re-enroll — set up passkey' },
-            { screen: 'screen-reenroll', state: 'success', label: 'Re-enroll — success' },
+            { screen: 'screen-settings-security',       state: 'recovery-not-set',                 label: 'Security hub — Recovery email not set' },
+            { screen: 'screen-settings-recovery-email', state: 'request',                          label: 'Recovery email — enter backup address' },
+            { screen: 'screen-settings-recovery-email', state: 'sent',                             label: 'Recovery email — verification link sent' },
+            { screen: 'screen-settings-security',       state: 'recovery-verified',                label: 'Security hub — Recovery email verified' },
           ],
         },
         {
-          id: 'recovery-rate-limited', group: 'Account Recovery',
-          label: 'Recovery Rate Limited',
-          figmaUrl: FIGMA + '154-57',
+          id: 'recovery-email-setup-pending', group: 'Recovery Email Setup',
+          label: 'Pending Verification — Hub Reflects Status',
+          figmaUrl: FIGMA + '463-475',
           steps: [
-            { screen: 'screen-passkey', state: 'notfound', label: 'No passkey found — tap “Get account help”' },
-            { screen: 'screen-recovery', state: null,     label: 'Recovery — choose fallback method' },
-            { screen: 'screen-recovery', state: 'locked', label: 'Recovery — rate limited' },
+            { screen: 'screen-settings-security',       state: 'recovery-not-set',                 label: 'Security hub — Recovery email not set' },
+            { screen: 'screen-settings-recovery-email', state: 'request',                          label: 'Recovery email — enter backup address' },
+            { screen: 'screen-settings-recovery-email', state: 'sent',                             label: 'Recovery email — verification link sent' },
+            { screen: 'screen-settings-security',       state: 'recovery-pending',                 label: 'Security hub — Recovery email pending verification' },
           ],
         },
         {
-          id: 'recovery-reenroll-failed', group: 'Account Recovery',
-          label: 'Re-Enroll Failed',
-          figmaUrl: FIGMA + '154-73',
+          id: 'recovery-email-setup-change', group: 'Recovery Email Setup',
+          label: 'Use a Different Email — Loop Back',
+          figmaUrl: FIGMA + '463-475',
           steps: [
-            { screen: 'screen-passkey', state: 'notfound', label: 'No passkey found — tap “Get account help”' },
-            { screen: 'screen-recovery', state: null,     label: 'Recovery — choose fallback method' },
-            { screen: 'screen-verify',   state: 'default', label: 'Recovery — verify code' },
-            { screen: 'screen-reenroll', state: 'prompt', label: 'Re-enroll — set up passkey' },
-            { screen: 'screen-reenroll', state: 'error',  label: 'Re-enroll — failed' },
+            { screen: 'screen-settings-recovery-email', state: 'request', label: 'Recovery email — enter backup address' },
+            { screen: 'screen-settings-recovery-email', state: 'sent',    label: 'Recovery email — verification link sent' },
+            { screen: 'screen-settings-recovery-email', state: 'request', label: 'Recovery email — tap “Use a different email” → back to entry' },
           ],
         },
 
@@ -5358,7 +5562,7 @@
         {
           id: 'settings-overview', group: 'Account Settings & Security',
           label: 'Overview — Security Settings',
-          figmaUrl: FIGMA + '165-31',
+          figmaUrl: FIGMA + '198-389',
           steps: [
             { screen: 'screen-settings-security', state: null, label: 'Security hub' },
           ],
@@ -5366,7 +5570,7 @@
         {
           id: 'settings-activity-log', group: 'Account Settings & Security',
           label: 'Sign-In Activity Log',
-          figmaUrl: FIGMA + '165-57',
+          figmaUrl: FIGMA + '198-394',
           steps: [
             { screen: 'screen-settings-security', state: null, label: 'Security hub' },
             { screen: 'screen-activity',          state: null, label: 'Activity log' },
@@ -5375,7 +5579,7 @@
         {
           id: 'settings-active-devices', group: 'Account Settings & Security',
           label: 'Active Devices & Remote Sign-Out',
-          figmaUrl: FIGMA + '165-73',
+          figmaUrl: FIGMA + '198-402',
           steps: [
             { screen: 'screen-settings-security', state: null, label: 'Security hub' },
             { screen: 'screen-active-devices',    state: null, label: 'Active devices' },
@@ -5384,7 +5588,7 @@
         {
           id: 'settings-rename-passkey', group: 'Account Settings & Security',
           label: 'Rename a Passkey',
-          figmaUrl: FIGMA + '165-99',
+          figmaUrl: FIGMA + '198-410',
           steps: [
             { screen: 'screen-settings-security', state: null,     label: 'Security hub' },
             { screen: 'screen-settings-passkeys', state: 'list',   label: 'Passkeys list' },
@@ -5394,7 +5598,7 @@
         {
           id: 'settings-remove-passkey', group: 'Account Settings & Security',
           label: 'Remove a Passkey',
-          figmaUrl: FIGMA + '165-120',
+          figmaUrl: FIGMA + '198-418',
           steps: [
             { screen: 'screen-settings-security', state: null,     label: 'Security hub' },
             { screen: 'screen-settings-passkeys', state: 'list',   label: 'Passkeys list' },
@@ -5438,11 +5642,35 @@
         if (target === screenPasskey)  setPasskeyState(state   || 'idle');
         if (target === screenEnroll)   setEnrollState(state    || 'prompt');
         if (target === screenSettings) setSettingsState(state  || 'list');
-        if (target === screenChooser)  setChooserState(state   || 'default');
+        if (target === screenChooser) {
+          setChooserState(state || 'default');
+          // Optional informational banner (e.g. "No passkey on this device")
+          setChooserBanner(step.banner || null);
+        }
         if (target === screenReenroll) setReenrollState(state  || 'prompt');
         if (target === screenRecovery) {
           setRecoveryState(state || 'default');
           if (state === 'locked') startRecoveryCountdown();
+        }
+        if (target === screenRecoveryEmail) {
+          setRecoveryEmailState(state || 'request');
+        }
+        if (target === screenSecurity) {
+          // Drive the Recovery email row badge from flow state so the same
+          // hub screen can be shown in not-set / pending / verified variants.
+          if (state === 'recovery-not-set') {
+            recoveryEmailStore.address = null;
+            recoveryEmailStore.verified = false;
+            refreshRecoveryEmailHubRow();
+          } else if (state === 'recovery-pending') {
+            recoveryEmailStore.address = 'david.backup@gmail.com';
+            recoveryEmailStore.verified = false;
+            refreshRecoveryEmailHubRow();
+          } else if (state === 'recovery-verified') {
+            recoveryEmailStore.address = 'david.backup@gmail.com';
+            recoveryEmailStore.verified = true;
+            refreshRecoveryEmailHubRow();
+          }
         }
         if (target === screenNewPw) setNewPwState(state || 'default');
         if (target === screenForgotPw) {
@@ -5467,6 +5695,7 @@
         'screen-activity':          screenActivity,
         'screen-active-devices':    screenActiveDevices,
         'screen-settings-passkeys': screenSettings,
+        'screen-settings-recovery-email': screenRecoveryEmail,
         'screen-passkey':           screenPasskey,
         'screen-password':          screenPassword,
         'screen-otp':               screenOtp,
@@ -5502,6 +5731,7 @@
         const passkeyState  = document.getElementById('screen-passkey').getAttribute('data-passkey-state') || 'idle';
         const enrollState   = screenEnroll.getAttribute('data-enroll-state') || 'prompt';
         const settingsState = screenSettings.getAttribute('data-settings-state') || 'list';
+        const recoveryEmailState = screenRecoveryEmail.getAttribute('data-recovery-email-state') || 'request';
         const chooserState  = screenChooser.getAttribute('data-chooser-state') || 'default';
         const recoveryState = screenRecovery.getAttribute('data-recovery-state') || null;
         const newPwState    = screenNewPw.getAttribute('data-newpw-state') || null;
@@ -5515,6 +5745,7 @@
             if (activeId === 'screen-passkey')          matchesState = btnState === passkeyState;
             if (activeId === 'screen-passkey-enroll')   matchesState = btnState === enrollState;
             if (activeId === 'screen-settings-passkeys') matchesState = btnState === settingsState;
+            if (activeId === 'screen-settings-recovery-email') matchesState = btnState === recoveryEmailState;
             if (activeId === 'screen-chooser')          matchesState = btnState === chooserState;
             if (activeId === 'screen-recovery')         matchesState = btnState === recoveryState;
             if (activeId === 'screen-new-password')      matchesState = btnState === newPwState;
@@ -5558,6 +5789,7 @@
           if (target === screenPasskey)  setPasskeyState(navState   || 'idle');
           if (target === screenEnroll)   setEnrollState(navState    || 'prompt');
           if (target === screenSettings) setSettingsState(navState  || 'list');
+          if (target === screenRecoveryEmail) setRecoveryEmailState(navState || 'request');
           if (target === screenChooser)  setChooserState(navState   || 'default');
           if (target === screenReenroll) setReenrollState(navState  || 'prompt');
           if (target === screenRecovery) {
@@ -5889,6 +6121,123 @@
       setSettingsState('list');
       switchScreen(screenSecurity, screenSettings, 'forward');
       currentScreen = screenSettings;
+    });
+
+    // ── Recovery Email enrollment ──────────────────────────────────
+    // Persists enrolled email + verified status in-memory for prototype demo.
+    const recoveryEmailStore = { address: null, verified: false };
+
+    function setRecoveryEmailState(state) {
+      screenRecoveryEmail.setAttribute('data-recovery-email-state', state);
+    }
+
+    function refreshRecoveryEmailHubRow() {
+      const metaEl  = document.getElementById('security-recovery-email-meta');
+      const badgeEl = document.getElementById('security-recovery-email-badge');
+      if (!metaEl || !badgeEl) return;
+      if (recoveryEmailStore.verified && recoveryEmailStore.address) {
+        metaEl.textContent = recoveryEmailStore.address;
+        badgeEl.textContent = 'Verified';
+        badgeEl.classList.remove('security-row-badge--muted');
+        badgeEl.classList.add('security-row-badge--success');
+      } else if (recoveryEmailStore.address) {
+        metaEl.textContent = recoveryEmailStore.address + ' · pending verification';
+        badgeEl.textContent = 'Pending';
+        badgeEl.classList.remove('security-row-badge--success');
+        badgeEl.classList.add('security-row-badge--muted');
+      } else {
+        metaEl.textContent = 'Not set — add a backup way to get back in';
+        badgeEl.textContent = 'Not set';
+        badgeEl.classList.remove('security-row-badge--success');
+        badgeEl.classList.add('security-row-badge--muted');
+      }
+    }
+
+    // ── Security hub → Recovery email screen ────────────────────────
+    document.getElementById('security-recovery-email-btn').addEventListener('click', () => {
+      // Pre-fill input if a draft address exists from a prior session
+      const input = document.getElementById('recovery-email-input');
+      if (input && recoveryEmailStore.address) input.value = recoveryEmailStore.address;
+      // If user already submitted but didn't verify, send them back to the sent state
+      if (recoveryEmailStore.address && !recoveryEmailStore.verified) {
+        document.getElementById('recovery-email-sent-address').textContent = recoveryEmailStore.address;
+        setRecoveryEmailState('sent');
+      } else {
+        setRecoveryEmailState('request');
+      }
+      switchScreen(screenSecurity, screenRecoveryEmail, 'forward');
+      currentScreen = screenRecoveryEmail;
+    });
+
+    // ── Recovery email: send verification ──────────────────────────
+    let recoveryEmailCooldownInterval = null;
+    function startRecoveryEmailCooldown() {
+      if (recoveryEmailCooldownInterval) { clearInterval(recoveryEmailCooldownInterval); recoveryEmailCooldownInterval = null; }
+      const resendBtn = document.getElementById('recovery-email-resend-btn');
+      const cooldownText = document.getElementById('recovery-email-cooldown-text');
+      let secs = 60;
+      resendBtn.disabled = true;
+      cooldownText.textContent = 'Resend available in 1:00';
+      recoveryEmailCooldownInterval = setInterval(() => {
+        secs--;
+        if (secs <= 0) {
+          clearInterval(recoveryEmailCooldownInterval);
+          recoveryEmailCooldownInterval = null;
+          resendBtn.disabled = false;
+          cooldownText.textContent = '';
+        } else {
+          cooldownText.textContent = `Resend available in ${String(Math.floor(secs / 60)).padStart(2, '0')}:${String(secs % 60).padStart(2, '0')}`;
+        }
+      }, 1000);
+    }
+
+    document.getElementById('recovery-email-send-btn').addEventListener('click', () => {
+      const input = document.getElementById('recovery-email-input');
+      const raw = (input.value || '').trim();
+      // Lightweight client-side check — full validation happens server-side
+      const looksLikeEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw);
+      if (!looksLikeEmail) {
+        input.focus();
+        input.setAttribute('aria-invalid', 'true');
+        document.getElementById('recovery-email-hint').textContent = 'Enter a valid email address.';
+        document.getElementById('recovery-email-hint').style.color = '#B71C1C';
+        return;
+      }
+      input.removeAttribute('aria-invalid');
+      document.getElementById('recovery-email-hint').textContent = 'Use an address that\u2019s different from your account email.';
+      document.getElementById('recovery-email-hint').style.color = '';
+      recoveryEmailStore.address = raw;
+      recoveryEmailStore.verified = false;
+      document.getElementById('recovery-email-sent-address').textContent = raw;
+      setRecoveryEmailState('sent');
+      startRecoveryEmailCooldown();
+      refreshRecoveryEmailHubRow();
+      updateBlurb();
+    });
+
+    document.getElementById('recovery-email-cancel-btn').addEventListener('click', () => {
+      switchScreen(screenRecoveryEmail, screenSecurity, 'backward');
+      currentScreen = screenSecurity;
+    });
+
+    document.getElementById('recovery-email-resend-btn').addEventListener('click', () => {
+      if (!document.getElementById('recovery-email-resend-btn').disabled) startRecoveryEmailCooldown();
+    });
+
+    document.getElementById('recovery-email-change-btn').addEventListener('click', () => {
+      if (recoveryEmailCooldownInterval) { clearInterval(recoveryEmailCooldownInterval); recoveryEmailCooldownInterval = null; }
+      const input = document.getElementById('recovery-email-input');
+      if (input && recoveryEmailStore.address) input.value = recoveryEmailStore.address;
+      setRecoveryEmailState('request');
+      updateBlurb();
+    });
+
+    document.getElementById('recovery-email-simulate-verify-btn').addEventListener('click', () => {
+      if (recoveryEmailCooldownInterval) { clearInterval(recoveryEmailCooldownInterval); recoveryEmailCooldownInterval = null; }
+      recoveryEmailStore.verified = true;
+      refreshRecoveryEmailHubRow();
+      switchScreen(screenRecoveryEmail, screenSecurity, 'backward');
+      currentScreen = screenSecurity;
     });
 
     // ── Security hub → Manage devices ──────────────────────────────

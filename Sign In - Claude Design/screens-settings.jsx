@@ -1,3 +1,6 @@
+// ARCHIVE — original ideation; not the source of truth.
+// See sign-in.html (live prototype) for current behavior.
+//
 // screens-settings.jsx — Groups 5–6: Passkey Management & Account Recovery
 
 /* ================================================================

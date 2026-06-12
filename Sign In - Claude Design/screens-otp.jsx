@@ -1,3 +1,6 @@
+// ARCHIVE — original ideation; not the source of truth.
+// See sign-in.html (live prototype) for current behavior.
+//
 // screens-otp.jsx — OTP path: channel selection, code entry, all edge case states
 
 /* ---- Sign-In with OTP Tab Selected ---- */

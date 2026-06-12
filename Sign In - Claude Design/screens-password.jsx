@@ -1,3 +1,6 @@
+// ARCHIVE — original ideation; not the source of truth.
+// See sign-in.html (live prototype) for current behavior.
+//
 // screens-password.jsx — Password path: error states, forgot/reset flow
 
 /* ---- Sign-In with Wrong Password ---- */

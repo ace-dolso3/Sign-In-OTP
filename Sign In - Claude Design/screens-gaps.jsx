@@ -1,3 +1,6 @@
+// ARCHIVE — original ideation; not the source of truth.
+// See sign-in.html (live prototype) for current behavior.
+//
 // screens-gaps.jsx — Passkey gaps, OS screens, Account Security Dashboard
 
 /* ================================================================
