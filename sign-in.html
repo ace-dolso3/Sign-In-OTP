@@ -614,7 +614,13 @@
     }
 
     /* CTA label swaps — hide original text via font-size:0 on the button,
-       restore typography on the ::after pseudo so the swapped label renders */
+       restore typography on the ::after pseudo so the swapped label renders.
+       W3.9 audit (kept intentionally): these are the only two surviving
+       ::after { content: 'LABEL' } rules in the prototype. Both belong to
+       the W2.2 merged-OTP CTA-swap pattern; both labels follow W3.1 Title
+       Case for primary CTAs. Any other future ::after content: 'TEXT'
+       should be considered a regression and routed through JS textContent
+       so screen readers see it consistently. */
     #screen-otp[data-otp-substate="expired"] #verify-btn,
     #screen-otp[data-otp-substate="locked"]  #verify-btn { font-size: 0; }
     #screen-otp[data-otp-substate="expired"] #verify-btn::after,
