@@ -1541,6 +1541,74 @@
       line-height: 1.5;
     }
 
+    /* ─── W2.6 · "Something doesn't look right?" anomaly footer (A4) ─── */
+    /* Collapsed by default so it doesn't dominate the audit-scan use case,
+       but discoverable for users who spot something unexpected. */
+    .activity-anomaly-footer {
+      margin: 18px 0 0;
+      padding-top: 16px;
+      border-top: 1px solid rgba(18,18,18,0.08);
+    }
+    .activity-anomaly-toggle {
+      width: 100%;
+      background: transparent;
+      border: 0;
+      padding: 8px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      cursor: pointer;
+      font-family: 'Roboto', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(18,18,18,0.72);
+      letter-spacing: 0.1px;
+      text-align: left;
+    }
+    .activity-anomaly-toggle:hover { color: #121212; }
+    .activity-anomaly-chevron {
+      flex-shrink: 0;
+      color: rgba(18,18,18,0.4);
+      transition: transform 180ms ease;
+    }
+    .activity-anomaly-toggle[aria-expanded="true"] .activity-anomaly-chevron {
+      transform: rotate(90deg);
+    }
+    .activity-anomaly-options {
+      display: none;
+      margin: 6px 0 0;
+      padding: 0;
+      list-style: none;
+      border-top: 1px solid rgba(18,18,18,0.06);
+    }
+    .activity-anomaly-footer[data-expanded="true"] .activity-anomaly-options {
+      display: block;
+    }
+    .activity-anomaly-option {
+      width: 100%;
+      background: transparent;
+      border: 0;
+      padding: 14px 4px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      font-family: 'Roboto', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      color: #121212;
+      text-align: left;
+      border-bottom: 1px solid rgba(18,18,18,0.06);
+    }
+    .activity-anomaly-option:last-child { border-bottom: 0; }
+    .activity-anomaly-option:hover { background: rgba(18,18,18,0.025); }
+    .activity-anomaly-option-arrow {
+      flex-shrink: 0;
+      color: rgba(18,18,18,0.32);
+      margin-left: auto;
+    }
+
     /* ─── Active Devices ─────────────────────────────────────────────── */
     .devices-full-list {
       list-style: none;
@@ -3532,6 +3600,41 @@
           <!-- W2.5-lite · Replaced self-disabling "Load older events" demo button
                with a clear retention statement. Closes G8 Issue 7. -->
           <p class="activity-retention-note">Showing the last 30 days. We don&#8217;t keep older sign-in events.</p>
+
+          <!-- W2.6 · "Something doesn't look right?" anomaly footer (A4).
+               Collapsed disclosure with 3 routes for users who spot suspicious
+               activity. Each route sets signInOrigin='activity-anomaly' so
+               downstream toasts can include context-aware copy. Closes G8 Issue 5. -->
+          <section class="activity-anomaly-footer" id="activity-anomaly-footer" data-expanded="false" aria-labelledby="activity-anomaly-heading">
+            <button class="activity-anomaly-toggle"
+                    id="activity-anomaly-toggle"
+                    type="button"
+                    aria-expanded="false"
+                    aria-controls="activity-anomaly-options">
+              <span id="activity-anomaly-heading">Something doesn&#8217;t look right?</span>
+              <svg class="activity-anomaly-chevron" width="16" height="16" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M530-481 332-679l43-43 241 241-241 241-43-43 198-198Z"/></svg>
+            </button>
+            <ul class="activity-anomaly-options" id="activity-anomaly-options" role="list">
+              <li>
+                <button class="activity-anomaly-option" type="button" data-anomaly-action="change-password">
+                  <span>Change my password</span>
+                  <svg class="activity-anomaly-option-arrow" width="14" height="14" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M530-481 332-679l43-43 241 241-241 241-43-43 198-198Z"/></svg>
+                </button>
+              </li>
+              <li>
+                <button class="activity-anomaly-option" type="button" data-anomaly-action="signout-others">
+                  <span>Sign out everywhere except this device</span>
+                  <svg class="activity-anomaly-option-arrow" width="14" height="14" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M530-481 332-679l43-43 241 241-241 241-43-43 198-198Z"/></svg>
+                </button>
+              </li>
+              <li>
+                <button class="activity-anomaly-option" type="button" data-anomaly-action="review-passkeys">
+                  <span>Review my passkeys</span>
+                  <svg class="activity-anomaly-option-arrow" width="14" height="14" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M530-481 332-679l43-43 241 241-241 241-43-43 198-198Z"/></svg>
+                </button>
+              </li>
+            </ul>
+          </section>
 
         </div><!-- /screen-activity -->
 
@@ -7115,6 +7218,51 @@
     document.getElementById('device-signout-all-btn').addEventListener('click', () => {
       openSignoutModal('all other devices', 'all');
     });
+
+    // ── W2.6 · Activity-log anomaly footer (A4) ─────────────────────
+    // "Something doesn't look right?" disclosure with 3 remediation routes.
+    // Each route sets signInOrigin='activity-anomaly' so downstream toasts
+    // can emit context-aware copy (e.g. "Password changed. We've signed you
+    // out on other devices.") once consumers are wired in later waves.
+    (function setupActivityAnomalyFooter() {
+      const footer = document.getElementById('activity-anomaly-footer');
+      const toggle = document.getElementById('activity-anomaly-toggle');
+      if (!footer || !toggle) return;
+
+      toggle.addEventListener('click', () => {
+        const expanded = footer.dataset.expanded === 'true';
+        const next = expanded ? 'false' : 'true';
+        footer.dataset.expanded = next;
+        toggle.setAttribute('aria-expanded', next);
+      });
+
+      footer.querySelectorAll('[data-anomaly-action]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const action = btn.dataset.anomalyAction;
+          setSignInOrigin('activity-anomaly', { action });
+
+          if (action === 'change-password') {
+            switchScreen(currentScreen, screenNewPw, 'forward');
+            currentScreen = screenNewPw;
+          } else if (action === 'signout-others') {
+            // Route to Active Devices first, THEN open the confirm modal.
+            // The modal markup lives inside #screen-active-devices, so it can't
+            // render on top of #screen-activity. Routing here also gives the
+            // user the correct post-action context (they'll see the updated
+            // device list after confirming).
+            switchScreen(currentScreen, screenActiveDevices, 'forward');
+            currentScreen = screenActiveDevices;
+            // Wait one tick for the screen transition before opening the modal.
+            setTimeout(() => openSignoutModal('all other devices', 'all'), 280);
+          } else if (action === 'review-passkeys') {
+            const target = document.getElementById('screen-settings-passkeys');
+            if (!target) return;
+            switchScreen(currentScreen, target, 'forward');
+            currentScreen = target;
+          }
+        });
+      });
+    })();
 
     // ── Settings breadcrumb buttons (W1.9 · click navigates to security hub) ───
     document.addEventListener('click', (e) => {
