@@ -8,6 +8,44 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
   <style>
+    /* ─────────────────────────────────────────────────────────────
+       DESIGN TOKENS — state palette (W3.2)
+       4-tier semantic palette for banners, status messages, and
+       inline status accents. Each tier has a bg and fg pair tuned
+       for AA contrast on white surfaces.
+
+         neutral  — informational, non-urgent ("FYI" tone)
+         caution  — slow down, take note (genuine warnings)
+         error    — something failed, action required
+         success  — positive confirmation, completed action
+
+       Rule of thumb: default to NEUTRAL for informational banners.
+       Reserve caution (amber) for genuine warnings. Reserve error
+       (red) for true failures. Reserve success (green) for confirmed
+       positive outcomes.
+    ───────────────────────────────────────────────────────────── */
+    :root {
+      --state-neutral-bg: #F3F4F6;
+      --state-neutral-fg: #4B5563;
+      --state-neutral-border: #D1D5DB;
+      --state-neutral-strong: #1F2937;
+
+      --state-caution-bg: #FFF8E1;
+      --state-caution-fg: #92660C;
+      --state-caution-border: #F5D27A;
+      --state-caution-strong: #5A4A1A;
+
+      --state-error-bg: #FFEBEE;
+      --state-error-fg: #C62828;
+      --state-error-border: #F0B5B7;
+      --state-error-strong: #8E1B1F;
+
+      --state-success-bg: #E8F5E9;
+      --state-success-fg: #2E7D32;
+      --state-success-border: #A5D6A7;
+      --state-success-strong: #1B5E20;
+    }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     /* Remove browser tap highlight and focus outlines globally */
@@ -539,11 +577,11 @@
     }
     .verify-alert svg { flex-shrink: 0; margin-top: 1px; }
 
-    .verify-alert-cooldown  { background: #fff8e1; color: #7a5500; border: 1px solid #f9c34f; }
-    .verify-alert-expired   { background: #fdecea; color: #c62828; border: 1px solid #f28b82; }
-    .verify-alert-locked    { background: #fdecea; color: #c62828; border: 1px solid #f28b82; }
-    .verify-alert-resent    { background: #e8f5e9; color: #1b5e20; border: 1px solid #81c784; }
-    .verify-alert-wrong     { background: #fdecea; color: #c62828; border: 1px solid #f28b82; }
+    .verify-alert-cooldown  { background: var(--state-caution-bg); color: var(--state-caution-fg); border: 1px solid var(--state-caution-border); }
+    .verify-alert-expired   { background: var(--state-error-bg);   color: var(--state-error-fg);   border: 1px solid var(--state-error-border); }
+    .verify-alert-locked    { background: var(--state-error-bg);   color: var(--state-error-fg);   border: 1px solid var(--state-error-border); }
+    .verify-alert-resent    { background: var(--state-success-bg); color: var(--state-success-fg); border: 1px solid var(--state-success-border); }
+    .verify-alert-wrong     { background: var(--state-error-bg);   color: var(--state-error-fg);   border: 1px solid var(--state-error-border); }
 
     /* Show the right alert per substate (W2.2 — merged into #screen-otp) */
     #screen-otp[data-otp-substate="cooldown"] .verify-alert-cooldown { display: flex; }
@@ -2475,27 +2513,29 @@
     }
 
     /* Banner: only shown when [data-chooser-banner] is set on
-       the chooser (e.g. after a no-credential Face ID attempt). */
+       the chooser (e.g. after a no-credential Face ID attempt).
+       Uses the NEUTRAL state tier — this is informational
+       guidance ("here's what's going on"), not a warning. W3.2. */
     .chooser-banner {
       display: none;
       align-items: flex-start;
       gap: 10px;
       padding: 12px 14px;
-      background: #fff7e6;
-      border: 1px solid #f5d27a;
-      border-left: 3px solid #d6a019;
+      background: var(--state-neutral-bg);
+      border: 1px solid var(--state-neutral-border);
+      border-left: 3px solid var(--state-neutral-fg);
       border-radius: 4px;
-      color: #5a4a1a;
+      color: var(--state-neutral-fg);
       font-size: 13px;
       line-height: 1.4;
     }
     .chooser-banner-icon {
       flex-shrink: 0;
-      color: #b87a06;
+      color: var(--state-neutral-fg);
       margin-top: 1px;
     }
     .chooser-banner-text { flex: 1; }
-    .chooser-banner-text strong { color: #3d3208; font-weight: 600; }
+    .chooser-banner-text strong { color: var(--state-neutral-strong); font-weight: 600; }
     #screen-chooser[data-chooser-banner="passkey-not-found"] .chooser-banner,
     #screen-chooser[data-chooser-banner="already-tried"]    .chooser-banner { display: flex; }
 
