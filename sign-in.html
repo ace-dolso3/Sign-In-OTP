@@ -596,10 +596,23 @@
     #screen-otp[data-otp-substate="cooldown"] .resend-btn,
     #screen-otp[data-otp-substate="locked"]   .resend-btn { pointer-events: none; opacity: 0.38; }
 
-    /* W2.2 · Merged OTP screen — panel swap */
-    #screen-otp .otp-panel { display: contents; }
-    #screen-otp[data-otp-state="request"] .otp-panel-entered { display: none; }
-    #screen-otp[data-otp-state="entered"] .otp-panel-request { display: none; }
+    /* W2.2 · Merged OTP screen — panel swap
+       NOTE: Avoid `display: contents` here. In some browsers (notably Safari/WebKit)
+       descendants of a `display:contents` box can still render — including pseudo-element
+       `content` — even when the panel or an ancestor is `display:none` or `[hidden]`.
+       That caused OTP content (Sign In heading, code expiry, inputs, the
+       "SIGN IN WITH PASSWORD" pseudo button label, etc.) to bleed onto other
+       screens. We instead use the same pattern as .enroll-panel-*: hide all
+       panels by default, show only the active one as a real flex container. */
+    #screen-otp .otp-panel { display: none; }
+    #screen-otp[data-otp-state="request"] .otp-panel-request,
+    #screen-otp[data-otp-state="entered"] .otp-panel-entered {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      width: 100%;
+    }
 
     /* W2.2 · Hero subtitle state-switching */
     #screen-otp .otp-subtitle { display: none; }
