@@ -1262,10 +1262,29 @@
     .passkey-action-remove:hover { background: rgba(183,28,28,0.04); border-color: #B71C1C; }
 
     /* ─── Account Settings — Security Hub ──────────────────────────── */
+    /* W2.3 · IA re-section — two top-level groups wrap the section list:
+       "Sign-in & recovery" (Passkeys, Recovery Email) and
+       "Account activity"   (Recent Sign-In Activity, Devices Signed In).
+       Per ratified Structural Position A5 (Option D). */
+    .security-group {
+      width: 100%;
+      margin-bottom: 28px;
+    }
+    .security-group:last-child { margin-bottom: 0; }
+    .security-group-title {
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 18px;
+      color: rgba(18,18,18,0.93);
+      margin: 0 0 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(18,18,18,0.08);
+    }
     .security-section {
       width: 100%;
       margin-bottom: 20px;
     }
+    .security-group .security-section:last-child { margin-bottom: 0; }
     .security-section:last-child { margin-bottom: 0; }
     .security-section-header {
       display: flex;
@@ -3217,112 +3236,125 @@
             <h2 class="settings-section-heading">Sign-In &amp; Security</h2>
           </div>
 
-          <!-- Passkeys row -->
-          <div class="security-section">
-            <h3 class="security-section-title">Passkeys</h3>
-            <div class="security-row-card">
-              <button class="security-row" id="security-passkeys-btn" type="button" aria-label="Manage passkeys">
-                <span class="security-row-icon" aria-hidden="true">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 -960 960 960" fill="currentColor">
-                    <path d="M701-701q91 91 91 221t-91 221q-91 91-221 91t-221-91q-91-91-91-221t91-221q91-91 221-91t221 91Zm-43 399q74-74 74-178t-74-178q-74-74-178-74t-178 74q-74 74-74 178t74 178q74 74 178 74t178-74Zm-93-67q38-26 57-70H338q18 44 56.5 70t85.5 26q47 0 85-26ZM349-536q11 11 28 11t28-11q11-11 11-28t-11-28q-11-11-28-11t-28 11q-11 11-11 28t11 28Zm206 0q11 11 28 11t28-11q11-11 11-28t-11-28q-11-11-28-11t-28 11q-11 11-11 28t11 28ZM40-731v-129q0-24.75 17.63-42.38Q75.25-920 100-920h129v60H100v129H40ZM229-40H100q-24.75 0-42.37-17.63Q40-75.25 40-100v-129h60v129h129v60Zm502-4v-60h129v-130h60v130q0 24.75-17.62 42.37Q884.75-44 860-44H731Zm129-687v-129H731v-60h129q24.75 0 42.38 17.62Q920-884.75 920-860v129h-60ZM480-480Z"/>
-                  </svg>
-                </span>
-                <span class="security-row-info">
-                  <span class="security-row-label">Face ID &amp; Passkeys</span>
-                  <span class="security-row-meta">2 passkeys saved</span>
-                </span>
-                <span class="security-row-badge security-row-badge--success">Active</span>
-                <svg class="security-row-chevron" width="16" height="16" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M530-481 332-679l43-43 241 241-241 241-43-43 198-198Z"/></svg>
-              </button>
-            </div>
-          </div>
+          <!-- ── Group 1 · Sign-in & recovery ────────────────────────
+               W2.3 / A5 — top-level group wraps Passkeys + Recovery Email.
+               Per-card sub-titles intentionally omitted: each row card
+               already self-labels ("Face ID & Passkeys" / "Recovery Email"). -->
+          <section class="security-group" aria-labelledby="security-group-signin-title">
+            <h3 class="security-group-title" id="security-group-signin-title">Sign-in &amp; recovery</h3>
 
-          <!-- Recovery email row -->
-          <div class="security-section">
-            <h3 class="security-section-title">Account Recovery</h3>
-            <div class="security-row-card">
-              <button class="security-row" id="security-recovery-email-btn" type="button" aria-label="Manage recovery email">
-                <span class="security-row-icon" aria-hidden="true">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 -960 960 960" fill="currentColor">
-                    <path d="M140-160q-24 0-42-18t-18-42v-520q0-24 18-42t42-18h680q24 0 42 18t18 42v520q0 24-18 42t-42 18H140Zm340-302L140-685v465h680v-465L480-462Zm0-60 336-218H145l335 218ZM140-685v-55 520-465Z"/>
-                  </svg>
-                </span>
-                <span class="security-row-info">
-                  <span class="security-row-label">Recovery Email</span>
-                  <span class="security-row-meta" id="security-recovery-email-meta">Not set — add a backup way to get back in</span>
-                </span>
-                <span class="security-row-badge security-row-badge--muted" id="security-recovery-email-badge">Not set</span>
-                <svg class="security-row-chevron" width="16" height="16" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M530-481 332-679l43-43 241 241-241 241-43-43 198-198Z"/></svg>
-              </button>
+            <!-- Passkeys row -->
+            <div class="security-section">
+              <div class="security-row-card">
+                <button class="security-row" id="security-passkeys-btn" type="button" aria-label="Manage passkeys">
+                  <span class="security-row-icon" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 -960 960 960" fill="currentColor">
+                      <path d="M701-701q91 91 91 221t-91 221q-91 91-221 91t-221-91q-91-91-91-221t91-221q91-91 221-91t221 91Zm-43 399q74-74 74-178t-74-178q-74-74-178-74t-178 74q-74 74-74 178t74 178q74 74 178 74t178-74Zm-93-67q38-26 57-70H338q18 44 56.5 70t85.5 26q47 0 85-26ZM349-536q11 11 28 11t28-11q11-11 11-28t-11-28q-11-11-28-11t-28 11q-11 11-11 28t11 28Zm206 0q11 11 28 11t28-11q11-11 11-28t-11-28q-11-11-28-11t-28 11q-11 11-11 28t11 28ZM40-731v-129q0-24.75 17.63-42.38Q75.25-920 100-920h129v60H100v129H40ZM229-40H100q-24.75 0-42.37-17.63Q40-75.25 40-100v-129h60v129h129v60Zm502-4v-60h129v-130h60v130q0 24.75-17.62 42.37Q884.75-44 860-44H731Zm129-687v-129H731v-60h129q24.75 0 42.38 17.62Q920-884.75 920-860v129h-60ZM480-480Z"/>
+                    </svg>
+                  </span>
+                  <span class="security-row-info">
+                    <span class="security-row-label">Face ID &amp; Passkeys</span>
+                    <span class="security-row-meta">2 passkeys saved</span>
+                  </span>
+                  <span class="security-row-badge security-row-badge--success">Active</span>
+                  <svg class="security-row-chevron" width="16" height="16" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M530-481 332-679l43-43 241 241-241 241-43-43 198-198Z"/></svg>
+                </button>
+              </div>
             </div>
-          </div>
 
-          <!-- Recent sign-in activity -->
-          <div class="security-section">
-            <div class="security-section-header">
-              <h3 class="security-section-title">Recent Sign-In Activity</h3>
-              <button class="security-manage-link" type="button" id="security-activity-link">View all</button>
+            <!-- Recovery email row -->
+            <div class="security-section">
+              <div class="security-row-card">
+                <button class="security-row" id="security-recovery-email-btn" type="button" aria-label="Manage recovery email">
+                  <span class="security-row-icon" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 -960 960 960" fill="currentColor">
+                      <path d="M140-160q-24 0-42-18t-18-42v-520q0-24 18-42t42-18h680q24 0 42 18t18 42v520q0 24-18 42t-42 18H140Zm340-302L140-685v465h680v-465L480-462Zm0-60 336-218H145l335 218ZM140-685v-55 520-465Z"/>
+                    </svg>
+                  </span>
+                  <span class="security-row-info">
+                    <span class="security-row-label">Recovery Email</span>
+                    <span class="security-row-meta" id="security-recovery-email-meta">Not set — add a backup way to get back in</span>
+                  </span>
+                  <span class="security-row-badge security-row-badge--muted" id="security-recovery-email-badge">Not set</span>
+                  <svg class="security-row-chevron" width="16" height="16" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M530-481 332-679l43-43 241 241-241 241-43-43 198-198Z"/></svg>
+                </button>
+              </div>
             </div>
-            <ul class="security-activity-list" aria-label="Recent sign-in activity">
-              <li class="security-activity-item security-activity-item--current">
-                <span class="security-activity-dot" aria-hidden="true"></span>
-                <span class="security-activity-info">
-                  <span class="security-activity-label">iPhone 15 Pro &middot; Face ID</span>
-                  <span class="security-activity-meta">Today, 9:14 AM &middot; Chicago, IL</span>
-                </span>
-                <span class="security-activity-tag" aria-label="Current session">Current</span>
-              </li>
-              <li class="security-activity-item">
-                <span class="security-activity-dot" aria-hidden="true"></span>
-                <span class="security-activity-info">
-                  <span class="security-activity-label">MacBook Pro &middot; Face ID</span>
-                  <span class="security-activity-meta">May 30, 2:47 PM &middot; Chicago, IL</span>
-                </span>
-              </li>
-              <li class="security-activity-item">
-                <span class="security-activity-dot security-activity-dot--muted" aria-hidden="true"></span>
-                <span class="security-activity-info">
-                  <span class="security-activity-label">Chrome &middot; One-time code</span>
-                  <span class="security-activity-meta">May 28, 11:02 AM &middot; Chicago, IL</span>
-                </span>
-              </li>
-              <li class="security-activity-item">
-                <span class="security-activity-dot security-activity-dot--muted" aria-hidden="true"></span>
-                <span class="security-activity-info">
-                  <span class="security-activity-label">iPhone 15 Pro &middot; Face ID</span>
-                  <span class="security-activity-meta">May 26, 6:30 PM &middot; Oak Park, IL</span>
-                </span>
-              </li>
-            </ul>
-          </div>
+          </section>
 
-          <!-- Trusted devices -->
-          <div class="security-section">
-            <div class="security-section-header">
-              <h3 class="security-section-title">Trusted Devices</h3>
-              <button class="security-manage-link" type="button" id="security-manage-devices-btn">Manage</button>
+          <!-- ── Group 2 · Account activity ──────────────────────────
+               W2.3 / A5 — read-only audit summaries: recent sign-ins and
+               the canonical list of devices currently signed in. -->
+          <section class="security-group" aria-labelledby="security-group-activity-title">
+            <h3 class="security-group-title" id="security-group-activity-title">Account activity</h3>
+
+            <!-- Recent sign-in activity -->
+            <div class="security-section">
+              <div class="security-section-header">
+                <h4 class="security-section-title">Recent Sign-In Activity</h4>
+                <button class="security-manage-link" type="button" id="security-activity-link">View all</button>
+              </div>
+              <ul class="security-activity-list" aria-label="Recent sign-in activity">
+                <li class="security-activity-item security-activity-item--current">
+                  <span class="security-activity-dot" aria-hidden="true"></span>
+                  <span class="security-activity-info">
+                    <span class="security-activity-label">iPhone 15 Pro &middot; Face ID</span>
+                    <span class="security-activity-meta">Today, 9:14 AM &middot; Chicago, IL</span>
+                  </span>
+                  <span class="security-activity-tag" aria-label="Current session">Current</span>
+                </li>
+                <li class="security-activity-item">
+                  <span class="security-activity-dot" aria-hidden="true"></span>
+                  <span class="security-activity-info">
+                    <span class="security-activity-label">MacBook Pro &middot; Face ID</span>
+                    <span class="security-activity-meta">May 30, 2:47 PM &middot; Chicago, IL</span>
+                  </span>
+                </li>
+                <li class="security-activity-item">
+                  <span class="security-activity-dot security-activity-dot--muted" aria-hidden="true"></span>
+                  <span class="security-activity-info">
+                    <span class="security-activity-label">Chrome &middot; One-time code</span>
+                    <span class="security-activity-meta">May 28, 11:02 AM &middot; Chicago, IL</span>
+                  </span>
+                </li>
+                <li class="security-activity-item">
+                  <span class="security-activity-dot security-activity-dot--muted" aria-hidden="true"></span>
+                  <span class="security-activity-info">
+                    <span class="security-activity-label">iPhone 15 Pro &middot; Face ID</span>
+                    <span class="security-activity-meta">May 26, 6:30 PM &middot; Oak Park, IL</span>
+                  </span>
+                </li>
+              </ul>
             </div>
-            <ul class="security-devices-list" aria-label="Trusted devices">
-              <li class="security-device-item">
-                <span class="security-device-icon" aria-hidden="true">
-                  <svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M260-40q-24.75 0-42.37-17.63Q200-75.25 200-100v-760q0-24 18-42t42-18h438q24.75 0 42.38 17.62Q758-884.75 758-860v150q18 3 30 16.95 12 13.96 12 31.63V-587q0 19-12 33t-30 17v437q0 24.75-17.62 42.37Q722.75-40 698-40H260Zm0-60h438v-760H260v760Zm0 0v-760 760Zm240-629q9-9 9-21t-9-21q-9-9-21-9t-21 9q-9 9-9 21t9 21q9 9 21 9t21-9Z"/></svg>
-                </span>
-                <span class="security-device-info">
-                  <span class="security-device-label">iPhone 15 Pro</span>
-                  <span class="security-device-meta">Added May 12, 2026 &middot; iOS 18.3</span>
-                </span>
-              </li>
-              <li class="security-device-item">
-                <span class="security-device-icon" aria-hidden="true">
-                  <svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M40-120v-60h880v60H40Zm100-120q-24 0-42-18t-18-42v-480q0-24 18-42t42-18h680q24 0 42 18t18 42v480q0 24-18 42t-42 18H140Zm0-60h680v-480H140v480Zm0 0v-480 480Z"/></svg>
-                </span>
-                <span class="security-device-info">
-                  <span class="security-device-label">MacBook Pro</span>
-                  <span class="security-device-meta">Added Apr 3, 2026 &middot; macOS 15.2</span>
-                </span>
-              </li>
-            </ul>
-          </div>
+
+            <!-- Devices Signed In (renamed from "Trusted Devices" — W2.3) -->
+            <div class="security-section">
+              <div class="security-section-header">
+                <h4 class="security-section-title">Devices Signed In</h4>
+                <button class="security-manage-link" type="button" id="security-manage-devices-btn">Manage</button>
+              </div>
+              <ul class="security-devices-list" aria-label="Devices signed in">
+                <li class="security-device-item">
+                  <span class="security-device-icon" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M260-40q-24.75 0-42.37-17.63Q200-75.25 200-100v-760q0-24 18-42t42-18h438q24.75 0 42.38 17.62Q758-884.75 758-860v150q18 3 30 16.95 12 13.96 12 31.63V-587q0 19-12 33t-30 17v437q0 24.75-17.62 42.37Q722.75-40 698-40H260Zm0-60h438v-760H260v760Zm0 0v-760 760Zm240-629q9-9 9-21t-9-21q-9-9-21-9t-21 9q-9 9-9 21t9 21q9 9 21 9t21-9Z"/></svg>
+                  </span>
+                  <span class="security-device-info">
+                    <span class="security-device-label">iPhone 15 Pro</span>
+                    <span class="security-device-meta">Added May 12, 2026 &middot; iOS 18.3</span>
+                  </span>
+                </li>
+                <li class="security-device-item">
+                  <span class="security-device-icon" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M40-120v-60h880v60H40Zm100-120q-24 0-42-18t-18-42v-480q0-24 18-42t42-18h680q24 0 42 18t18 42v480q0 24-18 42t-42 18H140Zm0-60h680v-480H140v480Zm0 0v-480 480Z"/></svg>
+                  </span>
+                  <span class="security-device-info">
+                    <span class="security-device-label">MacBook Pro</span>
+                    <span class="security-device-meta">Added Apr 3, 2026 &middot; macOS 15.2</span>
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </section>
 
         </div><!-- /screen-settings-security -->
 
