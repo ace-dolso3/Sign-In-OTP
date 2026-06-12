@@ -951,8 +951,14 @@
       color: #2e7d32;
     }
 
+    /* W3.3: failed-state label stays in the default near-black color.
+       Red is reserved for terminal states (account locked, link
+       expired). A failed Face ID attempt is recoverable — the user
+       can retry or fall back to password / OTP via the options that
+       appear below. The red ring already carries the failure cue;
+       turning the text red as well over-signals. */
     .biometric-ring[data-state="error"] ~ .biometric-status-label {
-      color: #c62828;
+      color: rgba(18, 18, 18, 0.93);
     }
 
     .biometric-status-sub {
