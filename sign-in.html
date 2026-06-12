@@ -5081,7 +5081,7 @@
     const SCREEN_BLURBS = {
       'screen-chooser:default':               'Identifier-first sign-in entry. Users enter their email up top; downstream screens reuse it. Method tiles below offer Face ID / passkey, cross-device passkey, password, or one-time code.',
       'screen-chooser:passkey-first':         'Identifier-first sign-in entry with a known passkey on this device. The Face ID tile is highlighted with a “Recommended for this device” pill so the fastest path is obvious.',
-      'screen-passkey:idle':                  'Shown when the passkey ceremony begins. The user can tap USE FACE ID to authenticate with a saved local passkey, or tap \u201cUse a passkey from another device\u201d to scan a QR code and authenticate via a nearby phone.',
+      'screen-passkey:idle':                  'Shown when the passkey ceremony begins. The user can tap “Use Face ID” to authenticate with a saved local passkey, or tap “Use a passkey from another device” to scan a QR code and authenticate via a nearby phone.',
       'screen-passkey:idle-cross-device':       'The same passkey idle screen, shown as the second step of the cross-device happy path. The \u201cUse a passkey from another device\u201d button is the interactive trigger that advances to the QR screen.',
       'screen-passkey:failed':                'Shown when Face ID fails or is canceled by the OS. Offers a retry or a fallback to another sign-in method.',
       // 'screen-passkey:notfound' has been removed. When no credential is
@@ -5094,7 +5094,7 @@
       'screen-passkey-enroll:prompt':         'Appears after a successful sign-in when no passkey exists yet. Invites the user to set up Face ID for faster future logins.',
       'screen-passkey-enroll:success':        'Confirms the passkey was created successfully. The user can now sign in with Face ID on this device.',
       'screen-passkey-enroll:error':          'Shown when passkey enrollment fails or the OS biometric step is canceled. Offers a retry or an option to skip for now.',
-      'screen-passkey-enroll:declined':         'Shown after the user taps “Not now” on the enrollment prompt. Offers two distinct exits: “Maybe Later” (snooze — will prompt again next sign-in) or "Don\'t Ask Again" (permanent suppress). Navigates back to the post-auth destination.',
+      'screen-passkey-enroll:declined':         'Shown after the user taps “Not now” on the enrollment prompt. Offers two distinct exits: “Maybe Later” (snooze — will prompt again next sign-in) or “Don’t ask again” (permanent suppress). Navigates back to the post-auth destination.',
       'screen-passkey-enroll:suppressed':       'Confirmation screen shown after the user taps "Don\'t ask again" on the declined screen. Acknowledges the preference was saved and provides a single CTA to continue to the app. Face ID can still be set up from Account Settings at any time.',
       'screen-passkey-enroll:already-enrolled': 'Shown when the WebAuthn API returns InvalidStateError — a passkey for this account already exists on this device. Reassures the user that setup is not needed and prompts them to continue.',
       'screen-settings-security':             'The security hub in Account Settings, summarizing registered passkeys, recent activity, and active devices. Arrived at from the account menu.',
@@ -5718,7 +5718,7 @@
       currentScreen = screenOtp;
     });
 
-    // ── Passkey "Use Face ID" / "TRY AGAIN" button ───────────────────────
+    // ── Passkey "Use Face ID" / "Try Again" button ───────────────────────
     document.getElementById('passkey-try-btn').addEventListener('click', function () {
       const tryBtn  = this;
 
@@ -5929,7 +5929,7 @@
     document.getElementById('enroll-skip-btn').addEventListener('click', () => setEnrollState('declined'));
     document.getElementById('enroll-later-btn').addEventListener('click', handleEnrollSkip);
 
-    // Declined panel — "MAYBE LATER" (snooze) and "Don\'t ask again" (suppress)
+    // Declined panel — "Maybe Later" (snooze) and "Don't ask again" (suppress)
     document.getElementById('enroll-decline-later-btn').addEventListener('click', handleEnrollSkip);
     document.getElementById('enroll-decline-never-btn').addEventListener('click', () => {
       setEnrollState('suppressed');
@@ -5945,7 +5945,7 @@
       }
     });
 
-    // "TRY AGAIN" → go back to prompt
+    // "Try Again" → go back to prompt
     document.getElementById('enroll-retry-btn').addEventListener('click', () => {
       setEnrollState('prompt');
     });
