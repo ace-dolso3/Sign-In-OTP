@@ -2955,6 +2955,54 @@
       .toast.toast-leaving { animation: none; opacity: 0; }
     }
 
+    /* ─────────────────────────────────────────────────────────────
+       W3.4 · Comprehensive reduced-motion rules
+       Honors the user's OS-level setting (prefers-reduced-motion).
+       Strategy: keep functional state changes visible (a modal
+       still appears, a screen still swaps in, the Face ID ring
+       still turns from gray to green/red), but strip out the
+       motion that announces them. No slides, no spins, no fades
+       that imply movement. Micro-transitions under ~300ms on
+       hover/focus stay — they're not vestibular triggers.
+
+       Coverage:
+         • Biometric prompting ring — was infinite linear spin;
+           becomes a static dashed ring tint via border-style.
+         • Screen panel in/out slides — collapse to instant swap.
+         • OS-style modal backdrop fade + sheet slide — instant.
+         • Toast in/out (already handled above; kept for clarity).
+    ───────────────────────────────────────────────────────────── */
+    @media (prefers-reduced-motion: reduce) {
+      /* Biometric ring: stop the infinite spin. Keep the colored
+         border so the prompting state is still visually distinct
+         from idle, just not in motion. */
+      .biometric-ring[data-state="prompting"]::before {
+        animation: none;
+        border-color: rgba(18, 18, 18, 0.93);
+        border-style: dashed;
+      }
+
+      /* Screen swap animations — handled in JS. switchScreen() in the
+         transition controller checks prefers-reduced-motion and skips
+         the panelIn/panelOut keyframes entirely, swapping [hidden]
+         instantly instead. Nothing to do here. */
+
+      /* Modal: appear immediately rather than fade + slide up. The
+         signout-modal has no CSS animation already (just display
+         flip), so the only one to silence is the iOS-style
+         biometric backdrop + sheet. */
+      #os-biometric-backdrop.os-visible,
+      #os-biometric-backdrop.os-hiding,
+      #os-biometric-backdrop.os-hiding .os-modal,
+      .os-modal {
+        animation: none !important;
+      }
+
+      /* Toast slide kept disabled (instant remove on dismiss). */
+      .toast { animation: none; }
+      .toast.toast-leaving { animation: none; opacity: 0; }
+    }
+
     /* ════════════════════════════════════════════════════════════════
        Wave 2 · Identifier strip (W2.1)
        Shown on downstream sign-in screens when signInIdentifier is set.
@@ -5105,6 +5153,19 @@
     function switchScreen(fromScreen, toScreen, direction) {
       if (animating) return;
       animating = true;
+
+      // W3.4 · Reduced-motion fast path. When the OS-level setting is
+      // active, skip the slide animation entirely and just swap the
+      // [hidden] attribute. No flicker, no movement, no timing penalty.
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        fromScreen.setAttribute('hidden', '');
+        fromScreen.style.cssText = '';
+        toScreen.removeAttribute('hidden');
+        toScreen.style.cssText = '';
+        animating = false;
+        updateBlurb();
+        return;
+      }
 
       const outKey    = direction === 'forward' ? 'panelOutLeft'  : 'panelOutRight';
       const inKey     = direction === 'forward' ? 'panelInRight'  : 'panelInLeft';
