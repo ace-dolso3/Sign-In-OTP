@@ -25,7 +25,7 @@ All screens currently in `sign-in.html`, including their `data-state` values:
 | Screen ID | States | Notes |
 |-----------|--------|-------|
 | `screen-chooser` | `default`, `passkey-first` | Entry point; state driven by passkey detection on device. Both variants present four sign-in methods (Face ID/Passkey, Password, One-Time Code, Scan with Phone). |
-| `screen-passkey` | `idle`, `failed`, `cross-device`, `cross-device-failed`, `cross-device-no-credential`, `cross-device-transport-error` | Passkey sign-in; multiple error/fallback states. The legacy `notfound` state has been removed — no-passkey is now handled by returning the user to the chooser with an inline banner. |
+| `screen-passkey` | `idle`, `failed`, `success`, `cross-device`, `cross-device-failed`, `cross-device-no-credential`, `cross-device-transport-error` | Passkey sign-in; multiple error/fallback states plus a `success` terminal state ("You're signed in / Welcome back to Ace Hardware") used by the passkey happy path. The legacy `notfound` state has been removed — no-passkey is now handled by returning the user to the chooser with an inline banner. |
 | `screen-passkey-enroll` | `prompt`, `success`, `error`, `declined`, `already-enrolled` | Post-login enrollment upsell |
 | `screen-verify` | `default`, `cooldown`, `expired`, `locked`, `wrong`, `resent` | OTP / MFA code entry |
 | `screen-password` | `default`, `error` | Password sign-in |
@@ -43,7 +43,7 @@ All screens currently in `sign-in.html`, including their `data-state` values:
 | `screen-recovery` | `default`, `locked` | **Legacy / reference only.** The dedicated recovery hub is no longer wired into any user flow. Recovery now happens in-method (Forgot Password, "Can't access code"). Screen remains reachable via the Screens tab. |
 | `screen-reenroll` | `prompt`, `success`, `error` | **Legacy / reference only.** Post-recovery re-enrollment is covered by the standard Passkey Registration & Enrollment group. |
 
-> **Still missing from all happy paths:** A signed-in / home destination screen. Every authenticated flow terminates at the final prototype screen rather than a post-login state.
+> **Note on terminal steps — no signed-in destination by design:** This prototype intentionally does not include a signed-in / home destination screen (account home, store landing, or whatever the post-auth surface would be). Every authenticated happy path terminates at the last auth surface (passkey `success` ring, post-login passkey enrollment offer, or password-reset success). When the real product ships, the route after sign-in is whatever the host application defines — designing it here would be out of scope for the auth experience.
 
 ---
 
@@ -71,7 +71,7 @@ Screen states are referenced as `screen-id:state` (e.g. `screen-password:error`)
 | 1 | `screen-chooser:passkey-first` | Entry point when a passkey is detected. Prominently surfaces "SIGN IN WITH FACE ID" as the primary action. Other methods (password, OTP) are listed below as alternatives but visually subordinate. | ✅ |
 | 2 | `screen-passkey:idle` | Holds the UI while the OS biometric dialog runs. The ring animation signals that authentication is in progress. No user interaction needed — the OS takes over. | ✅ |
 | 3 | OS biometric sheet | The native iOS/Android prompt. Not part of the app's UI. | — |
-| 4 | Authenticated → home | App receives the WebAuthn assertion and completes the session. | ❌ Missing |
+| 4 | `screen-passkey:success` | **Terminal step.** Biometric ring turns green; label reads "You're signed in / Welcome back to Ace Hardware." The action buttons hide so the user isn't tempted to re-trigger an already-successful ceremony. By design there is no separate signed-in destination — the host app takes it from here. | ✅ |
 
 ---
 
@@ -144,8 +144,8 @@ Screen states are referenced as `screen-id:state` (e.g. `screen-password:error`)
 | 2 | `screen-passkey:idle` | The "Use a passkey from another device" option is visible. User taps it. | ✅ |
 | 3 | `screen-passkey:cross-device` | Displays the QR code and instructions. The user scans with their phone. The phone handles biometric confirmation and returns the assertion to this session over the encrypted caBLE channel. | ✅ |
 | 4 | Phone-side biometric | OS-native on the phone. Not part of the app's UI. | — |
-| 5 | `screen-passkey-enroll:prompt` | Post-login enrollment offer. The user just proved they want passkeys but doesn't have one on *this* device yet — ideal moment to offer setup. | ✅ |
-| 6 | Authenticated → home | Session completes on the original device. | ❌ Missing |
+| 5 | `screen-passkey-enroll:prompt` | **Terminal step.** Post-sign-in enrollment offer. The user just proved they want passkeys but doesn't have one on *this* device yet — ideal moment to offer setup. By design no separate signed-in destination follows; the host app takes it from here. | ✅ |
+| 6 | _Host app post-auth_ | Where the user lands after the auth experience completes — not designed in this prototype. | — |
 
 ---
 
@@ -228,7 +228,7 @@ Screen states are referenced as `screen-id:state` (e.g. `screen-password:error`)
 | 1 | `screen-chooser:default` | No passkey on device. User selects Password. | ✅ |
 | 2 | `screen-password` | Email and password entry. Standard credentials form. | ✅ |
 | 3 | `screen-verify:default` | MFA second factor. A one-time code was sent to a registered channel. Required after every password sign-in to prevent credential-stuffing attacks from being sufficient on their own. | ✅ |
-| 4 | `screen-passkey-enroll:prompt` | Post-login enrollment offer. "Sign in faster with Face ID" — invites the user to set up a passkey now that they've successfully authenticated. Skippable without penalty. | ✅ |
+| 4 | `screen-passkey-enroll:prompt` | **Terminal step.** Post-sign-in enrollment offer. "Sign in faster with Face ID" — invites the user to set up a passkey now that they've successfully authenticated. Skippable without penalty. By design no separate signed-in destination follows. | ✅ |
 
 ---
 
@@ -291,7 +291,7 @@ Screen states are referenced as `screen-id:state` (e.g. `screen-password:error`)
 | 1 | `screen-chooser:default` | User selects One-Time Code. | ✅ |
 | 2 | `screen-otp` | Channel selection — email or registered phone number. User requests the code. | ✅ |
 | 3 | `screen-verify:default` | 6-digit code entry. Timer visible. | ✅ |
-| 4 | `screen-passkey-enroll:prompt` | Post-login enrollment offer. Same as password happy path. | ✅ |
+| 4 | `screen-passkey-enroll:prompt` | **Terminal step.** Post-sign-in enrollment offer. Same as password happy path. By design no separate signed-in destination follows. | ✅ |
 
 ---
 
@@ -684,7 +684,7 @@ A backup-email enrollment journey reachable from the Security hub. Mirrors the F
 
 | # | Gap | Affects | Priority |
 |---|-----|---------|----------|
-| 1 | **Home / signed-in destination** — every happy path terminates at the last auth screen rather than a post-login state | All groups | High |
+| ~~1~~ | ~~**Home / signed-in destination** — every happy path terminates at the last auth screen rather than a post-login state~~ | ~~All groups~~ | ✅ By design — prototype scope ends at auth completion; host app owns post-auth |
 | ~~2~~ | ~~`screen-passkey-enroll:declined` — "Don't Ask Again" exit has no distinct confirmation screen~~ | ~~Group 5e~~ | ✅ Fixed |
 | ~~3~~ | ~~`screen-settings-passkeys:remove-last` — exists in prototype but has no named flow or Figma frame~~ | ~~Group 8e~~ | ✅ Fixed |
 

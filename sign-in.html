@@ -724,6 +724,45 @@
 
     .legal a:hover { opacity: 0.7; }
 
+    /* ─── Demo hint ───────────────────────────────────────────
+       Lightweight prototype-only helper that surfaces the magic-string
+       sentinels used by the validation handlers (e.g. password "wrongpw",
+       OTP code "111111"). The wrong-state escalation chains are fully
+       wired in code but were undiscoverable to anyone clicking through
+       the prototype, so this hint makes them reachable through normal
+       interaction. Styled subtly so it reads as designer/reviewer chrome,
+       not a real product affordance. */
+    .demo-hint {
+      font-size: 11px;
+      font-style: italic;
+      color: #6b6b6b;
+      text-align: center;
+      width: 100%;
+      margin-top: -4px;
+      padding: 4px 8px 0;
+      line-height: 1.5;
+    }
+    .demo-hint code {
+      font-family: 'SF Mono', Menlo, Consolas, monospace;
+      font-size: 11px;
+      font-style: normal;
+      background: rgba(0, 0, 0, 0.05);
+      color: #121212;
+      padding: 1px 5px;
+      border-radius: 3px;
+      letter-spacing: 0.2px;
+    }
+    .demo-hint::before {
+      content: 'Demo · ';
+      font-weight: 600;
+      font-style: normal;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      font-size: 9px;
+      color: #888;
+      margin-right: 2px;
+    }
+
     /* ─── Divider ─────────────────────────────────────────── */
     .divider {
       width: 100%;
@@ -4221,6 +4260,11 @@
 
           <button class="sign-in-btn" id="pw-submit-btn" type="button">Sign In</button>
 
+          <p class="demo-hint" aria-hidden="true">
+            Type <code>wrongpw</code> to see the wrong-password error and 3-strike lockout.
+            Empty fields trigger inline validation.
+          </p>
+
           </div><!-- /form-group -->
 
           <button class="sign-in-another-way-btn" id="pw-other-btn" type="button">Sign in another way</button>
@@ -4564,6 +4608,11 @@
               <button class="resend-btn" id="resend-btn" type="button">Resend code</button>
               <button class="sign-in-another-way-btn" id="verify-other-btn" type="button">Sign in another way</button>
             </div>
+
+            <p class="demo-hint" aria-hidden="true">
+              Enter <code>111111</code> to see the wrong-code error and 3-strike lockout.
+              Any other 6-digit code is accepted.
+            </p>
 
             <a href="#" class="recovery-help-link" id="verify-cant-access-btn">Can&#8217;t access this code? <span>Get help</span></a>
 
@@ -5183,6 +5232,7 @@
       'screen-passkey:cross-device-failed':        'Shown when the cross-device QR session expires before authentication completes. Offers a retry or fallback to another sign-in method.',
       'screen-passkey:cross-device-no-credential':  'Shown when the phone scanned the QR code successfully but has no passkey enrolled for this account. Offers the user a chance to try a different phone or fall back to another sign-in method.',
       'screen-passkey:cross-device-transport-error': 'Shown when the Bluetooth or hybrid transport (caBLE) fails to connect — the phone was nearby but the link couldn\'t be established. Prompts the user to check Bluetooth settings and retry, or fall back to another sign-in method.',
+      'screen-passkey:success':               'Terminal step of the passkey happy path. The biometric ring turns green and the screen reads “You’re signed in / Welcome back to Ace Hardware.” There is no separate signed-in / home destination by design — this confirmation is the end of the prototype journey.',
       'screen-passkey-enroll:prompt':         'Appears after a successful sign-in when no passkey exists yet. Invites the user to set up Face ID for faster future logins.',
       'screen-passkey-enroll:success':        'Confirms the passkey was created successfully. The user can now sign in with Face ID on this device.',
       'screen-passkey-enroll:error':          'Shown when passkey enrollment fails or the OS biometric step is canceled. Offers a retry or an option to skip for now.',
@@ -6475,9 +6525,14 @@
           id: 'passkey-happy', group: 'Passkey Sign-In',
           label: 'Happy Path — Passkey / Face ID',
           figmaUrl: FIGMA + '198-36',
+          // Terminal step is the passkey screen's `success` state — by design
+          // there is no separate signed-in / home destination in this prototype.
+          // "You're signed in / Welcome back to Ace Hardware" is rendered
+          // inline on this screen via setBiometricState('success', …).
           steps: [
             { screen: 'screen-chooser',  state: 'passkey-first', label: 'Chooser — passkey detected' },
             { screen: 'screen-passkey',  state: 'idle',          label: 'Passkey prompt — biometric idle' },
+            { screen: 'screen-passkey',  state: 'success',       label: 'Signed in — biometric confirmed (terminal step)' },
           ],
         },
         {
@@ -6544,11 +6599,14 @@
           id: 'cross-device-happy', group: 'Cross-Device Passkey Sign-In',
           label: 'Happy Path — Cross-Device via QR',
           figmaUrl: FIGMA + '198-87',
+          // Terminal step is the post-sign-in enrollment offer — by design
+          // there is no separate signed-in / home destination in this prototype.
+          // The enrollment screen IS the post-auth surface.
           steps: [
             { screen: 'screen-chooser',        state: 'default',      label: 'Chooser — no passkey' },
             { screen: 'screen-passkey',        state: 'idle',         label: 'Passkey prompt — use another device' },
             { screen: 'screen-passkey',        state: 'cross-device', label: 'Cross-device — QR shown' },
-            { screen: 'screen-passkey-enroll', state: 'prompt',       label: 'Post-login — passkey enrollment offer' },
+            { screen: 'screen-passkey-enroll', state: 'prompt',       label: 'Signed in — passkey enrollment offer (terminal step)' },
           ],
         },
         {
@@ -6603,11 +6661,13 @@
           id: 'password-happy', group: 'Password Sign-In',
           label: 'Happy Path — Password Sign-In',
           figmaUrl: FIGMA + '198-137',
+          // Terminal step is the post-sign-in enrollment offer — by design
+          // there is no separate signed-in / home destination in this prototype.
           steps: [
             { screen: 'screen-chooser',        state: 'default', label: 'Chooser — no passkey' },
             { screen: 'screen-password',       state: null,      label: 'Password — entry' },
             { screen: 'screen-otp',         state: 'default', label: 'MFA — verify code' },
-            { screen: 'screen-passkey-enroll', state: 'prompt',  label: 'Post-login — passkey enrollment offer' },
+            { screen: 'screen-passkey-enroll', state: 'prompt',  label: 'Signed in — passkey enrollment offer (terminal step)' },
           ],
         },
         {
@@ -6646,15 +6706,24 @@
         },
 
         // ── One-Time Code (OTP) Sign-In ──────────────────────────────────
+        // NOTE on the `state` field for OTP steps:
+        //   • state: 'request'  → drives data-otp-state="request" (delivery picker panel)
+        //   • any other value   → drives data-otp-substate="…"   (entered panel substate)
+        //                          and implicitly data-otp-state="entered"
+        // The two attributes are deliberately distinct in the DOM (panel vs.
+        // substate within the panel) but collapsed onto a single `state` field
+        // here for flow-author ergonomics. See applyStep() for the dispatch.
         {
           id: 'otp-happy', group: 'One-Time Code (OTP) Sign-In',
           label: 'Happy Path — OTP Sign-In',
           figmaUrl: FIGMA + '198-185',
+          // Terminal step is the post-sign-in enrollment offer — by design
+          // there is no separate signed-in / home destination in this prototype.
           steps: [
             { screen: 'screen-chooser',        state: 'default', label: 'Chooser — no passkey' },
-            { screen: 'screen-otp',            state: 'request',      label: 'OTP — request code' },
-            { screen: 'screen-otp',         state: 'default', label: 'Code entry' },
-            { screen: 'screen-passkey-enroll', state: 'prompt',  label: 'Post-login — passkey enrollment offer' },
+            { screen: 'screen-otp',            state: 'request',      label: 'OTP — request code (delivery picker panel)' },
+            { screen: 'screen-otp',         state: 'default', label: 'OTP — code entry (entered panel · default substate)' },
+            { screen: 'screen-passkey-enroll', state: 'prompt',  label: 'Signed in — passkey enrollment offer (terminal step)' },
           ],
         },
         {
@@ -6733,9 +6802,12 @@
           id: 'enroll-happy', group: 'Passkey Registration & Enrollment',
           label: 'Happy Path — Passkey Registration',
           figmaUrl: FIGMA + '198-266',
+          // Terminal step is the enrollment success state — the user is
+          // signed in and a passkey has been saved. No separate signed-in
+          // destination by design; this confirmation is the end of the flow.
           steps: [
             { screen: 'screen-passkey-enroll', state: 'prompt',  label: 'Enrollment — opt-in prompt' },
-            { screen: 'screen-passkey-enroll', state: 'success', label: 'Enrollment — success' },
+            { screen: 'screen-passkey-enroll', state: 'success', label: 'Passkey saved — sign-in complete (terminal step)' },
           ],
         },
         {
@@ -6769,19 +6841,25 @@
           id: 'enroll-declined-fork', group: 'Passkey Registration & Enrollment',
           label: 'Declined Fork — Maybe Later',
           figmaUrl: FIGMA + '198-298',
+          // Demo loops back to the chooser as a stand-in terminal — by design
+          // there is no separate signed-in / home destination in this prototype.
+          // In the real product the user is already signed in and would land
+          // on the post-auth destination (account home / store home / origin URL).
           steps: [
             { screen: 'screen-passkey-enroll', state: 'declined',   label: 'Declined — choice shown' },
-            { screen: 'screen-chooser',        state: 'default',    label: 'Maybe Later — returns to chooser' },
+            { screen: 'screen-chooser',        state: 'default',    label: 'Maybe Later — demo loops back to chooser (no signed-in destination)' },
           ],
         },
         {
           id: 'enroll-declined-never', group: 'Passkey Registration & Enrollment',
           label: 'Declined Fork — Don\'t Ask Again',
           figmaUrl: FIGMA + '198-298',
+          // Same caveat as enroll-declined-fork — chooser is a stand-in for
+          // the signed-in destination that does not exist in this prototype.
           steps: [
             { screen: 'screen-passkey-enroll', state: 'declined',   label: 'Declined — choice shown' },
             { screen: 'screen-passkey-enroll', state: 'suppressed', label: 'Don\'t ask again — preference confirmed' },
-            { screen: 'screen-chooser',        state: 'default',    label: 'Continue to app' },
+            { screen: 'screen-chooser',        state: 'default',    label: 'Demo loops back to chooser (no signed-in destination)' },
           ],
         },
 
