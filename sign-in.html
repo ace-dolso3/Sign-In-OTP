@@ -6491,6 +6491,16 @@
           ],
         },
         {
+          id: 'passkey-failed-fallback-password', group: 'Passkey Sign-In',
+          label: 'Biometric Failed → Password Fallback',
+          figmaUrl: FIGMA + '198-44',
+          steps: [
+            { screen: 'screen-passkey',  state: 'idle',   label: 'Passkey prompt — biometric idle' },
+            { screen: 'screen-passkey',  state: 'failed', label: 'Passkey failed — fallback tiles visible' },
+            { screen: 'screen-password', state: null,     label: 'Password — entry (chose Use a password)' },
+          ],
+        },
+        {
           id: 'passkey-not-found', group: 'Passkey Sign-In',
           label: 'No Passkey Found',
           figmaUrl: FIGMA + '463-886',
@@ -6529,7 +6539,7 @@
           steps: null,
         },
 
-        // ── Cross-Device Passkey Sign-In ─────────────────────────────────
+        // ── Cross-Device Passkey Sign-In ────────────────────────────────
         {
           id: 'cross-device-happy', group: 'Cross-Device Passkey Sign-In',
           label: 'Happy Path — Cross-Device via QR',
@@ -6539,6 +6549,15 @@
             { screen: 'screen-passkey',        state: 'idle',         label: 'Passkey prompt — use another device' },
             { screen: 'screen-passkey',        state: 'cross-device', label: 'Cross-device — QR shown' },
             { screen: 'screen-passkey-enroll', state: 'prompt',       label: 'Post-login — passkey enrollment offer' },
+          ],
+        },
+        {
+          id: 'cross-device-direct', group: 'Cross-Device Passkey Sign-In',
+          label: 'Direct Entry — “Use Another Device” Tile',
+          figmaUrl: FIGMA + '198-87',
+          steps: [
+            { screen: 'screen-chooser', state: 'default',      label: 'Chooser — user taps “Use another device” tile' },
+            { screen: 'screen-passkey', state: 'cross-device', label: 'Cross-device — QR shown (skips passkey idle)' },
           ],
         },
         {
@@ -6696,6 +6715,16 @@
           steps: [
             { screen: 'screen-otp',       state: 'default', label: 'Code entry' },
             { screen: 'screen-otp-no-access', state: null,     label: "Can't access code" },
+          ],
+        },
+        {
+          id: 'otp-no-access-use-password', group: 'One-Time Code (OTP) Sign-In',
+          label: "Can't Access Code → Switch to Password",
+          figmaUrl: FIGMA + '198-254',
+          steps: [
+            { screen: 'screen-otp',           state: 'default', label: 'Code entry' },
+            { screen: 'screen-otp-no-access', state: null,     label: "Can't access code — escape options" },
+            { screen: 'screen-password',      state: null,     label: 'Password — entry (chose Use Password Instead)' },
           ],
         },
 
@@ -7202,6 +7231,11 @@
       function enterFlow(flowId) {
         const flow = FLOWS.find(f => f.id === flowId);
         if (!flow || !flow.steps) return;
+        // Seed a demo identifier so [data-identifier-strip] / pre-fill
+        // hooks render meaningfully during flow playback. Real product
+        // behavior still relies on the user-typed chooser email — this
+        // only affects the demo navigator.
+        setSignInIdentifier('shopper@example.com');
         activeFlow     = flow;
         activeFlowStep = 0;
         flowNavBar.hidden = false;

@@ -103,6 +103,20 @@ Screen states are referenced as `screen-id:state` (e.g. `screen-password:error`)
 
 ---
 
+### 1h · Biometric Failed → Password Fallback `198:44`
+
+**Scenario:** The user got Face ID failure on the passkey screen and instead of retrying, chose to fall back to password sign-in via the inline "Or continue with" tiles that surface in the `failed` state.
+
+**Design intent:** This documents the in-context fallback that already exists in the failed state. Critically, the fallback tiles live *on the passkey screen itself* — the user does not have to back out to the chooser to switch methods. That preserves momentum ("I'm trying to get in") and avoids a punishing detour. The same path exists for OTP via the second fallback tile.
+
+| Step | Screen | Purpose | Status |
+|------|--------|---------|--------|
+| 1 | `screen-passkey:idle` | Biometric ceremony begins. | ✅ |
+| 2 | `screen-passkey:failed` | Failure state surfaces inline fallback tiles. | ✅ |
+| 3 | `screen-password` | User taps the password fallback tile and lands on password entry. | ✅ |
+
+---
+
 ### 1d–1g · OS Native Sheet Variants `100–103:31`
 
 **Scenario / Design intent:** These Figma frames document the native WebAuthn browser/OS dialog behavior that the app cannot control or customize. On iOS, the native passkey sheet appears as a system bottom sheet — it handles biometric confirmation, no-credential states, and enrollment nudges on its own. These are included in Figma as reference for the complete user journey and to ensure dev teams understand which parts of the flow are app-owned vs. OS-owned.
@@ -185,6 +199,19 @@ Screen states are referenced as `screen-id:state` (e.g. `screen-password:error`)
 | 1 | `screen-passkey:cross-device-transport-error` | Fork point. | ✅ |
 | 2a | `screen-passkey:cross-device` | User retries — a fresh QR is generated. | ✅ |
 | 2b | `screen-chooser:default` | User abandons cross-device and chooses another method. | ✅ |
+
+---
+
+### 2f · Direct Entry — “Use Another Device” Tile `198:87`
+
+**Scenario:** A user on a device without a saved passkey explicitly chooses to sign in with another device by tapping the “Use another device” tile on the chooser, skipping the passkey idle prompt entirely.
+
+**Design intent:** The chooser exposes two paths to cross-device passkey: (a) tapping the Face ID / Passkey tile and then selecting “Use a passkey from another device” on the passkey screen, or (b) tapping the dedicated “Use another device” tile on the chooser. Path (b) is for users who already know they want the cross-device flow and don’t need the passkey ceremony to fail first. Documenting both keeps the entry-point graph honest.
+
+| Step | Screen | Purpose | Status |
+|------|--------|---------|--------|
+| 1 | `screen-chooser:default` | User taps the “Use another device” tile (`tile-cd-chooser`). | ✅ |
+| 2 | `screen-passkey:cross-device` | QR shown directly — no passkey idle step. | ✅ |
 
 ---
 
@@ -347,6 +374,20 @@ Screen states are referenced as `screen-id:state` (e.g. `screen-password:error`)
 |------|--------|---------|--------|
 | 1 | `screen-verify:default` | User taps "Can't access code?" | ✅ |
 | 2 | `screen-otp-no-access` | No channels reachable. Routes to password sign-in or account support contact. | ✅ |
+
+---
+
+### 4h · Can't Access Code → Switch to Password `198:254`
+
+**Scenario:** The user is on the OTP can’t-access screen and chooses to sign in with a password instead, taking the primary forward path off the dead-end.
+
+**Design intent:** The “Use Password Instead” CTA is the canonical escape valve from OTP. Documenting it as a discrete journey (rather than just an entry point) reinforces that the can’t-access screen is a *fork*, not a terminus. The password screen the user lands on inherits the chooser identifier so they don’t re-type their email.
+
+| Step | Screen | Purpose | Status |
+|------|--------|---------|--------|
+| 1 | `screen-verify:default` | User on code entry, can’t receive a code. | ✅ |
+| 2 | `screen-otp-no-access` | Escape options shown. | ✅ |
+| 3 | `screen-password` | User taps “Use Password Instead” and lands on password entry with their email pre-filled. | ✅ |
 
 ---
 
@@ -586,6 +627,54 @@ Screen states are referenced as `screen-id:state` (e.g. `screen-password:error`)
 | 1 | `screen-settings-security` | User navigates to passkey management. | ✅ |
 | 2 | `screen-settings-passkeys:list` | Only one passkey in list. User taps it and selects remove. | ✅ |
 | 3 | `screen-settings-passkeys:remove-last` | Stricter warning: triangle icon, "This is your only passkey," REMOVE ANYWAY CTA. | ✅ |
+
+---
+
+## Group 9 · Recovery Email Setup
+
+A backup-email enrollment journey reachable from the Security hub. Mirrors the Figma frame `463:475` *flow:recovery-email-enrollment*. The hub row reflects three states (`not-set`, `pending`, `verified`) so the same screen is reusable across the lifecycle.
+
+### 9a · Happy Path — Add Recovery Email `463:475`
+
+**Scenario:** A signed-in user adds a backup email address from the Security hub and verifies it on the same session, ending with a verified status.
+
+**Design intent:** A recovery email is a soft, low-friction account-recovery anchor — lower-stakes than a passkey but useful when every other channel is unreachable. Setup is intentionally short: the user enters the address, sees a confirmation that the verification link was sent, and on completion the hub row updates to a verified badge so the status is visible without drilling in.
+
+| Step | Screen | Purpose | Status |
+|------|--------|---------|--------|
+| 1 | `screen-settings-security:recovery-not-set` | Hub shows “Add a recovery email” row. | ✅ |
+| 2 | `screen-settings-recovery-email:request` | User enters a backup address and submits. | ✅ |
+| 3 | `screen-settings-recovery-email:sent` | Verification link sent confirmation. | ✅ |
+| 4 | `screen-settings-security:recovery-verified` | Hub row updates with verified badge. | ✅ |
+
+---
+
+### 9b · Pending Verification — Hub Reflects Status `463:475`
+
+**Scenario:** The user submits a recovery email but leaves the verification link unclicked. The Security hub reflects the pending status so they can resume later.
+
+**Design intent:** Pending state is a first-class status, not an error. Surfacing it on the hub avoids the “did that even save?” ambiguity and gives the user a clear resume affordance whenever they next visit Security.
+
+| Step | Screen | Purpose | Status |
+|------|--------|---------|--------|
+| 1 | `screen-settings-security:recovery-not-set` | Starting point. | ✅ |
+| 2 | `screen-settings-recovery-email:request` | Enter address. | ✅ |
+| 3 | `screen-settings-recovery-email:sent` | Verification link sent. User leaves before verifying. | ✅ |
+| 4 | `screen-settings-security:recovery-pending` | Hub shows pending badge so the user can complete verification later. | ✅ |
+
+---
+
+### 9c · Use a Different Email — Loop Back `463:475`
+
+**Scenario:** On the verification-sent screen the user realizes they entered the wrong address (or wants to use a different one). They tap “Use a different email” to loop back to the entry step without leaving the flow.
+
+**Design intent:** Mirrors the new `reset-edit-different-email` pattern in the password-reset flow — a one-tap retry that keeps the user in context rather than forcing them to navigate back through the hub.
+
+| Step | Screen | Purpose | Status |
+|------|--------|---------|--------|
+| 1 | `screen-settings-recovery-email:request` | Enter address. | ✅ |
+| 2 | `screen-settings-recovery-email:sent` | Verification link sent. | ✅ |
+| 3 | `screen-settings-recovery-email:request` | User taps “Use a different email” — returns to entry, field cleared. | ✅ |
 
 ---
 
