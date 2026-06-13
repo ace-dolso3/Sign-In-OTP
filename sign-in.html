@@ -614,27 +614,14 @@
       color: #c62828;
     }
 
-    /* CTA label swaps — hide original text via font-size:0 on the button,
-       restore typography on the ::after pseudo so the swapped label renders.
-       W3.9 audit (kept intentionally): these are the only two surviving
-       ::after { content: 'LABEL' } rules in the prototype. Both belong to
-       the W2.2 merged-OTP CTA-swap pattern. Per the post-W3.1 revert these
-       render UPPERCASE to match the rest of the .sign-in-btn primary CTAs.
-       Any other future ::after content: 'TEXT' should be considered a
-       regression and routed through JS textContent so screen readers see
-       it consistently. */
-    #screen-otp[data-otp-substate="expired"] #verify-btn,
-    #screen-otp[data-otp-substate="locked"]  #verify-btn { font-size: 0; }
-    #screen-otp[data-otp-substate="expired"] #verify-btn::after,
-    #screen-otp[data-otp-substate="locked"]  #verify-btn::after {
-      font-size: 14px;
-      font-weight: 500;
-      letter-spacing: 1.25px;
-      text-transform: uppercase;
-      line-height: 1;
-    }
-    #screen-otp[data-otp-substate="expired"] #verify-btn::after { content: 'Resend Code'; }
-    #screen-otp[data-otp-substate="locked"]  #verify-btn::after { content: 'Sign In with Password'; }
+    /* CTA label swaps for the merged OTP screen — Batch C (post-W3 audit):
+       previously the 'Resend Code' / 'Sign In with Password' relabels were
+       driven by ::after { content: '...' } pseudo-elements. That hides the
+       swapped label from assistive tech (pseudo `content` is not exposed
+       reliably across screen readers). Labels are now set via JS
+       `textContent` in `setVerifyState` so screen readers announce the
+       correct CTA. No CSS swap rules needed here — `.sign-in-btn` already
+       provides the uppercase typography for every state. */
 
     /* Resend btn disabled in cooldown + locked */
     #screen-otp[data-otp-substate="cooldown"] .resend-btn,
@@ -5357,6 +5344,15 @@
       screenOtp.setAttribute('data-otp-state', 'entered');
       screenOtp.setAttribute('data-otp-substate', state);
 
+      // Batch C · drive the verify-btn label via textContent so screen
+      // readers announce the swapped CTA correctly. Default to 'Verify';
+      // expired → 'Resend Code'; locked → 'Sign In with Password'.
+      if (verifyBtn) {
+        if (state === 'expired')      verifyBtn.textContent = 'Resend Code';
+        else if (state === 'locked')  verifyBtn.textContent = 'Sign In with Password';
+        else                          verifyBtn.textContent = 'Verify';
+      }
+
       // Reset OTP fields on state entry so the UI is consistent
       if (state === 'expired') {
         clearOtpExpiry();
@@ -5422,28 +5418,58 @@
     });
 
     // ── Verify button click ─────────────────────────────────────────
+    // Batch C · sentinel-based validation so wrong/locked states are
+    // reachable from real input. The demo sentinel is `111111` — any
+    // other 6-digit value is treated as the happy path. The expired
+    // and locked substates short-circuit to the relabel CTA actions
+    // (request a new code, switch to password) per the textContent swap
+    // applied in setVerifyState.
+    const OTP_WRONG_SENTINEL = '111111';
+    function readOtpValue() {
+      return [...otpFields].map(f => f.value || '').join('');
+    }
     document.getElementById('verify-btn').addEventListener('click', () => {
       const verifyState = screenOtp.getAttribute('data-otp-substate') || 'default';
-      if (verifyState === 'default') {
-        // Happy path: code accepted → post-login passkey enrollment upsell
-        clearOtpExpiry();
-        enrollOrigin = 'post-login';
-        setEnrollState('prompt');
-        switchScreen(screenOtp, screenEnroll, 'forward');
-        currentScreen = screenEnroll;
+
+      // Expired state · the button reads 'Resend Code' → behave like resend.
+      if (verifyState === 'expired') {
+        setVerifyState('resent');
+        setTimeout(() => setVerifyState('cooldown'), 4100);
         return;
       }
-      // Error simulation path (state is 'wrong' or other non-default)
-      wrongAttempts++;
-      if (wrongAttempts >= 3) {
-        wrongAttempts = 0;
-        setVerifyState('locked');
-      } else {
-        const remaining = 3 - wrongAttempts;
-        const span = document.getElementById('wrong-attempt-text');
-        if (span) span.textContent = `Incorrect code. ${remaining} attempt${remaining !== 1 ? 's' : ''} remaining.`;
-        setVerifyState('wrong');
+      // Locked state · the button reads 'Sign In with Password' → switch flow.
+      if (verifyState === 'locked') {
+        setOtpRequestState();
+        switchScreen(screenOtp, screenPassword, 'forward');
+        currentScreen = screenPassword;
+        return;
       }
+
+      // Validate the entered value
+      const value = readOtpValue();
+      if (value.length !== 6) return;          // safety net; button should be disabled
+
+      if (value === OTP_WRONG_SENTINEL) {
+        // Wrong path · 3-strike lockout escalation
+        wrongAttempts++;
+        if (wrongAttempts >= 3) {
+          wrongAttempts = 0;
+          setVerifyState('locked');
+        } else {
+          const remaining = 3 - wrongAttempts;
+          const span = document.getElementById('wrong-attempt-text');
+          if (span) span.textContent = `Incorrect code. ${remaining} attempt${remaining !== 1 ? 's' : ''} remaining.`;
+          setVerifyState('wrong');
+        }
+        return;
+      }
+
+      // Happy path · code accepted → post-login passkey enrollment upsell
+      clearOtpExpiry();
+      enrollOrigin = 'post-login';
+      setEnrollState('prompt');
+      switchScreen(screenOtp, screenEnroll, 'forward');
+      currentScreen = screenEnroll;
     });
 
     // Verify other-way button
