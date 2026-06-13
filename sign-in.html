@@ -3658,7 +3658,7 @@
             </div>
             <h2 class="enroll-heading">No problem</h2>
             <p class="enroll-subtext">You can set up Face ID sign-in anytime from <strong>Account Settings &rsaquo; Sign-in &amp; security</strong>.</p>
-            <button class="sign-in-btn" id="enroll-decline-later-btn" type="button">Skip for now</button>
+            <button class="sign-in-btn" id="enroll-decline-later-btn" type="button">Continue</button>
             <button class="enroll-skip-btn" id="enroll-decline-never-btn" type="button">Don&#8217;t ask again</button>
           </div>
 
@@ -6289,7 +6289,8 @@
     document.getElementById('enroll-skip-btn').addEventListener('click', () => setEnrollState('declined'));
     document.getElementById('enroll-later-btn').addEventListener('click', handleEnrollSkip);
 
-    // Declined panel — "Maybe Later" (snooze) and "Don't ask again" (suppress)
+    // Declined panel — "Continue" (acknowledges, leaves snooze on; we may ask again later)
+    //                  "Don't ask again" (escalates to suppression)
     document.getElementById('enroll-decline-later-btn').addEventListener('click', handleEnrollSkip);
     document.getElementById('enroll-decline-never-btn').addEventListener('click', () => {
       setEnrollState('suppressed');
