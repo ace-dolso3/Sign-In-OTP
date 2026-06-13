@@ -1393,6 +1393,32 @@
     }
 
     /* State routing */
+
+    /* ─────────────────────────────────────────────────────────────
+       PANEL NAMING CONVENTION (W2 QA pass — F4-3)
+
+       Sub-state panels inside a screen fall into two conventions.
+       Both work behaviorally; the BEM-modifier form is preferred for
+       any NEW panel system so a single base selector can target every
+       sub-panel for shared concerns (transitions, theming, print).
+
+         BEM-modifier (preferred):
+           .reenroll-panel + .reenroll-panel-{prompt,success,error}
+           .settings-panel + .settings-panel-{list,rename,remove,
+                              remove-last,request,sent}
+           .otp-panel      + .otp-panel-{request,entered}
+
+         Compound-name (legacy):
+           .enroll-panel-{prompt,success,declined,error,suppressed,
+                          already-enrolled}
+           .recovery-{locked,support,passkey-help}-panel
+           .forgotpw-rate-limited-panel
+           .newpw-expired-panel
+
+       Keep the legacy forms as-is unless a refactor needs a shared
+       base hook; do NOT add a new compound-name panel.
+    ───────────────────────────────────────────────────────────── */
+
     /* ─── Post-Recovery Re-Enrollment ───────────────────────────────── */
     .reenroll-panel { display: none; width: 100%; flex-direction: column; gap: 16px; align-items: center; }
     #screen-reenroll[data-reenroll-state="prompt"]  .reenroll-panel-prompt,
@@ -3755,7 +3781,15 @@
           <!-- ── Group 1 · Sign-in & recovery ────────────────────────
                W2.3 / A5 — top-level group wraps Passkeys + Recovery Email.
                Per-card sub-titles intentionally omitted: each row card
-               already self-labels ("Face ID & Passkeys" / "Recovery Email"). -->
+               already self-labels ("Face ID & Passkeys" / "Recovery Email").
+
+               QA-W2 F4-5 — Group 1 has NO <h4>s by design while Group 2
+               has two ("Recent sign-in activity", "Devices signed in").
+               The asymmetry is intentional: Group 1 cards are single
+               affordances that self-label via their visible row title;
+               Group 2 wraps LISTS that need a heading to label the rows
+               beneath. Adding visually-hidden h4s in Group 1 would only
+               echo the row labels and add screen-reader noise. -->
           <section class="security-group" aria-labelledby="security-group-signin-title">
             <h3 class="security-group-title" id="security-group-signin-title">Sign-in &amp; recovery</h3>
 
@@ -4391,14 +4425,18 @@
 
           <button class="sign-in-btn" id="pw-submit-btn" type="button">Sign in</button>
 
+          </div><!-- /form-group -->
+
+          <button class="sign-in-another-way-btn" id="pw-other-btn" type="button">Sign in another way</button>
+
+          <!-- QA-W2 F3-2: demo-hint placed BELOW the primary↔secondary CTA pair
+               so the two action buttons stay visually adjacent. The hint
+               still references the primary CTA above (Type wrongpw → Sign in)
+               and is aria-hidden so screen readers ignore it. -->
           <p class="demo-hint" aria-hidden="true">
             Type <code>wrongpw</code> to see the wrong-password error and 3-strike lockout.
             Empty fields trigger inline validation.
           </p>
-
-          </div><!-- /form-group -->
-
-          <button class="sign-in-another-way-btn" id="pw-other-btn" type="button">Sign in another way</button>
 
           <p class="legal">
             By choosing to continue, I confirm I have read and agree to the
@@ -4743,12 +4781,16 @@
               <button class="sign-in-another-way-btn" id="verify-other-btn" type="button">Sign in another way</button>
             </div>
 
+            <a href="#" class="recovery-help-link" id="verify-cant-access-btn">Can&#8217;t access this code? <span>Get help</span></a>
+
+            <!-- QA-W2 F3-2: demo-hint placed AFTER the action group + recovery
+                 link so the action buttons stay visually adjacent. The hint
+                 still references the verify CTA above (Enter 111111 → Verify)
+                 and is aria-hidden so screen readers ignore it. -->
             <p class="demo-hint" aria-hidden="true">
               Enter <code>111111</code> to see the wrong-code error and 3-strike lockout.
               Any other 6-digit code is accepted.
             </p>
-
-            <a href="#" class="recovery-help-link" id="verify-cant-access-btn">Can&#8217;t access this code? <span>Get help</span></a>
 
           </div><!-- /otp-panel-entered -->
 
@@ -5546,6 +5588,24 @@
     //   data-otp-state="entered" — enter 6-digit code (substates below)
     // The substates only apply when state="entered":
     //   default · wrong · cooldown · expired · locked · resent
+    //
+    // QA-W2 F6-4 — VALID state × substate combinations.
+    // Always set state + substate through setVerifyState() /
+    // setOtpRequestState(). Forcing data attributes externally
+    // (e.g., from the demo drawer) MUST use one of these pairs:
+    //
+    //   state="request"  substate=null         — delivery picker
+    //   state="entered"  substate="default"    — fresh entry, no alert
+    //   state="entered"  substate="resent"     — "New code sent" success alert
+    //   state="entered"  substate="wrong"      — incorrect-code error alert
+    //   state="entered"  substate="cooldown"   — resend cooldown alert + resend disabled
+    //   state="entered"  substate="expired"    — code expired; verify btn mutates → "Resend code"
+    //   state="entered"  substate="locked"     — lockout countdown; both verify + resend disabled
+    //
+    // Invalid pairs (e.g., state="request" with any substate, or
+    // state="entered" substate="expired" while a separate "Resend code"
+    // btn is also visible) produce the double-button pollution noted
+    // in F6-4. Set them ONLY via the helpers above.
     let cooldownInterval = null;
     let resentTimeout    = null;
     let otpExpiryController = null;
