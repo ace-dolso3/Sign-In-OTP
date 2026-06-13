@@ -4305,7 +4305,22 @@
               <svg width="40" height="40" viewBox="0 -960 960 960" fill="currentColor"><path d="M140-160q-24 0-42-18t-18-42v-520q0-24 18-42t42-18h680q24 0 42 18t18 42v520q0 24-18 42t-42 18H140Zm340-302L140-685v465h680v-465L480-462Zm0-60 336-218H145l335 218ZM140-685v-55 520-465Z"/></svg>
             </div>
             <h1>Check your email</h1>
-            <p>If an account exists for <strong id="reset-sent-email">your email</strong>, we&#8217;ve sent a password reset link. The link expires in 15 minutes.</p>
+            <p>If an account exists, we&#8217;ve sent a password reset link. The link expires in 15 minutes.</p>
+          </div>
+
+          <!-- Batch G · identifier strip so the user can confirm which
+               address received the reset and bail out to a different
+               one without using the global Back chrome. Edit routes
+               to screen-forgot-password (not chooser) so the retry
+               is a single step in the reset flow. -->
+          <div class="identifier-strip" data-identifier-strip hidden>
+            <div class="identifier-strip-row">
+              <span class="identifier-strip-label">Reset email sent to</span>
+              <span class="identifier-strip-email" data-identifier-display></span>
+            </div>
+            <button class="identifier-strip-edit" type="button"
+              data-identifier-edit="forgot-password"
+              aria-label="Send the reset to a different email">Edit</button>
           </div>
 
           <div style="display:flex;flex-direction:column;gap:12px;width:100%;">
@@ -7285,8 +7300,11 @@
         return;
       }
       input.removeAttribute('aria-invalid');
-      const sentEl = document.getElementById('reset-sent-email');
-      if (sentEl) sentEl.textContent = emailVal;
+      // Batch G · route the email through setSignInIdentifier so the
+      // identifier strip on reset-sent (and any other strip in the app)
+      // shows the address that was just submitted, even when the user
+      // entered forgot-pw directly without going through chooser first.
+      setSignInIdentifier(emailVal);
       switchScreen(screenForgotPw, screenResetSent, 'forward');
       currentScreen = screenResetSent;
       startResetCooldown();
@@ -7628,10 +7646,31 @@
       currentScreen = targetEl;
     });
 
-    // ── Identifier strip "Edit" → back to chooser (W2.1) ───
+    // ── Identifier strip "Edit" → routed by per-instance target ──
+    // Default (no value): back to chooser (W2.1). The password screen's
+    // strip uses this — user came from chooser, so chooser is the right
+    // place to change identity once and have it propagate everywhere.
+    //
+    // data-identifier-edit="forgot-password": back to the forgot-password
+    // email-entry screen with the field cleared and focused. Used on the
+    // reset-sent screen so "send to a different address" is one step,
+    // not a roundtrip through chooser → password → forgot pw.
     document.addEventListener('click', (e) => {
       const editBtn = e.target.closest('[data-identifier-edit]');
       if (!editBtn) return;
+      const target = editBtn.getAttribute('data-identifier-edit');
+      if (target === 'forgot-password') {
+        if (currentScreen === screenForgotPw) return;
+        screenForgotPw.removeAttribute('data-forgotpw-state');
+        switchScreen(currentScreen, screenForgotPw, 'backward');
+        currentScreen = screenForgotPw;
+        setTimeout(() => {
+          const input = document.getElementById('reset-email');
+          if (input) { input.value = ''; input.focus(); }
+        }, 250);
+        return;
+      }
+      // Default → chooser
       if (currentScreen === screenChooser) return;
       switchScreen(currentScreen, screenChooser, 'backward');
       currentScreen = screenChooser;
