@@ -4269,6 +4269,10 @@
               </button>
             </div>
             <button class="sign-in-btn" id="reset-send-btn" type="button">Send Reset Email</button>
+            <!-- Batch F · explicit back affordance so the user has a way out
+                 of the reset flow before submitting (mirrors the rate-limited
+                 panel's back button two states deeper). -->
+            <button class="sign-in-another-way-btn" id="forgotpw-back-btn" type="button">Back to sign in</button>
           </div>
 
 
@@ -7215,6 +7219,13 @@
       if (forgotpwRateController) { forgotpwRateController.stop(); forgotpwRateController = null; }
       screenForgotPw.removeAttribute('data-forgotpw-state');
       goToSignInOptions(screenForgotPw);  // W2.4 · SIAW counter (forgot-pw rate-limit → try another way)
+    });
+
+    // Batch F · default-panel back button — mirrors the rate-limited
+    // panel's back affordance so the user can bail out before submitting.
+    document.getElementById('forgotpw-back-btn').addEventListener('click', () => {
+      screenForgotPw.removeAttribute('data-forgotpw-state');
+      goToSignInOptions(screenForgotPw);
     });
 
     // ── Account Locked countdown + navigation (W1.4 shared helper) ──
