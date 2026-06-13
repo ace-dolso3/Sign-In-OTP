@@ -618,7 +618,20 @@
       white-space: nowrap;
     }
 
-    /* ─── CTA Button ─────────────────────────────────────── */
+    /* ─── CTA Button ──────────────────────────────────────────
+       SOURCE-CASING CONVENTION (QA-W2 F1-3 + F4-4 closure):
+       Visual rendering is forced to uppercase via text-transform below
+       — but the underlying HTML source text on every button (.sign-in-btn,
+       .sign-in-another-way-btn, .resend-btn, .reset-resend-btn, and any
+       future uppercase-styled CTA) is authored in SENTENCE CASE.
+       Why: screen readers and translation pipelines read source. Sentence
+       case ("Sign in with Face ID") reads more naturally for TTS than
+       Title Case ("Sign In With Face ID") and survives i18n re-casing
+       rules in non-English locales without each translator having to
+       reverse-engineer English Title Case intent. CSS owns visual
+       presentation; HTML owns semantics. Proper nouns and brand terms
+       (Face ID, Touch ID, Bluetooth, Apple) keep their canonical casing.
+    ───────────────────────────────────────────────────────── */
     .sign-in-btn {
       width: 100%;
       height: 48px;
@@ -3496,7 +3509,7 @@
             </div>
             <p class="passkey-qr-heading">No passkey on that phone</p>
             <p class="passkey-qr-label">The phone you scanned with doesn&#8217;t have a passkey saved for this account. Try a different device or sign in another way.</p>
-            <button class="sign-in-btn" id="passkey-qr-retry-device-btn" type="button">Try a Different Device</button>
+            <button class="sign-in-btn" id="passkey-qr-retry-device-btn" type="button">Try a different device</button>
             <button class="sign-in-another-way-btn" id="passkey-qr-no-cred-cancel" type="button">Sign in another way</button>
           </div>
 
@@ -3509,7 +3522,7 @@
             </div>
             <p class="passkey-qr-heading">Couldn&#8217;t connect to phone</p>
             <p class="passkey-qr-label">The Bluetooth connection between this device and your phone failed. Make sure both devices are nearby, Bluetooth is enabled, and try again.</p>
-            <button class="sign-in-btn" id="passkey-transport-retry-btn" type="button">Try Again</button>
+            <button class="sign-in-btn" id="passkey-transport-retry-btn" type="button">Try again</button>
             <button class="sign-in-another-way-btn" id="passkey-transport-cancel-btn" type="button">Sign in another way</button>
           </div>
 
@@ -3623,7 +3636,7 @@
                 <span>Syncs across your Apple devices</span>
               </li>
             </ul>
-            <button class="sign-in-btn" id="enroll-setup-btn" type="button">Set Up Face ID Sign-In</button>
+            <button class="sign-in-btn" id="enroll-setup-btn" type="button">Set up Face ID sign-in</button>
             <button class="enroll-skip-btn" id="enroll-skip-btn" type="button">Skip for now</button>
           </div>
 
@@ -3635,7 +3648,7 @@
             <h2 class="enroll-heading">You&#8217;re all set</h2>
             <p class="enroll-subtext">Face ID is set up for this account. You&#8217;ll use it to sign in faster next time.</p>
             <p class="enroll-device-label">Saved to: iPhone (this device)</p>
-            <button class="sign-in-btn" id="enroll-continue-btn" type="button">Continue Shopping</button>
+            <button class="sign-in-btn" id="enroll-continue-btn" type="button">Continue shopping</button>
           </div>
 
           <!-- ③ Error / cancelled panel -->
@@ -3645,7 +3658,7 @@
             </div>
             <h2 class="enroll-heading">Setup didn&#8217;t complete</h2>
             <p class="enroll-subtext">Face ID enrollment was cancelled or didn&#8217;t finish. You can set it up anytime from Account Settings.</p>
-            <button class="sign-in-btn" id="enroll-retry-btn" type="button">Try Again</button>
+            <button class="sign-in-btn" id="enroll-retry-btn" type="button">Try again</button>
             <button class="enroll-skip-btn" id="enroll-later-btn" type="button">Skip for now</button>
           </div>
 
@@ -3681,7 +3694,7 @@
             </div>
             <h2 class="enroll-heading">Face ID already set up</h2>
             <p class="enroll-subtext">A passkey for this account is already saved on this device. You&#8217;re all set &#8212; just use Face ID to sign in.</p>
-            <button class="sign-in-btn" id="enroll-already-continue-btn" type="button">Got It</button>
+            <button class="sign-in-btn" id="enroll-already-continue-btn" type="button">Got it</button>
           </div>
 
         </div><!-- /screen-passkey-enroll -->
@@ -3940,7 +3953,7 @@
                 <p class="device-full-label">MacBook Pro</p>
                 <p class="device-full-meta">Active 2 hours ago &middot; Chicago, IL &middot; macOS 15.2</p>
               </div>
-              <button class="device-signout-btn" type="button" data-device-name="MacBook Pro">Sign Out</button>
+              <button class="device-signout-btn" type="button" data-device-name="MacBook Pro">Sign out</button>
             </li>
             <li class="device-full-item" data-device-id="d3">
               <span class="device-full-icon" aria-hidden="true">
@@ -3950,11 +3963,11 @@
                 <p class="device-full-label">iPad Air</p>
                 <p class="device-full-meta">Active 3 days ago &middot; Seattle, WA &middot; iPadOS 18.1</p>
               </div>
-              <button class="device-signout-btn" type="button" data-device-name="iPad Air">Sign Out</button>
+              <button class="device-signout-btn" type="button" data-device-name="iPad Air">Sign out</button>
             </li>
           </ul>
 
-          <button class="device-signout-all-btn" type="button" id="device-signout-all-btn">Sign Out of All Other Devices</button>
+          <button class="device-signout-all-btn" type="button" id="device-signout-all-btn">Sign out of all other devices</button>
 
           <!-- Remote sign-out confirmation (modal overlay) -->
           <div class="signout-modal-backdrop" id="signout-modal-backdrop" hidden></div>
@@ -3964,7 +3977,7 @@
             <p class="signout-modal-body">They&#8217;ll need to sign in again to access your Ace Hardware account.</p>
             <div class="signout-modal-actions">
               <button class="enroll-skip-btn" id="signout-modal-cancel" type="button">Cancel</button>
-              <button class="sign-in-btn signout-confirm-btn" id="signout-modal-confirm" type="button">Sign Out</button>
+              <button class="sign-in-btn signout-confirm-btn" id="signout-modal-confirm" type="button">Sign out</button>
             </div>
           </div>
 
@@ -4013,7 +4026,7 @@
             <div class="passkey-list-empty" id="passkey-list-empty" hidden>
               <p class="passkey-list-empty-text">You don&#8217;t have any passkeys saved. Adding one lets you sign in instantly with Face ID or Touch ID on this device.</p>
             </div>
-            <button class="sign-in-btn" id="settings-add-passkey-btn" type="button">Add a Passkey</button>
+            <button class="sign-in-btn" id="settings-add-passkey-btn" type="button">Add a passkey</button>
           </div>
 
           <!-- ② Rename panel -->
@@ -4023,7 +4036,7 @@
             <input class="settings-text-input" id="rename-input" type="text" maxlength="40" placeholder="e.g. My iPhone" autocomplete="off" />
             <p class="settings-char-hint" id="rename-char-hint">40 characters max</p>
             <div class="settings-action-row">
-              <button class="sign-in-btn" id="rename-save-btn" type="button">Save Name</button>
+              <button class="sign-in-btn" id="rename-save-btn" type="button">Save name</button>
               <button class="enroll-skip-btn" id="rename-cancel-btn" type="button">Cancel</button>
             </div>
           </div>
@@ -4036,7 +4049,7 @@
             <h3 class="settings-confirm-heading">Remove <span id="remove-pk-name">iPhone 15 Pro</span>?</h3>
             <p class="settings-confirm-body">You&#8217;ll no longer be able to sign in with Face ID from this device. Your other passkeys and sign-in methods will still work.</p>
             <div class="settings-action-row">
-              <button class="sign-in-btn settings-remove-confirm-btn" id="remove-confirm-btn" type="button">Remove Passkey</button>
+              <button class="sign-in-btn settings-remove-confirm-btn" id="remove-confirm-btn" type="button">Remove passkey</button>
               <button class="enroll-skip-btn" id="remove-cancel-btn" type="button">Cancel</button>
             </div>
           </div>
@@ -4049,7 +4062,7 @@
             <h3 class="settings-confirm-heading">This is your only passkey</h3>
             <p class="settings-confirm-body">Removing it means you can only sign in with your password or a one-time code. You can always add a new passkey later.</p>
             <div class="settings-action-row">
-              <button class="sign-in-btn settings-remove-confirm-btn" id="remove-last-confirm-btn" type="button">Remove Anyway</button>
+              <button class="sign-in-btn settings-remove-confirm-btn" id="remove-last-confirm-btn" type="button">Remove anyway</button>
               <button class="enroll-skip-btn" id="remove-last-cancel-btn" type="button">Keep passkey</button>
             </div>
           </div>
@@ -4079,7 +4092,7 @@
               placeholder="backup@example.com" autocomplete="email" inputmode="email" />
             <p class="settings-char-hint" id="recovery-email-hint" style="text-align:left;">Use an address that&#8217;s different from your account email.</p>
             <div class="settings-action-row">
-              <button class="sign-in-btn" id="recovery-email-send-btn" type="button">Send Verification Email</button>
+              <button class="sign-in-btn" id="recovery-email-send-btn" type="button">Send verification email</button>
               <button class="enroll-skip-btn" id="recovery-email-cancel-btn" type="button">Cancel</button>
             </div>
           </div>
@@ -4120,7 +4133,7 @@
                Primary path = try another method (banner-augmented chooser).
                Secondary paths = forgot password, lost device, contact support. -->
           <div class="recovery-options">
-            <button class="sign-in-btn" id="recovery-try-other-btn" type="button">Try a Different Sign-In Method</button>
+            <button class="sign-in-btn" id="recovery-try-other-btn" type="button">Try a different sign-in method</button>
             <button class="recovery-alt-btn" id="recovery-forgot-pw-btn" type="button">I forgot my password</button>
             <button class="recovery-alt-btn" id="recovery-lost-passkey-btn" type="button">I lost my passkey or phone</button>
           </div>
@@ -4173,7 +4186,7 @@
             <p class="recovery-subtext" style="font-size:13px;color:rgba(18,18,18,0.55);">If you don&#8217;t have access to your recovery email either, contact account support and we&#8217;ll guide you through manual verification.</p>
 
             <div class="recovery-options" style="margin-top:4px;">
-              <button class="sign-in-btn" id="recovery-passkey-help-otp-btn" type="button">Send a One-Time Code to My Email</button>
+              <button class="sign-in-btn" id="recovery-passkey-help-otp-btn" type="button">Send a one-time code to my email</button>
               <button class="sign-in-another-way-btn" id="recovery-passkey-help-support-btn" type="button">Contact account support</button>
             </div>
 
@@ -4223,7 +4236,7 @@
                 <span>Syncs across your Apple devices</span>
               </li>
             </ul>
-            <button class="sign-in-btn" id="reenroll-setup-btn" type="button">Set Up Face ID Sign-In</button>
+            <button class="sign-in-btn" id="reenroll-setup-btn" type="button">Set up Face ID sign-in</button>
             <button class="enroll-skip-btn" id="reenroll-skip-btn" type="button">Skip for now</button>
           </div>
 
@@ -4235,7 +4248,7 @@
             <h2 class="enroll-heading">Face ID restored</h2>
             <p class="enroll-subtext">You&#8217;re all set. You&#8217;ll use Face ID to sign in from now on &#8212; faster and more secure.</p>
             <p class="enroll-device-label">Saved to: iPhone (this device)</p>
-            <button class="sign-in-btn" id="reenroll-continue-btn" type="button">Continue Shopping</button>
+            <button class="sign-in-btn" id="reenroll-continue-btn" type="button">Continue shopping</button>
           </div>
 
           <!-- ③ Error / cancelled panel -->
@@ -4245,7 +4258,7 @@
             </div>
             <h2 class="enroll-heading">Setup didn&#8217;t complete</h2>
             <p class="enroll-subtext">Face ID enrollment was cancelled or didn&#8217;t finish. You can set it up anytime from Account Settings.</p>
-            <button class="sign-in-btn" id="reenroll-retry-btn" type="button">Try Again</button>
+            <button class="sign-in-btn" id="reenroll-retry-btn" type="button">Try again</button>
             <button class="enroll-skip-btn" id="reenroll-later-btn" type="button">Skip for now</button>
           </div>
 
@@ -4327,7 +4340,7 @@
             <span class="keep-signed-in-label">Keep me signed in for 30 days</span>
           </label>
 
-          <button class="sign-in-btn" id="pw-submit-btn" type="button">Sign In</button>
+          <button class="sign-in-btn" id="pw-submit-btn" type="button">Sign in</button>
 
           <p class="demo-hint" aria-hidden="true">
             Type <code>wrongpw</code> to see the wrong-password error and 3-strike lockout.
@@ -4364,7 +4377,7 @@
           </div>
 
           <div style="display:flex;flex-direction:column;gap:16px;width:100%;">
-            <button class="sign-in-btn" id="locked-reset-pw-btn" type="button">Reset Your Password</button>
+            <button class="sign-in-btn" id="locked-reset-pw-btn" type="button">Reset your password</button>
             <button class="sign-in-another-way-btn" id="locked-another-way-btn" type="button">Back to sign in</button>
           </div>
 
@@ -4388,7 +4401,7 @@
                 <svg width="18" height="18" viewBox="0 -960 960 960" fill="#1f1f1f" aria-hidden="true"><path d="m249-207-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z"/></svg>
               </button>
             </div>
-            <button class="sign-in-btn" id="reset-send-btn" type="button">Send Reset Email</button>
+            <button class="sign-in-btn" id="reset-send-btn" type="button">Send reset email</button>
             <!-- Batch F · explicit back affordance so the user has a way out
                  of the reset flow before submitting (mirrors the rate-limited
                  panel's back button two states deeper). -->
@@ -4482,7 +4495,7 @@
                 </button>
               </div>
             </div>
-            <button class="sign-in-btn" id="save-pw-btn" type="button">Save New Password</button>
+            <button class="sign-in-btn" id="save-pw-btn" type="button">Save new password</button>
           </div>
 
           <!-- Expired-link panel -->
@@ -4495,7 +4508,7 @@
             </div>
             <h1 class="recovery-heading">Link expired</h1>
             <p class="recovery-subtext">This password reset link has expired. Reset links are only valid for a short time. Request a new one to continue.</p>
-            <button class="sign-in-btn" id="newpw-request-new-link-btn" type="button">Request a New Link</button>
+            <button class="sign-in-btn" id="newpw-request-new-link-btn" type="button">Request a new link</button>
           </div>
 
         </div><!-- /screen-new-password -->
@@ -4527,7 +4540,7 @@
           </div>
 
           <div class="recovery-options">
-            <button class="sign-in-btn" id="no-access-password-btn" type="button">Use Password Instead</button>
+            <button class="sign-in-btn" id="no-access-password-btn" type="button">Use password instead</button>
             <button class="sign-in-another-way-btn" id="no-access-support-btn" type="button">Contact account support</button>
           </div>
 
@@ -4614,7 +4627,7 @@
               <p class="otp-delivery-helper">We'll text a 6-digit code to your phone</p>
             </div>
 
-            <button class="sign-in-btn" id="otp-send-btn" type="button">Send Code</button>
+            <button class="sign-in-btn" id="otp-send-btn" type="button">Send code</button>
 
           </div><!-- /form-group -->
 
@@ -5527,8 +5540,8 @@
       // readers announce the swapped CTA correctly. Default to 'Verify';
       // expired → 'Resend Code'; locked → 'Sign In with Password'.
       if (verifyBtn) {
-        if (state === 'expired')      verifyBtn.textContent = 'Resend Code';
-        else if (state === 'locked')  verifyBtn.textContent = 'Sign In with Password';
+        if (state === 'expired')      verifyBtn.textContent = 'Resend code';
+        else if (state === 'locked')  verifyBtn.textContent = 'Sign in with password';
         else                          verifyBtn.textContent = 'Verify';
       }
 
@@ -5751,7 +5764,7 @@
           setBiometricState('error', "Face ID couldn’t sign you in",
             'Your account is still secure — try again or use a different method.');
           tryBtn.disabled = false;
-          tryBtn.textContent = 'Try Again';
+          tryBtn.textContent = 'Try again';
           break;
         // NOTE: the 'notfound' state has been removed. When no credential
         // is discovered, the runtime now returns the user to the chooser
@@ -6267,7 +6280,7 @@
       const enrollOutcome = new URLSearchParams(location.search).get('enroll') || 'success';
       setTimeout(() => {
         this.disabled = false;
-        this.textContent = 'Set Up Face ID Sign-In';
+        this.textContent = 'Set up Face ID sign-in';
         setEnrollState(enrollOutcome === 'error' ? 'error' : 'success');
       }, 1800);
     });
