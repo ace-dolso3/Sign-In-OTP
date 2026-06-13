@@ -263,6 +263,51 @@
        level. Do NOT demote a sub-state heading to h2 just because it
        looks visually smaller.
     ───────────────────────────────────────────────────────────── */
+
+    /* ─────────────────────────────────────────────────────────────
+       COPY PUNCTUATION RULE (W2 QA pass — F1-4)
+
+       Period usage on <p> elements is driven by content type, not
+       length. Pick the bucket; the period follows.
+
+         SUBTITLE (no period)
+           Short prompt/affordance that sits directly under a heading.
+           Reads as a label, not a sentence. Drop the trailing period
+           even when it scans as grammatical.
+             → "Enter your email to get started"
+             → "Send a one-time code to your email or phone"
+             → "Your device will prompt you to authenticate"
+             → "Use Face ID to sign in"
+             → "Devices currently signed in to your account"
+           Helper text under an input ALSO follows this rule when it
+           is a single short instruction without an explanatory clause.
+             → "We'll send a 6-digit code to your email"
+             → "40 characters max"
+
+         BODY / STATUS (period)
+           Sentence-shaped explanation, multi-clause guidance,
+           confirmation copy, error description, live-timer status.
+           If it has a clause-joining comma or could be split on a
+           period, it gets a period.
+             → "The link expires in 15 minutes."
+             → "Code expires in 03:00."
+             → "You're all set. You'll use Face ID to sign in from
+                 now on — faster and more secure."
+             → "Use an address that's different from your account
+                 email."   (helper, but instructional/rule-shaped)
+
+         METADATA / LABEL (no period)
+           Timestamps, device names, breadcrumbs, status badges,
+           middot-delimited meta lines. Never a period.
+             → "Today, 9:14 AM · Chicago, IL"
+             → "iPhone 15 Pro"
+             → "Active 2 hours ago · Chicago, IL · macOS 15.2"
+
+         QUESTION (question mark, no period)
+           Confirm-modal titles, prompt-style headings.
+             → "Sign out of this device?"
+             → "Don't have an account?"
+    ───────────────────────────────────────────────────────────── */
     .hero h1 {
       font-size: 24px;
       font-weight: 700;
@@ -3498,7 +3543,7 @@
               </svg>
             </div>
             <p class="passkey-qr-label">Open your phone’s camera and scan this code to sign in with your saved passkey.</p>
-            <p class="passkey-qr-expires">Code expires in <strong id="passkey-qr-expires-countdown">02:00</strong></p>
+            <p class="passkey-qr-expires">Code expires in <strong id="passkey-qr-expires-countdown">02:00</strong>.</p>
             <button class="sign-in-another-way-btn" id="passkey-qr-cancel" type="button">Sign in another way</button>
           </div>
 
@@ -4392,7 +4437,7 @@
 
           <div class="hero forgotpw-hero">
             <h1>Reset password</h1>
-            <p>Enter your email address and we’ll send you a link to reset your password.</p>
+            <p>Enter your email address and we’ll send you a link to reset your password</p>
           </div>
 
           <div class="form-group forgotpw-form">
@@ -7788,7 +7833,7 @@
         body: isAll
           ? 'You\u2019ll stay signed in here. Everyone else will need to sign in again to access your Ace Hardware account.'
           : `Sign out of \u201c${deviceName}\u201d? They\u2019ll need to sign in again to access your Ace Hardware account.`,
-        confirmLabel: 'Sign Out',
+        confirmLabel: 'Sign out',
         cancelLabel: 'Cancel',
         kind: 'destructive',
         onConfirm: () => {
