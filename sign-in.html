@@ -2030,6 +2030,13 @@
       margin-top: 1px;
     }
 
+    /* Soft-skip / cancel tertiary. Text-only button that sits below a
+       red .sign-in-btn primary, for low-stakes dismissal ("Skip for
+       now", "Cancel"). Black uppercase to match the typographic voice
+       of the surrounding CTAs (per rule: secondaries beneath the red
+       primary are uppercase). Distinguished from .sign-in-another-way-btn
+       (red) by color — black signals "skip / soft cancel", red signals
+       "alternate equal path". */
     .enroll-skip-btn {
       background: none;
       border: none;
@@ -2037,12 +2044,13 @@
       font-family: 'Roboto', sans-serif;
       font-size: 14px;
       font-weight: 500;
-      letter-spacing: 0.5px;
-      color: rgba(18,18,18,0.55);
+      letter-spacing: 1.25px;
+      text-transform: uppercase;
+      color: #1f1f1f;
       padding: 8px 0;
-      transition: color 0.15s;
+      transition: opacity 0.15s;
     }
-    .enroll-skip-btn:hover { color: rgba(18,18,18,0.85); }
+    .enroll-skip-btn:hover { opacity: 0.7; }
 
     /* ── OS Biometric Modal ──────────────────────────────────── */
     #os-biometric-backdrop {
