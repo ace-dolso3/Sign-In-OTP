@@ -5716,6 +5716,11 @@
     }
 
     // ── Chooser → identifier-first form submit ───────────────
+    // The default state routes to the password screen (the most common
+    // path for returning shoppers); setSignInIdentifier pre-fills the
+    // password screen's email field so the user doesn't re-type. The
+    // passkey-first state routes to the passkey ceremony instead — the
+    // device is recognized so we lead with the lower-friction option.
     document.getElementById('chooser-id-form').addEventListener('submit', (e) => {
       e.preventDefault();
       const input = document.getElementById('chooser-email-input');
@@ -5728,11 +5733,21 @@
       }
       input.removeAttribute('aria-invalid');
       setSignInIdentifier(email);
-      // Focus the recommended method tile silently — no toast.
-      const recommended = screenChooser.getAttribute('data-chooser-state') === 'passkey-first'
-        ? document.getElementById('tile-passkey')
-        : document.getElementById('tile-password-chooser');
-      if (recommended) recommended.focus();
+      clearChooserBanner();
+      if (screenChooser.getAttribute('data-chooser-state') === 'passkey-first') {
+        setPasskeyState('idle');
+        switchScreen(currentScreen, screenPasskey, 'forward');
+        currentScreen = screenPasskey;
+      } else {
+        switchScreen(currentScreen, screenPassword, 'forward');
+        currentScreen = screenPassword;
+        // Focus the password field so the user can keep typing without
+        // a second tap. Email is already pre-filled by setSignInIdentifier.
+        setTimeout(() => {
+          const pwField = document.getElementById('pw-password');
+          if (pwField) pwField.focus();
+        }, 320);
+      }
     });
     document.getElementById('chooser-email-input').addEventListener('input', () => {
       document.getElementById('chooser-email-input').removeAttribute('aria-invalid');
