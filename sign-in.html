@@ -2452,9 +2452,15 @@
        CHOOSER (W2.1 · single-panel identifier-first)
     ───────────────────────────────────────────────────────────── */
 
-    /* Single panel — no more two-panel state swap. The chooser shows
-       the same surface in both states; passkey-first state just adds
-       emphasis to the passkey tile via the "Recommended" pill. */
+    /* Single panel — no more two-panel state swap. In default state
+       the chooser is identifier-first: email + Continue, followed by
+       four method tiles. In passkey-first state the identifier form
+       and the redundant Face ID tile are hidden, replaced by a single
+       prominent "Sign in with Face ID" primary CTA just below the
+       hero; the cross-device / password / OTP tiles remain available
+       below the divider as fallbacks. The "Recommended" pill class
+       on #tile-passkey is now vestigial — the tile it lives on is
+       display:none in the only state that styled the pill visible. */
 
     /* Subtitle copy switches by state */
     .chooser-subtitle-default,
@@ -3232,7 +3238,12 @@
           <!-- Method tiles -->
           <div class="method-tiles" role="list">
 
-            <!-- Face ID / Passkey on this device — gets "Recommended" pill in passkey-first state -->
+            <!-- Face ID / passkey on this device. Visible in default state.
+                 Hidden in passkey-first state — the primary CTA above
+                 (#chooser-passkey-cta) takes over that job. The pill
+                 inside is therefore vestigial; leaving the markup in
+                 place to avoid a surprise if the passkey-first layout
+                 is ever rolled back. -->
             <button class="method-tile method-tile-passkey" id="tile-passkey" role="listitem" type="button"
               aria-label="Sign in with Face ID or a passkey">
               <span class="method-tile-icon" aria-hidden="true">
@@ -5117,7 +5128,7 @@
     // ── Screen description blurbs ──────────────────────────────
     const SCREEN_BLURBS = {
       'screen-chooser:default':               'Identifier-first sign-in entry. Users enter their email up top; downstream screens reuse it. Method tiles below offer Face ID / passkey, cross-device passkey, password, or one-time code.',
-      'screen-chooser:passkey-first':         'Identifier-first sign-in entry with a known passkey on this device. The Face ID tile is highlighted with a “Recommended for this device” pill so the fastest path is obvious.',
+      'screen-chooser:passkey-first':         'Identifier-first sign-in entry when we recognize a passkey on this device. The email field and Continue button are replaced by a single primary “Sign in with Face ID” CTA so the fastest path is unmistakable. Fallback tiles below the divider stay available: cross-device passkey, password, or one-time code.',
       'screen-passkey:idle':                  'Shown when the passkey ceremony begins. The user can tap “Use Face ID” to authenticate with a saved local passkey, or tap “Use a passkey from another device” to scan a QR code and authenticate via a nearby phone.',
       'screen-passkey:idle-cross-device':       'The same passkey idle screen, shown as the second step of the cross-device happy path. The \u201cUse a passkey from another device\u201d button is the interactive trigger that advances to the QR screen.',
       'screen-passkey:failed':                'Shown when Face ID fails or is canceled by the OS. Offers a retry or a fallback to another sign-in method.',
