@@ -683,7 +683,11 @@
     #screen-otp[data-otp-state="entered"] .verify-expiry { display: block; }
     #screen-otp[data-otp-state="request"] .verify-expiry { display: none; }
 
-    /* ─── Sign in another way / text-only link ───────────── */
+    /* ─── Sign in another way / text-only link ─────────────
+       Uppercase + 1.25 px tracking so this secondary button keeps
+       the same typographic voice as .sign-in-btn (the primary CTA
+       above it on every screen). Without this the SIAW row reads
+       like body copy instead of an action. */
     .sign-in-another-way-btn {
       width: 100%;
       background: none;
@@ -692,7 +696,8 @@
       font-family: 'Roboto', sans-serif;
       font-size: 14px;
       font-weight: 500;
-      letter-spacing: 0.2px;
+      letter-spacing: 1.25px;
+      text-transform: uppercase;
       color: #d40029;
       cursor: pointer;
       text-align: center;
