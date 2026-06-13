@@ -1740,6 +1740,8 @@
       font-family: 'Roboto', sans-serif;
       font-size: 12px;
       font-weight: 500;
+      letter-spacing: 1.25px;
+      text-transform: uppercase;
       color: #B71C1C;
       padding: 4px 10px;
       transition: background 0.15s;
@@ -4393,7 +4395,7 @@
             <p>Your password has been changed successfully. You can now sign in with your new password.</p>
           </div>
 
-          <button class="sign-in-btn" id="reset-success-signin-btn" type="button">Sign In Now</button>
+          <button class="sign-in-btn" id="reset-success-signin-btn" type="button">Back to sign in</button>
 
         </div><!-- /screen-reset-success -->
 
@@ -5418,17 +5420,24 @@
         otpFields.forEach(f => { f.value = ''; });
         verifyBtn.disabled = false;
       } else if (state === 'wrong') {
-        // Keep boxes filled and colored red via CSS; button stays enabled
-        otpFields.forEach(f => { f.value = f.value || '1'; });
+        // Batch D · keep boxes filled and colored red via CSS, mark each
+        // cell aria-invalid='true' so AT announces the error, and focus
+        // the last cell so Backspace deletes the most-recent digit
+        // (matches sighted-user expectation; avoids a hidden tab cycle).
+        otpFields.forEach(f => {
+          f.value = f.value || '1';
+          f.setAttribute('aria-invalid', 'true');
+        });
         verifyBtn.disabled = false;
+        if (otpFields.length) otpFields[otpFields.length - 1].focus();
       } else if (state === 'default') {
-        otpFields.forEach(f => { f.value = ''; });
+        otpFields.forEach(f => { f.value = ''; f.removeAttribute('aria-invalid'); });
         verifyBtn.disabled = true;
         wrongAttempts = 0;
         // Fresh code → start the live expiry countdown
         startOtpExpiry();
       } else if (state === 'resent') {
-        otpFields.forEach(f => { f.value = ''; });
+        otpFields.forEach(f => { f.value = ''; f.removeAttribute('aria-invalid'); });
         verifyBtn.disabled = true;
         wrongAttempts = 0;
         // New code → restart the live expiry countdown
@@ -6776,6 +6785,17 @@
           steps: [
             { screen: 'screen-forgot-password', state: null,           label: 'Forgot password — email entry' },
             { screen: 'screen-forgot-password', state: 'rate-limited', label: 'Forgot password — rate limited' },
+          ],
+        },
+        {
+          id: 'reset-edit-different-email', group: 'Password Reset',
+          label: 'Edit Identifier — Send to Different Email',
+          figmaUrl: FIGMA + '198-310',
+          steps: [
+            { screen: 'screen-forgot-password', state: null, label: 'Forgot password — email entry' },
+            { screen: 'screen-reset-sent',      state: null, label: 'Reset email sent — identifier strip visible' },
+            { screen: 'screen-forgot-password', state: null, label: 'Edit tapped — back to entry, field cleared' },
+            { screen: 'screen-reset-sent',      state: null, label: 'Reset email sent — new address' },
           ],
         },
 
