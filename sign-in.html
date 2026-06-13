@@ -160,6 +160,44 @@
       margin-bottom: -16px; /* card gap=24px, hero gap=8px → offset by 16px */
     }
 
+    /* ─────────────────────────────────────────────────────────────
+       HEADING HIERARCHY RULE (W2 QA pass — F4-1)
+
+       Each screen has ONE screen-level heading. Sub-states of the
+       same screen MUST use the same heading level (they are mutually
+       exclusive — only one is rendered at a time). Nested sections
+       inside a screen step down by one level.
+
+         <h1>  Top-of-funnel sign-in flow screens. The user-facing
+               "page" headings on the sign-in path.
+               • screen-chooser, screen-password, screen-otp
+               • screen-account-locked, screen-forgot-password
+               • screen-reset-sent, screen-new-password, screen-reset-success
+               Style: .hero h1 (24/32, 700)
+
+         <h2>  Branching, recovery, settings, and enrollment screens.
+               These live inside flows but represent distinct
+               product surfaces, not the primary sign-in path.
+               • screen-settings-* → h2.settings-section-heading
+               • screen-passkey-enroll, screen-reenroll → h2.enroll-heading
+               • screen-recovery, screen-otp-no-access → h2.recovery-heading
+
+         <h3>  Section groups inside a screen, or modal-style
+               confirmation panels nested within a screen's h2.
+               • settings-security groups → h3.security-group-title
+               • settings-passkeys confirm panels → h3.settings-confirm-heading
+               • signout modal → h3.signout-modal-title
+               • recovery-email sub-state titles → h3 (under persistent h2)
+
+         <h4>  Subsections within an h3 group.
+               • settings-security subsections → h4.security-section-title
+
+       SUB-STATE RULE: When a screen has multiple mutually exclusive
+       state panels (e.g. new-password "Create new password" vs
+       "Link expired"), each panel's heading must match the screen's
+       level. Do NOT demote a sub-state heading to h2 just because it
+       looks visually smaller.
+    ───────────────────────────────────────────────────────────── */
     .hero h1 {
       font-size: 24px;
       font-weight: 700;
@@ -1275,7 +1313,7 @@
       text-align: center;
       margin-bottom: 4px;
     }
-    .recovery-email-hero h2 {
+    .recovery-email-hero h3 {
       font-size: 20px;
       font-weight: 500;
       color: rgba(18,18,18,0.93);
@@ -4002,7 +4040,7 @@
               <div class="enroll-hero-icon enroll-hero-icon--setup" aria-hidden="true">
                 <svg width="36" height="36" viewBox="0 -960 960 960" fill="currentColor"><path d="M140-160q-24 0-42-18t-18-42v-520q0-24 18-42t42-18h680q24 0 42 18t18 42v520q0 24-18 42t-42 18H140Zm340-302L140-685v465h680v-465L480-462Zm0-60 336-218H145l335 218ZM140-685v-55 520-465Z"/></svg>
               </div>
-              <h2>Add a recovery email</h2>
+              <h3>Add a recovery email</h3>
               <p>If you ever lose access to Face ID and your phone, we&#8217;ll send a sign-in link to this address so you can get back in.</p>
             </div>
             <label class="settings-field-label" for="recovery-email-input">Recovery email address</label>
@@ -4021,7 +4059,7 @@
               <div class="enroll-hero-icon enroll-hero-icon--success" aria-hidden="true">
                 <svg width="36" height="36" viewBox="0 -960 960 960" fill="currentColor"><path d="M140-160q-24 0-42-18t-18-42v-520q0-24 18-42t42-18h680q24 0 42 18t18 42v520q0 24-18 42t-42 18H140Zm340-302L140-685v465h680v-465L480-462Zm0-60 336-218H145l335 218ZM140-685v-55 520-465Z"/></svg>
               </div>
-              <h2>Check your inbox</h2>
+              <h3>Check your inbox</h3>
               <p>We sent a verification link to <strong id="recovery-email-sent-address">your email</strong>. Click it to confirm this address as your backup.</p>
             </div>
             <p class="recovery-email-sent-meta">The link expires in <strong>15 minutes</strong>. Didn&#8217;t get it? Check spam or resend below.</p>
@@ -4417,11 +4455,14 @@
           </div>
 
           <!-- Expired-link panel -->
+          <!-- Sub-state of screen-new-password. .hero is hidden in expired state
+               (see CSS data-newpw-state="expired"), so this heading IS the
+               screen-level heading and must be h1 to match the primary state. -->
           <div class="newpw-expired-panel">
             <div class="recovery-icon" aria-hidden="true">
               <svg width="40" height="40" viewBox="0 -960 960 960" fill="#121212"><path d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-60q142 0 241-99.5T820-480q0-58.08-18.5-109.54Q783-641 751-684L276-209q43 32 94.46 50.5Q421.92-140 480-140Zm-271-115 475-475q-43-33-94.08-51.5Q538.85-800 480-800q-142 0-241 99.5T140-480q0 58.85 18.5 110.42Q177-318 209-255Z"/></svg>
             </div>
-            <h2 class="recovery-heading">Link expired</h2>
+            <h1 class="recovery-heading">Link expired</h1>
             <p class="recovery-subtext">This password reset link has expired. Reset links are only valid for a short time. Request a new one to continue.</p>
             <button class="sign-in-btn" id="newpw-request-new-link-btn" type="button">Request a New Link</button>
           </div>
