@@ -5678,24 +5678,53 @@
     });
 
     // ── Password screen → Sign In ─────────────────────────────────
-    let pwAttempts = 0; // kept for back-button reset references
+    // Batch E · sentinel-based password validation so the wrong-password
+    // and account-locked states are reachable from real input. The demo
+    // sentinel is `wrongpw`; any other non-empty password is treated as
+    // the happy path. Three sentinel attempts in a row escalate to the
+    // account-locked screen (LOCKOUT_MS countdown), mirroring the OTP
+    // 3-strike pattern from Batch C.
+    let pwAttempts = 0;
+    const PW_WRONG_SENTINEL = 'wrongpw';
     let enrollOrigin = 'settings'; // 'settings' or 'post-login'
     document.getElementById('pw-submit-btn').addEventListener('click', () => {
       const email = document.getElementById('pw-email').value.trim();
       const pw    = document.getElementById('pw-password').value;
-      if (email && pw) {
-        // Any non-empty email + password → proceed to MFA step
-        screenPassword.removeAttribute('data-pw-state');
-        setVerifyState('default');
-        switchScreen(screenPassword, screenOtp, 'forward');
-        currentScreen = screenOtp;
+
+      // Missing fields → show inline error
+      if (!email || !pw) {
+        const errEl = document.getElementById('pw-error-text');
+        if (errEl) errEl.textContent = 'Please enter your email and password.';
+        screenPassword.setAttribute('data-pw-state', 'error');
+        updateBlurb();
         return;
       }
-      // Missing fields → show inline error
-      const errEl = document.getElementById('pw-error-text');
-      if (errEl) errEl.textContent = 'Please enter your email and password.';
-      screenPassword.setAttribute('data-pw-state', 'error');
-      updateBlurb();
+
+      // Wrong-password sentinel → escalate to lockout on 3rd attempt
+      if (pw === PW_WRONG_SENTINEL) {
+        pwAttempts++;
+        if (pwAttempts >= 3) {
+          pwAttempts = 0;
+          screenPassword.removeAttribute('data-pw-state');
+          switchScreen(screenPassword, screenAccountLocked, 'forward');
+          currentScreen = screenAccountLocked;
+          startLockedCountdown();
+          return;
+        }
+        const remaining = 3 - pwAttempts;
+        const errEl = document.getElementById('pw-error-text');
+        if (errEl) errEl.textContent = `Incorrect password. ${remaining} attempt${remaining !== 1 ? 's' : ''} remaining.`;
+        screenPassword.setAttribute('data-pw-state', 'error');
+        updateBlurb();
+        return;
+      }
+
+      // Happy path → reset counter and proceed to MFA step
+      pwAttempts = 0;
+      screenPassword.removeAttribute('data-pw-state');
+      setVerifyState('default');
+      switchScreen(screenPassword, screenOtp, 'forward');
+      currentScreen = screenOtp;
     });
 
     // ── Chooser → OTP (legacy tab screen, OTP tab) ────────────
