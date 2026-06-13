@@ -3339,8 +3339,8 @@
               </svg>
             </div>
             <p class="passkey-qr-label">Open your phone’s camera and scan this code to sign in with your saved passkey.</p>
-            <p class="passkey-qr-expires">Code expires in <strong>02:00</strong></p>
-            <button class="sign-in-another-way-btn" id="passkey-qr-cancel" type="button">Cancel</button>
+            <p class="passkey-qr-expires">Code expires in <strong id="passkey-qr-expires-countdown">02:00</strong></p>
+            <button class="sign-in-another-way-btn" id="passkey-qr-cancel" type="button">Sign in another way</button>
           </div>
 
           <!-- Cross-device: no passkey on phone -->
@@ -5520,10 +5520,41 @@
     }
 
     // ── Passkey screen state machine ───────────────────────────
+    // Batch A · QR live expiry countdown
+    // Cross-device passkey ceremonies have a real TTL on the QR code
+    // (QR_TTL_MS = 2 min). The countdown is rendered into
+    // #passkey-qr-expires-countdown; on expiry the screen flips to the
+    // 'cross-device-failed' state which already has its own "Generate
+    // New Code" / "Sign in another way" actions. The controller is
+    // stopped on every state transition out of 'cross-device'.
+    let qrExpiryController = null;
+    function stopQrExpiryCountdown() {
+      if (qrExpiryController) { qrExpiryController.stop(); qrExpiryController = null; }
+    }
+    function startQrExpiryCountdown() {
+      stopQrExpiryCountdown();
+      const timerEl = document.getElementById('passkey-qr-expires-countdown');
+      if (!timerEl) return;
+      qrExpiryController = startLockoutCountdown({
+        timerEl,
+        durationMs: QR_TTL_MS,
+        onExpiry: () => {
+          qrExpiryController = null;
+          // Only auto-transition if the user is still looking at the QR.
+          const pkScreen = document.getElementById('screen-passkey');
+          if (pkScreen && pkScreen.getAttribute('data-passkey-state') === 'cross-device') {
+            setPasskeyState('cross-device-failed');
+          }
+        },
+      });
+    }
+
     function setPasskeyState(state) {
       const pkScreen = document.getElementById('screen-passkey');
       const tryBtn   = document.getElementById('passkey-try-btn');
       pkScreen.setAttribute('data-passkey-state', state);
+      // Batch A · only run the live countdown while the QR is on screen
+      if (state !== 'cross-device') stopQrExpiryCountdown();
       switch (state) {
         case 'idle':
           setBiometricState('idle', 'Use Face ID to sign in', 'Your device will prompt you to authenticate');
@@ -5543,6 +5574,7 @@
         // handler for the redirect logic.
         case 'cross-device':
           // Biometric hero + try-btn hidden via CSS; QR area shown
+          startQrExpiryCountdown();
           break;
         case 'cross-device-no-credential':
           // Biometric hero + try-btn hidden via CSS; no-credential panel shown
