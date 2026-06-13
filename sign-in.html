@@ -526,7 +526,8 @@
       font-family: 'Roboto', sans-serif;
       font-size: 14px;
       font-weight: 500;
-      letter-spacing: 0.3px;
+      letter-spacing: 1.25px;
+      text-transform: uppercase;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -617,17 +618,19 @@
        restore typography on the ::after pseudo so the swapped label renders.
        W3.9 audit (kept intentionally): these are the only two surviving
        ::after { content: 'LABEL' } rules in the prototype. Both belong to
-       the W2.2 merged-OTP CTA-swap pattern; both labels follow W3.1 Title
-       Case for primary CTAs. Any other future ::after content: 'TEXT'
-       should be considered a regression and routed through JS textContent
-       so screen readers see it consistently. */
+       the W2.2 merged-OTP CTA-swap pattern. Per the post-W3.1 revert these
+       render UPPERCASE to match the rest of the .sign-in-btn primary CTAs.
+       Any other future ::after content: 'TEXT' should be considered a
+       regression and routed through JS textContent so screen readers see
+       it consistently. */
     #screen-otp[data-otp-substate="expired"] #verify-btn,
     #screen-otp[data-otp-substate="locked"]  #verify-btn { font-size: 0; }
     #screen-otp[data-otp-substate="expired"] #verify-btn::after,
     #screen-otp[data-otp-substate="locked"]  #verify-btn::after {
       font-size: 14px;
       font-weight: 500;
-      letter-spacing: 0.3px;
+      letter-spacing: 1.25px;
+      text-transform: uppercase;
       line-height: 1;
     }
     #screen-otp[data-otp-substate="expired"] #verify-btn::after { content: 'Resend Code'; }
@@ -2524,6 +2527,24 @@
       display: inline-flex;
     }
 
+    /* ─────────────────────────────────────────────────────────────
+       Chooser · passkey-first redesign (post-Wave 3 revision)
+       In the passkey-first state the device is already recognized,
+       so the email field + Continue button are noise and the Face
+       ID tile is redundant with the new primary button. Swap the
+       email form for a dedicated primary CTA, and hide the tile.
+       The cross-device / password / OTP tiles below the divider
+       remain available as fallbacks.
+    ───────────────────────────────────────────────────────────── */
+    .chooser-passkey-cta { display: none; }
+    #screen-chooser[data-chooser-state="passkey-first"] .chooser-passkey-cta {
+      display: flex;
+    }
+    #screen-chooser[data-chooser-state="passkey-first"] #chooser-id-form,
+    #screen-chooser[data-chooser-state="passkey-first"] #tile-passkey {
+      display: none;
+    }
+
     /* Banner: only shown when [data-chooser-banner] is set on
        the chooser (e.g. after a no-credential Face ID attempt).
        Uses the NEUTRAL state tier — this is informational
@@ -3175,6 +3196,9 @@
           </div>
 
           <!-- ── W2.1 · Identifier-first form ─────────────────────── -->
+          <!-- Shown in default state. Hidden in passkey-first state
+               (the device is already recognized; the new primary CTA
+               just below this form takes over). -->
           <form class="chooser-id-form" id="chooser-id-form" novalidate>
             <div class="text-field">
               <input type="email" id="chooser-email-input" name="chooser-email" placeholder=" "
@@ -3186,6 +3210,13 @@
             </div>
             <button class="sign-in-btn" id="chooser-continue-btn" type="submit">Continue</button>
           </form>
+
+          <!-- Passkey-first primary CTA · replaces the email form when the
+               device is recognized. Triggers the same passkey ceremony as
+               #tile-passkey (which is hidden in this state). -->
+          <button class="sign-in-btn chooser-passkey-cta" id="chooser-passkey-cta" type="button">
+            Sign in with Face ID
+          </button>
 
           <!-- "or" divider -->
           <div class="chooser-divider" role="separator" aria-label="Other sign-in methods">
@@ -5580,6 +5611,16 @@
 
     // ── Chooser → Passkey ─────────────────────────────────────
     document.getElementById('tile-passkey').addEventListener('click', () => {
+      clearChooserBanner();
+      setPasskeyState('idle');
+      switchScreen(currentScreen, screenPasskey, 'forward');
+      currentScreen = screenPasskey;
+    });
+
+    // Chooser · passkey-first primary CTA → same behavior as the tile.
+    // Lives just below the hero, replaces the email form when the device
+    // is recognized. See the matching CSS in the chooser-state block.
+    document.getElementById('chooser-passkey-cta').addEventListener('click', () => {
       clearChooserBanner();
       setPasskeyState('idle');
       switchScreen(currentScreen, screenPasskey, 'forward');
