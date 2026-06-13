@@ -4108,10 +4108,14 @@
             </div>
             <p class="recovery-email-sent-meta">The link expires in <strong>15 minutes</strong>. Didn&#8217;t get it? Check spam or resend below.</p>
             <div class="settings-action-row">
+              <!-- F2-3: primary exit so users don't have to wait on this screen for the
+                   email to arrive — they can acknowledge, head back to the security hub,
+                   then click the verification link from their inbox at their leisure. -->
+              <button class="sign-in-btn" id="recovery-email-done-btn" type="button">Back to security</button>
               <button class="reset-resend-btn" id="recovery-email-resend-btn" type="button">Resend email</button>
               <p class="reset-cooldown-text" id="recovery-email-cooldown-text"></p>
-              <button class="enroll-skip-btn" id="recovery-email-simulate-verify-btn" type="button">I verified my email &rarr;</button>
               <button class="enroll-skip-btn" id="recovery-email-change-btn" type="button">Use a different email</button>
+              <button class="enroll-skip-btn" id="recovery-email-simulate-verify-btn" type="button">I verified my email &rarr;</button>
             </div>
           </div>
 
@@ -7729,6 +7733,17 @@
 
     document.getElementById('recovery-email-resend-btn').addEventListener('click', () => {
       if (!document.getElementById('recovery-email-resend-btn').disabled) startRecoveryEmailCooldown();
+    });
+
+    // F2-3: primary exit from the sent panel. Mirrors the cancel-btn handler
+    // on the request panel but specifically for the post-send state — users
+    // don't have to camp on this screen waiting for the email to arrive.
+    // Verification state is unchanged (the link in the email is what flips
+    // recoveryEmailStore.verified); we just route them back to the hub.
+    document.getElementById('recovery-email-done-btn').addEventListener('click', () => {
+      if (recoveryEmailCooldownInterval) { clearInterval(recoveryEmailCooldownInterval); recoveryEmailCooldownInterval = null; }
+      switchScreen(screenRecoveryEmail, screenSecurity, 'backward');
+      currentScreen = screenSecurity;
     });
 
     document.getElementById('recovery-email-change-btn').addEventListener('click', () => {
