@@ -2857,16 +2857,23 @@
       width: 100%;
     }
 
+    /* QA-W2 polish: .recovery-alt-btn is the paired tertiary used inside
+       .recovery-options (chooser-style tiles where no red primary sits
+       directly above). Border-radius matches .sign-in-btn (4px) and text
+       is rendered ALL-CAPS via CSS so the source HTML stays Sentence
+       case per the W3.1 source-casing rule. Letter-spacing 1.25px and
+       font-size 14px also match the .sign-in-btn voice. */
     .recovery-alt-btn {
       background: transparent;
       border: 1.5px solid #c8c8c8;
-      border-radius: 8px;
+      border-radius: 4px;
       padding: 14px;
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 600;
       color: #121212;
       cursor: pointer;
-      letter-spacing: 0.01em;
+      letter-spacing: 1.25px;
+      text-transform: uppercase;
       transition: border-color 0.15s, background 0.15s;
       font-family: inherit;
       width: 100%;
