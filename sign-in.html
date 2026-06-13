@@ -3555,7 +3555,7 @@
               </li>
             </ul>
             <button class="sign-in-btn" id="enroll-setup-btn" type="button">Set Up Face ID Sign-In</button>
-            <button class="enroll-skip-btn" id="enroll-skip-btn" type="button">Not now</button>
+            <button class="enroll-skip-btn" id="enroll-skip-btn" type="button">Skip for now</button>
           </div>
 
           <!-- ② Success panel -->
@@ -3577,7 +3577,7 @@
             <h2 class="enroll-heading">Setup didn&#8217;t complete</h2>
             <p class="enroll-subtext">Face ID enrollment was cancelled or didn&#8217;t finish. You can set it up anytime from Account Settings.</p>
             <button class="sign-in-btn" id="enroll-retry-btn" type="button">Try Again</button>
-            <button class="enroll-skip-btn" id="enroll-later-btn" type="button">Do this later</button>
+            <button class="enroll-skip-btn" id="enroll-later-btn" type="button">Skip for now</button>
           </div>
 
           <!-- ⑤ Declined / skipped panel -->
@@ -3589,7 +3589,7 @@
             </div>
             <h2 class="enroll-heading">No problem</h2>
             <p class="enroll-subtext">You can set up Face ID sign-in anytime from <strong>Account Settings &rsaquo; Sign-in &amp; security</strong>.</p>
-            <button class="sign-in-btn" id="enroll-decline-later-btn" type="button">Maybe Later</button>
+            <button class="sign-in-btn" id="enroll-decline-later-btn" type="button">Skip for now</button>
             <button class="enroll-skip-btn" id="enroll-decline-never-btn" type="button">Don&#8217;t ask again</button>
           </div>
 
@@ -4177,7 +4177,7 @@
             <h2 class="enroll-heading">Setup didn&#8217;t complete</h2>
             <p class="enroll-subtext">Face ID enrollment was cancelled or didn&#8217;t finish. You can set it up anytime from Account Settings.</p>
             <button class="sign-in-btn" id="reenroll-retry-btn" type="button">Try Again</button>
-            <button class="enroll-skip-btn" id="reenroll-later-btn" type="button">Do this later</button>
+            <button class="enroll-skip-btn" id="reenroll-later-btn" type="button">Skip for now</button>
           </div>
 
         </div><!-- /screen-reenroll -->
@@ -4451,7 +4451,7 @@
               <svg width="40" height="40" viewBox="0 -960 960 960" fill="#121212"><path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm100-200h46v-240h-36l-70 50 24 36 36-26v180Zm124 0h156v-40h-94l-2-2q21-20 34.5-34t21.5-22q18-18 27-36t9-38q0-29-22-48.5T458-600q-26 0-47 15t-29 39l40 16q5-13 14.5-20.5T458-558q15 0 24.5 8t9.5 20q0 11-4 20.5T470-486l-32 32-54 54v40Zm296 0q36 0 58-20t22-52q0-18-10-32t-28-22v-2q14-8 22-20.5t8-29.5q0-27-21-44.5T678-600q-25 0-46.5 14.5T604-550l40 16q4-12 13-19t21-7q13 0 21.5 7.5T708-534q0 14-10 22t-26 8h-18v40h20q20 0 31 8t11 22q0 13-11 22.5t-25 9.5q-17 0-26-7.5T638-436l-40 16q7 29 28.5 44.5T680-360ZM160-240h640v-480H160v480Zm0 0v-480 480Z"/></svg>
             </div>
             <h2 class="recovery-heading">Can’t access your code?</h2>
-            <p class="recovery-subtext">If you can’t receive a verification code, we can verify your identity another way and get you back in.</p>
+            <p class="recovery-subtext">If you can’t receive a one-time code, we can verify your identity another way and get you back in.</p>
           </div>
 
           <div class="recovery-options">
@@ -4470,7 +4470,7 @@
           <div class="hero">
             <h1>Sign in</h1>
             <p class="otp-subtitle otp-subtitle-request">Send a one-time code to your email or phone</p>
-            <p class="otp-subtitle otp-subtitle-entered" id="verify-destination-text">Please enter the verification code we sent to <strong>your email</strong> to verify your identity.</p>
+            <p class="otp-subtitle otp-subtitle-entered" id="verify-destination-text">Please enter the one-time code we sent to <strong>your email</strong> to verify your identity.</p>
             <p class="verify-expiry" style="font-size:14px;line-height:20px;letter-spacing:0.25px;color:rgba(18,18,18,0.93);">
               Code expires in <strong data-otp-expiry-timer>03:00</strong>.
             </p>
@@ -4481,7 +4481,7 @@
 
           <div class="form-group">
 
-            <p class="send-to-label">Send verification code to</p>
+            <p class="send-to-label">Send one-time code to</p>
 
             <!-- Delivery tiles -->
             <div class="delivery-tiles" role="group" aria-label="Delivery method">
@@ -4562,8 +4562,8 @@
           <!-- ═══ Panel B · Code entry (data-otp-state="entered") ═══ -->
           <div class="otp-panel otp-panel-entered">
 
-            <!-- Verification Code Input (6 individual fields) -->
-            <div class="otp-inputs" aria-label="6-digit verification code">
+            <!-- One-Time Code Input (6 individual fields) -->
+            <div class="otp-inputs" aria-label="6-digit one-time code">
               <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 1" autocomplete="one-time-code" />
               <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 2" />
               <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 3" />
@@ -5946,7 +5946,7 @@
           !document.getElementById('otp-screen-field-phone').hasAttribute('hidden')
             ? (document.getElementById('otp-screen-phone').value.trim() || 'your phone')
             : (document.getElementById('otp-screen-email').value.trim() || 'your email');
-        destEl.innerHTML = `Please enter the verification code we sent to <strong>${dest}</strong> to verify your identity.`;
+        destEl.innerHTML = `Please enter the one-time code we sent to <strong>${dest}</strong> to verify your identity.`;
       }
       // In-place panel swap to the code-entry view (also starts expiry timer)
       setVerifyState('default');
