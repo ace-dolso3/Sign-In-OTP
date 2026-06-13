@@ -541,6 +541,37 @@
     .sign-in-btn:disabled:hover,
     .sign-in-btn:disabled:active { background: #e4617a; cursor: not-allowed; pointer-events: none; }
 
+    /* Batch B · loading state for buttons that simulate an async action
+       (retry, regenerate, try-different-device, etc). Hides the label
+       and renders a centered spinner via ::before. Reuses the existing
+       `biometricSpin` keyframes. Works on .sign-in-btn and .resend-btn
+       — both are 48 px tall so the spinner geometry can share a value. */
+    .btn-loading {
+      color: transparent !important;
+      pointer-events: none;
+    }
+    .btn-loading > * { visibility: hidden; }
+    .btn-loading::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 18px;
+      height: 18px;
+      margin: -9px 0 0 -9px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.35);
+      border-top-color: #fff;
+      animation: biometricSpin 0.7s linear infinite;
+    }
+    .resend-btn.btn-loading::before,
+    .sign-in-another-way-btn.btn-loading::before {
+      border-color: rgba(18,18,18,0.18);
+      border-top-color: #1f1f1f;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .btn-loading::before { animation-duration: 1.4s; }
+    }
     /* ─── Resend / outlined button ────────────────────────── */
     .resend-btn {
       width: 100%;
@@ -5595,8 +5626,22 @@
     }
 
     // ── Cross-device transport error CTAs ──────────────────────
-    document.getElementById('passkey-transport-retry-btn').addEventListener('click', () => {
-      setPasskeyState('cross-device');
+    // Batch B · withButtonSpinner gives the retry / regenerate /
+    // try-different-device CTAs a visible loading state so the user
+    // gets feedback that the click was received before the state
+    // transition fires. ~700 ms matches the OS-modal scan duration.
+    function withButtonSpinner(btn, delay, fn) {
+      if (!btn) { fn(); return; }
+      btn.classList.add('btn-loading');
+      btn.setAttribute('aria-busy', 'true');
+      setTimeout(() => {
+        btn.classList.remove('btn-loading');
+        btn.removeAttribute('aria-busy');
+        fn();
+      }, delay);
+    }
+    document.getElementById('passkey-transport-retry-btn').addEventListener('click', (e) => {
+      withButtonSpinner(e.currentTarget, 700, () => setPasskeyState('cross-device'));
     });
     document.getElementById('passkey-transport-cancel-btn').addEventListener('click', () => {
       setPasskeyState('idle');
@@ -5604,8 +5649,8 @@
     });
 
     // ── Cross-device no-credential CTAs ───────────────────────
-    document.getElementById('passkey-qr-retry-device-btn').addEventListener('click', () => {
-      setPasskeyState('cross-device');
+    document.getElementById('passkey-qr-retry-device-btn').addEventListener('click', (e) => {
+      withButtonSpinner(e.currentTarget, 700, () => setPasskeyState('cross-device'));
     });
     document.getElementById('passkey-qr-no-cred-cancel').addEventListener('click', () => {
       setPasskeyState('idle');
@@ -5843,8 +5888,8 @@
     });
 
     // QR expired: refresh → back to cross-device; cancel → back to chooser
-    document.getElementById('passkey-qr-refresh-btn').addEventListener('click', () => {
-      setPasskeyState('cross-device');
+    document.getElementById('passkey-qr-refresh-btn').addEventListener('click', (e) => {
+      withButtonSpinner(e.currentTarget, 700, () => setPasskeyState('cross-device'));
     });
     document.getElementById('passkey-qr-cancel-expired').addEventListener('click', () => {
       setPasskeyState('idle');
