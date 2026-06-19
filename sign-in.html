@@ -3495,6 +3495,33 @@
       pointer-events: none;
       box-shadow: 0 0 0 2px #fff;
     }
+    /* Per-screen / per-flow count badges inside proto-nav rows.
+       Red = open comments exist; grey = all addressed (resolved-only). */
+    .comments-nav-pill {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      min-width: 16px;
+      height: 16px;
+      padding: 0 5px;
+      border-radius: 8px;
+      background: #d40029;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 600;
+      line-height: 16px;
+      text-align: center;
+      pointer-events: none;
+      box-shadow: 0 0 0 2px rgba(20,20,28,0.95);
+      box-sizing: border-box;
+    }
+    .comments-nav-pill.is-resolved {
+      background: #6B7280;
+      color: rgba(255,255,255,0.92);
+    }
+    /* Figma-only flow rows aren't interactive in the prototype, so a
+       comment count would be misleading — never show a badge on them. */
+    .proto-flow-btn.figma-only .comments-nav-pill { display: none !important; }
     @media (max-width: 480px) {
       .comments-toggle-wrap { top: 80px; right: 12px; }
       .comments-toggle { width: 36px; height: 36px; }
@@ -7688,6 +7715,10 @@
 
       ];
 
+      // Expose for the comments overlay so it can compute per-flow badge counts.
+      // Read-only consumer; no mutations expected.
+      window.__protoFlows = FLOWS;
+
       // Apply a single flow step to the prototype.
       // Mirrors the proto-nav click handler logic — same state setters, same direct show/hide.
       function applyStep(step) {
@@ -8845,6 +8876,77 @@
         } else {
           countPill.style.display = 'none';
         }
+        updateNavItemPills();
+      }
+
+      // ── Per-screen / per-flow badges in the proto-nav ──────────────
+      // Red pill when ≥1 open comment exists for the row's screen-state
+      // (or any step of the row's flow). Grey pill when zero open but
+      // ≥1 resolved comment exists. Hidden when no comments at all.
+      function getCommentState(c) {
+        return (c && c.stateAttrs && c.stateAttrs['data-state']) || '';
+      }
+      function commentMatchesNavItem(c, item) {
+        if (c.screenId !== item.dataset.navTarget) return false;
+        const navState = item.dataset.navState;
+        if (!navState) return true; // catch-all variant
+        const cState = getCommentState(c);
+        if (navState === 'default') return !cState || cState === 'default';
+        return navState === cState;
+      }
+      function commentMatchesFlowStep(c, step) {
+        if (c.screenId !== step.screen) return false;
+        const cState = getCommentState(c);
+        if (!step.state) return !cState || cState === 'default';
+        return step.state === cState;
+      }
+      function countForFlow(flow, pool) {
+        if (!flow || !Array.isArray(flow.steps)) return 0;
+        let n = 0;
+        for (const c of pool) {
+          if (flow.steps.some((s) => commentMatchesFlowStep(c, s))) n += 1;
+        }
+        return n;
+      }
+      function upsertNavPill(host, openCount, resolvedCount) {
+        let pill = host.querySelector(':scope > .comments-nav-pill');
+        if (openCount === 0 && resolvedCount === 0) {
+          if (pill) pill.remove();
+          return;
+        }
+        if (!pill) {
+          pill = document.createElement('span');
+          pill.className = 'comments-nav-pill';
+          host.appendChild(pill);
+        }
+        const n = openCount > 0 ? openCount : resolvedCount;
+        pill.textContent = n > 99 ? '99+' : String(n);
+        pill.classList.toggle('is-resolved', openCount === 0);
+      }
+      function updateNavItemPills() {
+        const open = comments.filter((c) => c.status === 'open');
+        const resolved = comments.filter((c) => c.status === 'resolved');
+        // Screens tab
+        document.querySelectorAll('.proto-nav-item[data-nav-target]').forEach((item) => {
+          const o = open.reduce((acc, c) => acc + (commentMatchesNavItem(c, item) ? 1 : 0), 0);
+          const r = resolved.reduce((acc, c) => acc + (commentMatchesNavItem(c, item) ? 1 : 0), 0);
+          upsertNavPill(item, o, r);
+        });
+        // Flows tab — needs FLOWS exposed by the proto-nav IIFE
+        const flowsList = window.__protoFlows;
+        if (!Array.isArray(flowsList)) return;
+        document.querySelectorAll('.proto-flow-btn[data-flow-id]').forEach((btn) => {
+          if (btn.classList.contains('figma-only')) {
+            const stale = btn.querySelector(':scope > .comments-nav-pill');
+            if (stale) stale.remove();
+            return;
+          }
+          const flow = flowsList.find((f) => f && f.id === btn.dataset.flowId);
+          if (!flow) return;
+          const o = countForFlow(flow, open);
+          const r = countForFlow(flow, resolved);
+          upsertNavPill(btn, o, r);
+        });
       }
 
       // ── Popover (compose / view / edit) ──────────────────────
