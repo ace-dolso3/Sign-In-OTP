@@ -2690,11 +2690,11 @@
       color: rgba(255,255,255,0.9);
     }
 
-    /* ── W3.5 · Flow title ("earpiece" above the pill) ───────────
-       Floats above the main bar, anchored to its top edge, to keep
-       users oriented at the flow level while the pill's own label
-       handles step-level context. Decorative for AT (the navigation
-       landmark + step label already announce context). */
+    /* ── W3.5 · Flow title (free-floating above the pill) ────────
+       Renders as plain text — red group eyebrow over black flow
+       name — directly on the page background, with no pill chrome.
+       Decorative for AT (the navigation landmark + step label
+       already announce context). */
     #flow-nav-title {
       position: absolute;
       bottom: calc(100% + 6px);
@@ -2703,29 +2703,23 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 5px 14px;
-      background: rgba(16, 16, 16, 0.93);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 20px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.45);
-      max-width: 280px;
+      max-width: 320px;
       pointer-events: none;
+      text-shadow: 0 1px 2px rgba(255,255,255,0.6);
     }
     #flow-nav-title-group {
-      font-size: 9px;
-      font-weight: 500;
-      color: rgba(255,255,255,0.45);
+      font-size: 10px;
+      font-weight: 600;
+      color: #d40029;
       letter-spacing: 0.8px;
       text-transform: uppercase;
       line-height: 1.2;
     }
     #flow-nav-title-label {
-      font-size: 12px;
-      font-weight: 500;
-      color: rgba(255,255,255,0.92);
-      letter-spacing: 0.2px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a1a1a;
+      letter-spacing: 0.1px;
       line-height: 1.3;
       max-width: 100%;
       white-space: nowrap;
