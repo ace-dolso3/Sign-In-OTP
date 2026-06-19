@@ -8641,6 +8641,29 @@
         }
         return out;
       }
+      // True iff the comment belongs to the active screen variant. Same
+      // screenId AND identical data-* attributes (missing values treated
+      // as ''). E.g. screen-chooser carries data-chooser-state with
+      // values 'default' vs 'passkey-first' for its two variants, and we
+      // must not render a 'default'-variant comment while viewing the
+      // 'passkey-first' variant of the same screen card. Comments stored
+      // without stateAttrs (legacy/raw API writes) match any state so we
+      // never silently lose them.
+      function commentMatchesActiveScreen(c, screen) {
+        if (!screen) return false;
+        if (!c || c.screenId !== screen.id) return false;
+        const commentAttrs = c.stateAttrs || null;
+        if (!commentAttrs || Object.keys(commentAttrs).length === 0) return true;
+        const screenAttrs = getScreenStateAttrs(screen);
+        const keys = new Set([
+          ...Object.keys(screenAttrs),
+          ...Object.keys(commentAttrs),
+        ]);
+        for (const k of keys) {
+          if ((screenAttrs[k] || '') !== (commentAttrs[k] || '')) return false;
+        }
+        return true;
+      }
       function ensureOverlay(screen) {
         if (!screen) return null;
         let overlay = screen.querySelector(':scope > .' + OVERLAY_CLASS);
@@ -8682,7 +8705,7 @@
         });
         const layer = ensureDotsLayer();
         layer.innerHTML = '';
-        const screenComments = comments.filter((c) => c.screenId === screen.id);
+        const screenComments = comments.filter((c) => commentMatchesActiveScreen(c, screen));
         // Sort: open first, then resolved; within each group by createdAt
         screenComments.sort((a, b) => {
           if (a.status !== b.status) return a.status === 'open' ? -1 : 1;
@@ -8716,13 +8739,13 @@
 
       function updateCountPill() {
         if (!countPill) return;
-        // Scope the toggle's pill to the currently viewed screen so it
-        // mirrors exactly what's rendered as dots. (Per-screen and
-        // per-flow totals still live in the Demo controls nav.)
+        // Scope the toggle's pill to the currently viewed screen *variant*
+        // (state-aware) so it mirrors exactly what's rendered as dots.
+        // Per-screen and per-flow totals still live in the Demo controls
+        // nav.
         const screen = getActiveScreen();
-        const screenId = screen && screen.id;
-        const open = screenId
-          ? comments.filter((c) => c.screenId === screenId && c.status === 'open').length
+        const open = screen
+          ? comments.filter((c) => c.status === 'open' && commentMatchesActiveScreen(c, screen)).length
           : 0;
         if (open > 0) {
           countPill.textContent = open > 99 ? '99+' : String(open);
