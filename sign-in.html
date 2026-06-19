@@ -2814,6 +2814,88 @@
       margin: 6px 0 0;
     }
 
+    /* Auth modal (replaces window.prompt for token entry) */
+    .comments-auth-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #1F2937;
+    }
+    .comments-auth-modal-card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.28);
+      width: 100%;
+      max-width: 380px;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .comments-auth-modal-card h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #111827;
+    }
+    .comments-auth-modal-card p {
+      margin: 0 0 12px;
+      font-size: 13px;
+      line-height: 1.45;
+      color: #4B5563;
+    }
+    .comments-auth-modal-card input {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid #D1D5DB;
+      border-radius: 4px;
+      padding: 8px 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      color: #1F2937;
+      outline: none;
+    }
+    .comments-auth-modal-card input:focus { border-color: #d40029; }
+    .comments-auth-modal-error {
+      font-size: 11px;
+      color: #C62828;
+      margin: 8px 0 0;
+    }
+    .comments-auth-modal-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 14px;
+    }
+    .comments-auth-modal-actions button {
+      appearance: none;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 4px;
+      border: 1px solid #D1D5DB;
+      background: #fff;
+      color: #1F2937;
+      cursor: pointer;
+      line-height: 1.2;
+    }
+    .comments-auth-modal-actions button:hover { background: #F3F4F6; }
+    .comments-auth-modal-actions button.primary {
+      background: #d40029;
+      color: #fff;
+      border-color: #d40029;
+    }
+    .comments-auth-modal-actions button.primary:hover { background: #b80022; }
+    .comments-auth-modal-actions button[disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
     /* Toast (action confirmation w/ Undo) */
     .comments-toast {
       position: fixed;
@@ -6623,17 +6705,63 @@
       function clearToken() {
         try { localStorage.removeItem(LS_TOKEN); } catch (_) {}
       }
+      // Returns a Promise<string|null>. Uses an in-page modal instead of
+      // window.prompt() because Chrome can silently suppress native prompts
+      // (esp. after the user has dismissed one), which would make Save look
+      // broken with no feedback.
+      let __authModalPromise = null;
       function promptForToken() {
-        const existing = getToken();
-        const v = window.prompt(
-          'Paste your COMMENT_WRITE_TOKEN to save comments.\n(Anyone can view; only you can write.)',
-          existing
-        );
-        if (v && v.trim()) {
-          setToken(v.trim());
-          return v.trim();
-        }
-        return null;
+        if (__authModalPromise) return __authModalPromise;
+        __authModalPromise = new Promise((resolve) => {
+          const existing = getToken();
+          const overlay = document.createElement('div');
+          overlay.className = 'comments-auth-modal';
+          overlay.setAttribute('role', 'dialog');
+          overlay.setAttribute('aria-modal', 'true');
+          overlay.setAttribute('aria-labelledby', 'comments-auth-modal-title');
+          overlay.innerHTML = ''
+            + '<div class="comments-auth-modal-card">'
+            +   '<h3 id="comments-auth-modal-title">Sign in to save comments</h3>'
+            +   '<p>Paste your <strong>COMMENT_WRITE_TOKEN</strong> to save, edit, resolve, or delete comments. Anyone can view; only people with the token can write.</p>'
+            +   '<input type="text" autocomplete="off" spellcheck="false" placeholder="Paste token here\u2026" aria-label="Comment write token" />'
+            +   '<p class="comments-auth-modal-error" style="display:none;"></p>'
+            +   '<div class="comments-auth-modal-actions">'
+            +     '<button type="button" data-action="cancel">Cancel</button>'
+            +     '<button type="button" class="primary" data-action="save" disabled>Save token</button>'
+            +   '</div>'
+            + '</div>';
+          document.body.appendChild(overlay);
+          const input = overlay.querySelector('input');
+          const saveBtn = overlay.querySelector('[data-action="save"]');
+          const cancelBtn = overlay.querySelector('[data-action="cancel"]');
+          const errEl = overlay.querySelector('.comments-auth-modal-error');
+          if (existing) input.value = existing;
+          const sync = () => { saveBtn.disabled = !input.value.trim(); };
+          sync();
+          input.addEventListener('input', sync);
+          const finish = (value) => {
+            document.removeEventListener('keydown', onKey, true);
+            overlay.remove();
+            __authModalPromise = null;
+            resolve(value);
+          };
+          const onSave = () => {
+            const v = (input.value || '').trim();
+            if (!v) { input.focus(); return; }
+            setToken(v);
+            finish(v);
+          };
+          const onCancel = () => finish(null);
+          const onKey = (e) => {
+            if (e.key === 'Escape') { e.preventDefault(); onCancel(); }
+            else if (e.key === 'Enter' && document.activeElement === input) { e.preventDefault(); onSave(); }
+          };
+          saveBtn.addEventListener('click', onSave);
+          cancelBtn.addEventListener('click', onCancel);
+          document.addEventListener('keydown', onKey, true);
+          setTimeout(() => { input.focus(); input.select(); }, 0);
+        });
+        return __authModalPromise;
       }
       function authHeaders() {
         const t = getToken();
@@ -6661,7 +6789,7 @@
           body: JSON.stringify(payload),
         });
         if (res.status === 401) {
-          if (promptForToken()) return apiCreate(payload);
+          if (await promptForToken()) return apiCreate(payload);
           throw new Error('unauthorized');
         }
         if (!res.ok) throw new Error('POST ' + res.status);
@@ -6675,7 +6803,7 @@
           body: JSON.stringify(patch),
         });
         if (res.status === 401) {
-          if (promptForToken()) return apiUpdate(id, patch);
+          if (await promptForToken()) return apiUpdate(id, patch);
           throw new Error('unauthorized');
         }
         if (!res.ok) throw new Error('PATCH ' + res.status);
@@ -6688,7 +6816,7 @@
           headers: { ...authHeaders() },
         });
         if (res.status === 401) {
-          if (promptForToken()) return apiDelete(id);
+          if (await promptForToken()) return apiDelete(id);
           throw new Error('unauthorized');
         }
         if (res.status !== 204 && !res.ok) throw new Error('DELETE ' + res.status);
@@ -6901,7 +7029,7 @@
         pop.querySelector('[data-action="save"]').addEventListener('click', async () => {
           const text = (ta.value || '').trim();
           if (!text) { ta.focus(); return; }
-          if (!getToken() && !promptForToken()) return;
+          if (!getToken() && !(await promptForToken())) return;
           try {
             const created = await apiCreate({
               screenId: screen.id,
@@ -6994,7 +7122,7 @@
           };
           cancelBtn.addEventListener('click', dismiss);
           confirmBtn.addEventListener('click', async () => {
-            if (!getToken() && !promptForToken()) { dismiss(); return; }
+            if (!getToken() && !(await promptForToken())) { dismiss(); return; }
             confirmBtn.disabled = true;
             cancelBtn.disabled = true;
             try {
@@ -7013,7 +7141,7 @@
           cancelBtn.focus();
         });
         pop.querySelector('[data-action="toggle"]').addEventListener('click', async () => {
-          if (!getToken() && !promptForToken()) return;
+          if (!getToken() && !(await promptForToken())) return;
           const prevStatus = comment.status;
           const newStatus = prevStatus === 'resolved' ? 'open' : 'resolved';
           try {
@@ -7057,7 +7185,7 @@
           actions.querySelector('[data-action="save-edit"]').addEventListener('click', async () => {
             const text = (ta.value || '').trim();
             if (!text) { ta.focus(); return; }
-            if (!getToken() && !promptForToken()) return;
+            if (!getToken() && !(await promptForToken())) return;
             try {
               const updated = await apiUpdate(comment.id, { text });
               const idx = comments.findIndex((c) => c.id === comment.id);
@@ -7149,6 +7277,7 @@
         '.comments-popover',
         '.comments-dot',
         '.comments-toast',
+        '.comments-auth-modal',
         '#proto-nav-toggle',
         '#proto-nav-panel',
         '#proto-nav-backdrop',
@@ -7259,10 +7388,12 @@
         document.addEventListener('click', (e) => {
           if (!activePopover) return;
           if (!e.target.closest) return;
-          // Ignore clicks inside the popover, on any dot, or on the toggle button.
+          // Ignore clicks inside the popover, on any dot, on the toggle button,
+          // or inside the auth modal (which can overlay the popover).
           if (e.target.closest('.comments-popover')) return;
           if (e.target.closest('.comments-dot')) return;
           if (e.target.closest('.comments-toggle-wrap')) return;
+          if (e.target.closest('.comments-auth-modal')) return;
           closePopover();
         });
       }
