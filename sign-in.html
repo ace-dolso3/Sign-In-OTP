@@ -2645,6 +2645,7 @@
       cursor: not-allowed;
     }
     #flow-nav-label {
+      position: relative; /* W3.5 · positioning context for #flow-nav-title */
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -5662,18 +5663,20 @@
 
   <!-- ─── Flow Navigation Bar ────────────────────────────────── -->
   <div id="flow-nav-bar" hidden role="navigation" aria-label="Flow step navigation">
-    <!-- W3.5 · Flow title "earpiece". Anchored above the pill via
-         CSS position:absolute so it doesn't disturb the flex row.
-         aria-hidden because the navigation landmark + step label
-         already convey context to AT. -->
-    <div id="flow-nav-title" aria-hidden="true">
-      <span id="flow-nav-title-group"></span>
-      <span id="flow-nav-title-label"></span>
-    </div>
     <button id="flow-prev" class="flow-nav-arrow" aria-label="Previous step" disabled>
       <svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M560-240 320-480l240-240 56 56-184 184 184 184-56 56Z"/></svg>
     </button>
     <div id="flow-nav-label">
+      <!-- W3.5 · Flow title (free-floating above the pill). Nested
+           inside #flow-nav-label so it shares the screen-name's
+           horizontal center — unaffected by the asymmetric arrow/
+           exit buttons that frame the pill. aria-hidden because the
+           navigation landmark + step label already convey context
+           to AT. -->
+      <div id="flow-nav-title" aria-hidden="true">
+        <span id="flow-nav-title-group"></span>
+        <span id="flow-nav-title-label"></span>
+      </div>
       <span id="flow-nav-step"></span>
       <span id="flow-nav-counter"></span>
     </div>
