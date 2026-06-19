@@ -8502,37 +8502,55 @@
         return overlay;
       }
 
+      // Dots live on a single body-level layer (NOT inside the screen
+      // card) so they are never clipped by ancestor `overflow: hidden`
+      // rules. Each dot is positioned with explicit page-coord pixels
+      // computed from the active screen's bounding rect + the stored
+      // xPct/yPct (which can be < 0 or > 1 for off-card placements).
+      const DOTS_LAYER_ID = 'comments-dots-layer';
+      function ensureDotsLayer() {
+        let layer = document.getElementById(DOTS_LAYER_ID);
+        if (!layer) {
+          layer = document.createElement('div');
+          layer.id = DOTS_LAYER_ID;
+          // Zero-size container at the document origin; dots sit on top
+          // with absolute page-coord left/top.
+          layer.style.cssText = 'position:absolute;top:0;left:0;width:0;height:0;pointer-events:none;z-index:60;';
+          document.body.appendChild(layer);
+        }
+        return layer;
+      }
+
       // ── Render dots on the active screen ─────────────────────
       function renderDots() {
-        // Remove popover if its anchor is gone (screen change)
-        if (activePopover && activeDotId !== 'new') {
-          const anchorStillVisible = activePopover.isConnected;
-          if (!anchorStillVisible) closePopover();
-        }
         const screen = getActiveScreen();
         if (!screen) return;
         lastRenderedScreenId = screen.id;
-        // Clear stale overlays in non-active screens (cheap)
+        // Wipe any stale legacy per-screen overlays from older builds.
         document.querySelectorAll('.' + OVERLAY_CLASS).forEach((el) => {
-          if (el.parentElement !== screen) el.innerHTML = '';
+          el.innerHTML = '';
         });
-        const overlay = ensureOverlay(screen);
-        if (!overlay) return;
-        overlay.innerHTML = '';
+        const layer = ensureDotsLayer();
+        layer.innerHTML = '';
         const screenComments = comments.filter((c) => c.screenId === screen.id);
         // Sort: open first, then resolved; within each group by createdAt
         screenComments.sort((a, b) => {
           if (a.status !== b.status) return a.status === 'open' ? -1 : 1;
           return (a.createdAt || 0) - (b.createdAt || 0);
         });
+        const r = screen.getBoundingClientRect();
+        const sx = window.scrollX;
+        const sy = window.scrollY;
         let i = 1;
         for (const c of screenComments) {
           const dot = document.createElement('div');
           dot.className = 'comments-dot';
           dot.dataset.id = c.id;
           dot.dataset.status = c.status || 'open';
-          dot.style.left = ((c.xPct || 0) * 100) + '%';
-          dot.style.top = ((c.yPct || 0) * 100) + '%';
+          const pageX = r.left + sx + (c.xPct || 0) * r.width;
+          const pageY = r.top  + sy + (c.yPct || 0) * r.height;
+          dot.style.left = pageX + 'px';
+          dot.style.top  = pageY + 'px';
           dot.textContent = String(i);
           dot.title = (c.text || '').slice(0, 80);
           dot.addEventListener('click', (e) => {
@@ -8540,7 +8558,7 @@
             e.stopPropagation();
             openPopoverForComment(c, dot);
           });
-          overlay.appendChild(dot);
+          layer.appendChild(dot);
           i += 1;
         }
         updateCountPill();
@@ -8960,11 +8978,19 @@
           subtree: true,
           attributeFilter: ['hidden'],
         });
-        // Re-render on resize (percent-based positions need no math, but
-        // popover anchoring is also percent-based, so this is mostly cheap).
-        window.addEventListener('resize', () => {
-          // No-op — dots are percentage-positioned and scale automatically.
-        });
+        // Re-render on resize/scroll so body-level dots stay glued to
+        // the active screen as it moves with the viewport.
+        let resizePending = false;
+        const onViewportChange = () => {
+          if (resizePending) return;
+          resizePending = true;
+          requestAnimationFrame(() => {
+            resizePending = false;
+            renderDots();
+          });
+        };
+        window.addEventListener('resize', onViewportChange);
+        window.addEventListener('scroll', onViewportChange, { passive: true });
         // Esc to exit mode / close popover
         document.addEventListener('keydown', (e) => {
           if (e.key !== 'Escape') return;
