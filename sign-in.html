@@ -864,6 +864,10 @@
       outline: 3px solid rgba(212,0,41,0.35);
       outline-offset: 2px;
     }
+    /* Dots are visible only while comment mode is on. Turning the
+       toggle off hides every dot (and removes them as click targets)
+       so the prototype reads as production UI again. */
+    body:not(.comments-mode-on) .comments-dot { display: none; }
 
     /* Popover (compose + read) */
     .comments-popover {
