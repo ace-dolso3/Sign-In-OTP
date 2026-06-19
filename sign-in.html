@@ -2690,6 +2690,49 @@
       color: rgba(255,255,255,0.9);
     }
 
+    /* ── W3.5 · Flow title ("earpiece" above the pill) ───────────
+       Floats above the main bar, anchored to its top edge, to keep
+       users oriented at the flow level while the pill's own label
+       handles step-level context. Decorative for AT (the navigation
+       landmark + step label already announce context). */
+    #flow-nav-title {
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 5px 14px;
+      background: rgba(16, 16, 16, 0.93);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.45);
+      max-width: 280px;
+      pointer-events: none;
+    }
+    #flow-nav-title-group {
+      font-size: 9px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      line-height: 1.2;
+    }
+    #flow-nav-title-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.92);
+      letter-spacing: 0.2px;
+      line-height: 1.3;
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     /* ── W3.5 · Off-route indicator + Return-to-flow button ──────
        The flow nav bar auto-advances when the user follows the
        expected route. When they wander (e.g. tap "Sign up" instead
@@ -5625,6 +5668,14 @@
 
   <!-- ─── Flow Navigation Bar ────────────────────────────────── -->
   <div id="flow-nav-bar" hidden role="navigation" aria-label="Flow step navigation">
+    <!-- W3.5 · Flow title "earpiece". Anchored above the pill via
+         CSS position:absolute so it doesn't disturb the flex row.
+         aria-hidden because the navigation landmark + step label
+         already convey context to AT. -->
+    <div id="flow-nav-title" aria-hidden="true">
+      <span id="flow-nav-title-group"></span>
+      <span id="flow-nav-title-label"></span>
+    </div>
     <button id="flow-prev" class="flow-nav-arrow" aria-label="Previous step" disabled>
       <svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M560-240 320-480l240-240 56 56-184 184 184 184-56 56Z"/></svg>
     </button>
@@ -8084,7 +8135,9 @@
       // later step as a candidate.
       let suppressNextScreenChange = false;
 
-      const flowNavBar     = document.getElementById('flow-nav-bar');
+      const flowNavBar      = document.getElementById('flow-nav-bar');
+      const flowNavTitleGroup = document.getElementById('flow-nav-title-group');
+      const flowNavTitleLabel = document.getElementById('flow-nav-title-label');
       const flowPrevBtn    = document.getElementById('flow-prev');
       const flowNextBtn    = document.getElementById('flow-next');
       const flowExitBtn    = document.getElementById('flow-exit');
@@ -8095,6 +8148,12 @@
       function updateFlowNavUI() {
         const steps = activeFlow.steps;
         const n     = activeFlowStep;
+        // W3.5 · Title "earpiece": group eyebrow + flow name. Full
+        // label exposed via title attr so truncated long names stay
+        // recoverable on hover.
+        flowNavTitleGroup.textContent = activeFlow.group || '';
+        flowNavTitleLabel.textContent = activeFlow.label;
+        flowNavTitleLabel.title       = activeFlow.label;
         flowNavStep.textContent    = steps[n].label;
         flowNavCounter.textContent = `${n + 1} / ${steps.length}`;
         flowPrevBtn.disabled = (n === 0);
