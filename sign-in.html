@@ -3561,6 +3561,24 @@
       margin-top: 8px;
       flex-wrap: wrap;
     }
+    .comments-popover-confirm {
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px;
+      background: #FFF6F6;
+      border: 1px solid #F0B5B7;
+      border-radius: 4px;
+    }
+    .comments-popover-confirm-label {
+      font-size: 12px;
+      color: #7F1D1D;
+      font-weight: 500;
+      margin-right: auto;
+    }
+    .comments-popover button[disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
     .comments-popover button {
       appearance: none;
       font-family: inherit;
@@ -8743,18 +8761,48 @@
         placePopoverAtPagePoint(pop, anchorX, anchorY);
         activePopover = pop;
         const errEl = pop.querySelector('.comments-popover-error');
-        pop.querySelector('[data-action="delete"]').addEventListener('click', async () => {
-          if (!confirm('Delete this comment?')) return;
-          if (!getToken() && !promptForToken()) return;
-          try {
-            await apiDelete(comment.id);
-            comments = comments.filter((c) => c.id !== comment.id);
-            closePopover();
-            renderDots();
-          } catch (err) {
-            errEl.textContent = 'Delete failed: ' + err.message;
-            errEl.style.display = '';
-          }
+        const actionsRow = pop.querySelector('.comments-popover-actions');
+        // Two-step in-popover delete confirmation. Native confirm() is
+        // unreliable here: it's triggered from a button inside a floating
+        // popover whose outside-click handler runs on the same event's
+        // bubble phase, and on some platforms the native dialog can be
+        // auto-dismissed by focus shifts. Using an inline confirm strip
+        // sidesteps all of that and gives us a better UX.
+        pop.querySelector('[data-action="delete"]').addEventListener('click', () => {
+          if (pop.querySelector('.comments-popover-confirm')) return;
+          actionsRow.style.display = 'none';
+          const confirmRow = document.createElement('div');
+          confirmRow.className = 'comments-popover-actions comments-popover-confirm';
+          confirmRow.innerHTML = ''
+            + '<span class="comments-popover-confirm-label">Delete this comment?</span>'
+            + '<button type="button" data-action="confirm-delete" class="danger">Yes, delete</button>'
+            + '<button type="button" data-action="cancel-delete">Cancel</button>';
+          actionsRow.parentNode.insertBefore(confirmRow, actionsRow.nextSibling);
+          const cancelBtn = confirmRow.querySelector('[data-action="cancel-delete"]');
+          const confirmBtn = confirmRow.querySelector('[data-action="confirm-delete"]');
+          const dismiss = () => {
+            confirmRow.remove();
+            actionsRow.style.display = '';
+          };
+          cancelBtn.addEventListener('click', dismiss);
+          confirmBtn.addEventListener('click', async () => {
+            if (!getToken() && !promptForToken()) { dismiss(); return; }
+            confirmBtn.disabled = true;
+            cancelBtn.disabled = true;
+            try {
+              await apiDelete(comment.id);
+              comments = comments.filter((c) => c.id !== comment.id);
+              closePopover();
+              renderDots();
+            } catch (err) {
+              errEl.textContent = 'Delete failed: ' + err.message;
+              errEl.style.display = '';
+              dismiss();
+            }
+          });
+          // Focus the safer (Cancel) option by default so a stray Enter
+          // press doesn't delete the comment.
+          cancelBtn.focus();
         });
         pop.querySelector('[data-action="toggle"]').addEventListener('click', async () => {
           if (!getToken() && !promptForToken()) return;
