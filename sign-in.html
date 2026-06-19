@@ -3383,6 +3383,213 @@
       text-align: center;
     }
 
+    /* ─── Comments overlay (prototype review tool, owner-only writes) ─── */
+    .comments-toggle {
+      appearance: none;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.18);
+      color: rgba(255,255,255,0.85);
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      margin-right: 8px;
+      padding: 0;
+      transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+    }
+    .comments-toggle:hover {
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+    }
+    .comments-toggle[aria-pressed="true"] {
+      background: #FFC107;
+      border-color: #FFC107;
+      color: #1F2937;
+    }
+    .comments-toggle svg {
+      width: 16px;
+      height: 16px;
+      display: block;
+    }
+    .comments-count-pill {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      min-width: 16px;
+      height: 16px;
+      padding: 0 4px;
+      border-radius: 8px;
+      background: #d40029;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 600;
+      line-height: 16px;
+      text-align: center;
+      pointer-events: none;
+    }
+    .comments-toggle-wrap {
+      position: relative;
+      display: inline-flex;
+    }
+
+    /* Body cursor + screen positioning when comment mode is on */
+    body.comments-mode-on { cursor: crosshair; }
+    body.comments-mode-on input,
+    body.comments-mode-on textarea,
+    body.comments-mode-on button,
+    body.comments-mode-on a,
+    body.comments-mode-on label,
+    body.comments-mode-on [role="button"] { cursor: crosshair !important; }
+    body.comments-mode-on .comments-popover,
+    body.comments-mode-on .comments-popover * { cursor: auto !important; }
+    body.comments-mode-on .comments-popover button { cursor: pointer !important; }
+
+    /* Make every screen a positioning context so dots can anchor inside */
+    #screens-container > div { position: relative; }
+
+    /* Overlay layer inside each screen — dots live here */
+    .comments-overlay-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 60;
+    }
+    .comments-dot {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #FFC107;
+      border: 2px solid #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.28);
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #1F2937;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      transition: transform 120ms ease, box-shadow 120ms ease;
+    }
+    .comments-dot:hover {
+      transform: translate(-50%, -50%) scale(1.12);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.32);
+    }
+    .comments-dot[data-status="resolved"] {
+      background: #9CA3AF;
+      opacity: 0.55;
+    }
+    .comments-dot.is-active {
+      outline: 3px solid rgba(212,0,41,0.35);
+      outline-offset: 2px;
+    }
+
+    /* Popover (compose + read) */
+    .comments-popover {
+      position: absolute;
+      width: 260px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.22), 0 0 0 1px rgba(0,0,0,0.05);
+      padding: 12px;
+      z-index: 65;
+      pointer-events: auto;
+      transform: translate(-50%, 16px);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #1F2937;
+    }
+    .comments-popover-meta {
+      font-size: 11px;
+      color: #6B7280;
+      margin: 0 0 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .comments-popover-body {
+      font-size: 13px;
+      line-height: 1.4;
+      color: #1F2937;
+      margin: 0 0 10px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    .comments-popover textarea {
+      width: 100%;
+      box-sizing: border-box;
+      min-height: 64px;
+      max-height: 200px;
+      border: 1px solid #D1D5DB;
+      border-radius: 4px;
+      padding: 6px 8px;
+      font-family: inherit;
+      font-size: 13px;
+      line-height: 1.4;
+      color: #1F2937;
+      resize: vertical;
+      outline: none;
+    }
+    .comments-popover textarea:focus { border-color: #d40029; }
+    .comments-popover-actions {
+      display: flex;
+      gap: 6px;
+      justify-content: flex-end;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    .comments-popover button {
+      appearance: none;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: 4px;
+      border: 1px solid #D1D5DB;
+      background: #fff;
+      color: #1F2937;
+      cursor: pointer;
+      line-height: 1.2;
+    }
+    .comments-popover button:hover { background: #F3F4F6; }
+    .comments-popover button.primary {
+      background: #d40029;
+      color: #fff;
+      border-color: #d40029;
+    }
+    .comments-popover button.primary:hover { background: #b80022; }
+    .comments-popover button.danger {
+      color: #C62828;
+      border-color: #F0B5B7;
+    }
+    .comments-popover button.danger:hover { background: #FFEBEE; }
+    .comments-popover-status {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+    .comments-popover-status[data-status="open"] {
+      background: #FFF8E1;
+      color: #92660C;
+    }
+    .comments-popover-status[data-status="resolved"] {
+      background: #E8F5E9;
+      color: #2E7D32;
+    }
+    .comments-popover-error {
+      font-size: 11px;
+      color: #C62828;
+      margin: 6px 0 0;
+    }
+
   </style>
 </head>
 <body>
@@ -4192,7 +4399,7 @@
               <h3>Check your inbox</h3>
               <p>We sent a verification link to <strong id="recovery-email-sent-address">your email</strong>. Click it to confirm this address as your backup.</p>
             </div>
-            <p class="recovery-email-sent-meta">The link expires in <strong>15 minutes</strong>. Didn&#8217;t get it? Check spam or resend below.</p>
+            <p class="recovery-email-sent-meta">The link expires in <strong id="recovery-email-link-expiry-label">15 minutes</strong>. Didn&#8217;t get it? Check spam or resend below.</p>
             <div class="settings-action-row">
               <!-- F2-3: primary exit so users don't have to wait on this screen for the
                    email to arrive — they can acknowledge, head back to the security hub,
@@ -4527,7 +4734,7 @@
               <svg width="40" height="40" viewBox="0 -960 960 960" fill="currentColor"><path d="M140-160q-24 0-42-18t-18-42v-520q0-24 18-42t42-18h680q24 0 42 18t18 42v520q0 24-18 42t-42 18H140Zm340-302L140-685v465h680v-465L480-462Zm0-60 336-218H145l335 218ZM140-685v-55 520-465Z"/></svg>
             </div>
             <h1>Check your email</h1>
-            <p>If an account exists, we&#8217;ve sent a password reset link. The link expires in 15 minutes.</p>
+            <p>If an account exists, we&#8217;ve sent a password reset link. The link expires in <strong id="reset-link-expiry-label">15 minutes</strong>.</p>
           </div>
 
           <!-- Batch G · identifier strip so the user can confirm which
@@ -4546,8 +4753,10 @@
           </div>
 
           <div style="display:flex;flex-direction:column;gap:12px;width:100%;">
+            <button class="sign-in-btn" id="reset-open-link-btn" type="button">I opened the reset link</button>
             <button class="reset-resend-btn" id="reset-resend-btn" type="button">Resend email</button>
             <p class="reset-cooldown-text" id="reset-cooldown-text"></p>
+            <button class="sign-in-another-way-btn" id="reset-sent-back-btn" type="button">Back to sign in</button>
             <!-- W2.5-lite · Demo "I received the link →" shortcut removed.
                  To preview the New Password screen, use the prototype navigator → "New password". -->
           </div>
@@ -4590,6 +4799,7 @@
               </div>
             </div>
             <button class="sign-in-btn" id="save-pw-btn" type="button">Save new password</button>
+            <button class="sign-in-another-way-btn" id="newpw-back-btn" type="button">Back to sign in</button>
           </div>
 
           <!-- Expired-link panel -->
@@ -4603,6 +4813,7 @@
             <h1 class="recovery-heading">Link expired</h1>
             <p class="recovery-subtext">This password reset link has expired. Reset links are only valid for a short time. Request a new one to continue.</p>
             <button class="sign-in-btn" id="newpw-request-new-link-btn" type="button">Request a new link</button>
+            <button class="sign-in-another-way-btn" id="newpw-expired-back-btn" type="button">Back to sign in</button>
           </div>
 
         </div><!-- /screen-new-password -->
@@ -4762,7 +4973,7 @@
             </div>
             <div class="alert alert--error verify-alert verify-alert-locked" role="alert" aria-live="polite">
               <svg width="16" height="16" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M220-80q-24.75 0-42.37-17.63Q160-115.25 160-140v-434q0-24.75 17.63-42.38Q195.25-634 220-634h70v-96q0-78.85 55.61-134.42Q401.21-920 480.11-920q78.89 0 134.39 55.58Q670-808.85 670-730v96h70q24.75 0 42.38 17.62Q800-598.75 800-574v434q0 24.75-17.62 42.37Q764.75-80 740-80H220Zm0-60h520v-434H220v434Zm314.5-162.03Q557-324.06 557-355q0-30-22.67-54.5t-54.5-24.5q-31.83 0-54.33 24.5t-22.5 55q0 30.5 22.67 52.5t54.5 22q31.83 0 54.33-22.03ZM350-634h260v-96q0-54.17-37.88-92.08-37.88-37.92-92-37.92T388-822.08q-38 37.91-38 92.08v96ZM220-140v-434 434Z"/></svg>
-              <span>Code requests are temporarily locked. Try again in <strong>15 minutes</strong> or sign in another way.</span>
+              <span>Code requests are temporarily locked. Try again in <strong id="otp-lockout-duration-label">15 minutes</strong> or sign in another way.</span>
             </div>
             <div class="alert alert--success verify-alert verify-alert-resent" role="alert" aria-live="polite">
               <svg width="16" height="16" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="m421-298 283-283-46-45-237 237-120-120-45 45 165 166Zm59 218q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 31.5-156t86-127Q252-817 325-848.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 82-31.5 155T763-197.5q-54 54.5-127 86T480-80Zm0-60q142 0 241-99.5T820-480q0-142-99-241t-241-99q-141 0-240.5 99T140-480q0 141 99.5 240.5T480-140Zm0-340Z"/></svg>
@@ -4853,6 +5064,12 @@
         <button class="proto-nav-item" data-nav-target="screen-chooser" data-nav-state="passkey-first">
           <span class="proto-nav-dot" aria-hidden="true"></span>
           Chooser — passkey detected
+        </button>
+      </li>
+      <li>
+        <button class="proto-nav-item" data-nav-target="screen-password" data-nav-identifier="shopper@example.com">
+          <span class="proto-nav-dot" aria-hidden="true"></span>
+          Email entered → Password (pre-filled)
         </button>
       </li>
 
@@ -5204,6 +5421,24 @@
     const RESEND_COOLDOWN_MS         = 60_000;    // 1 min  · resend cooldown across flows
     const RESET_LINK_TTL_MS          = 900_000;   // 15 min · password-reset link
     const RECOVERY_EMAIL_LINK_TTL_MS = 900_000;   // 15 min · recovery-email verification link
+
+    function formatMinutesLabel(ms) {
+      const mins = Math.max(1, Math.round(ms / 60000));
+      return `${mins} minute${mins === 1 ? '' : 's'}`;
+    }
+
+    function applyDurationCopyFromConstants() {
+      const resetLabel = document.getElementById('reset-link-expiry-label');
+      if (resetLabel) resetLabel.textContent = formatMinutesLabel(RESET_LINK_TTL_MS);
+
+      const recoveryLabel = document.getElementById('recovery-email-link-expiry-label');
+      if (recoveryLabel) recoveryLabel.textContent = formatMinutesLabel(RECOVERY_EMAIL_LINK_TTL_MS);
+
+      const otpLockoutLabel = document.getElementById('otp-lockout-duration-label');
+      if (otpLockoutLabel) otpLockoutLabel.textContent = formatMinutesLabel(LOCKOUT_MS);
+    }
+
+    applyDurationCopyFromConstants();
 
     // ── W1.1 · Toast component (shared) ────────────────────────────────
     // Replaces every alert() callsite. role="status" for non-error,
@@ -6726,7 +6961,7 @@
         {
           id: 'passkey-happy', group: 'Passkey Sign-In',
           label: 'Happy Path — Passkey / Face ID',
-          figmaUrl: FIGMA + '198-36',
+          figmaUrl: FIGMA + '660-213',
           // Terminal step is the passkey screen's `success` state — by design
           // there is no separate signed-in / home destination in this prototype.
           // "You're signed in / Welcome back to Ace Hardware" is rendered
@@ -6740,7 +6975,7 @@
         {
           id: 'passkey-biometric-failed', group: 'Passkey Sign-In',
           label: 'Biometric Failed',
-          figmaUrl: FIGMA + '198-44',
+          figmaUrl: FIGMA + '660-238',
           steps: [
             { screen: 'screen-chooser', state: 'passkey-first', label: 'Chooser — passkey detected' },
             { screen: 'screen-passkey', state: 'idle',          label: 'Passkey prompt — biometric idle' },
@@ -6750,7 +6985,7 @@
         {
           id: 'passkey-failed-fallback-password', group: 'Passkey Sign-In',
           label: 'Biometric Failed → Password Fallback',
-          figmaUrl: FIGMA + '198-44',
+          figmaUrl: FIGMA + '677-195',
           steps: [
             { screen: 'screen-passkey',  state: 'idle',   label: 'Passkey prompt — biometric idle' },
             { screen: 'screen-passkey',  state: 'failed', label: 'Passkey failed — fallback tiles visible' },
@@ -6760,7 +6995,7 @@
         {
           id: 'passkey-not-found', group: 'Passkey Sign-In',
           label: 'No Passkey Found',
-          figmaUrl: FIGMA + '463-886',
+          figmaUrl: FIGMA + '660-263',
           steps: [
             { screen: 'screen-chooser', state: 'default', label: 'Chooser — no passkey' },
             { screen: 'screen-passkey', state: 'idle',    label: 'Passkey prompt — initiating auth' },
@@ -6800,7 +7035,7 @@
         {
           id: 'cross-device-happy', group: 'Cross-Device Passkey Sign-In',
           label: 'Happy Path — Cross-Device via QR',
-          figmaUrl: FIGMA + '198-87',
+          figmaUrl: FIGMA + '660-292',
           // Terminal step is the post-sign-in enrollment offer — by design
           // there is no separate signed-in / home destination in this prototype.
           // The enrollment screen IS the post-auth surface.
@@ -6814,7 +7049,7 @@
         {
           id: 'cross-device-direct', group: 'Cross-Device Passkey Sign-In',
           label: 'Direct Entry — “Use Another Device” Tile',
-          figmaUrl: FIGMA + '198-87',
+          figmaUrl: FIGMA + '677-248',
           steps: [
             { screen: 'screen-chooser', state: 'default',      label: 'Chooser — user taps “Use another device” tile' },
             { screen: 'screen-passkey', state: 'cross-device', label: 'Cross-device — QR shown (skips passkey idle)' },
@@ -6823,7 +7058,7 @@
         {
           id: 'cross-device-qr-expired', group: 'Cross-Device Passkey Sign-In',
           label: 'QR Code Expired',
-          figmaUrl: FIGMA + '198-98',
+          figmaUrl: FIGMA + '660-325',
           steps: [
             { screen: 'screen-passkey', state: 'cross-device',        label: 'Cross-device — QR shown' },
             { screen: 'screen-passkey', state: 'cross-device-failed', label: 'Cross-device — QR expired' },
@@ -6832,7 +7067,7 @@
         {
           id: 'cross-device-no-passkey', group: 'Cross-Device Passkey Sign-In',
           label: 'No Passkey on Phone',
-          figmaUrl: FIGMA + '198-106',
+          figmaUrl: FIGMA + '660-342',
           steps: [
             { screen: 'screen-passkey', state: 'cross-device',               label: 'Cross-device — QR shown' },
             { screen: 'screen-passkey', state: 'cross-device-no-credential', label: 'Cross-device — no passkey on phone' },
@@ -6841,7 +7076,7 @@
         {
           id: 'cross-device-bluetooth-error', group: 'Cross-Device Passkey Sign-In',
           label: 'Bluetooth / Proximity Error',
-          figmaUrl: FIGMA + '198-114',
+          figmaUrl: FIGMA + '660-359',
           steps: [
             { screen: 'screen-passkey', state: 'cross-device',                label: 'Cross-device — QR shown' },
             { screen: 'screen-passkey', state: 'cross-device-transport-error', label: 'Cross-device — Bluetooth error' },
@@ -6850,7 +7085,7 @@
         {
           id: 'cross-device-transport-fork', group: 'Cross-Device Passkey Sign-In',
           label: 'Transport Error Fork',
-          figmaUrl: FIGMA + '198-122',
+          figmaUrl: FIGMA + '670-181',
           steps: [
             { screen: 'screen-passkey', state: 'cross-device-transport-error', label: 'Cross-device — Bluetooth error' },
             { screen: 'screen-passkey', state: 'cross-device',                 label: 'Retry — QR shown again' },
@@ -6862,7 +7097,7 @@
         {
           id: 'password-happy', group: 'Password Sign-In',
           label: 'Happy Path — Password Sign-In',
-          figmaUrl: FIGMA + '198-137',
+          figmaUrl: FIGMA + '660-380',
           // Terminal step is the post-sign-in enrollment offer — by design
           // there is no separate signed-in / home destination in this prototype.
           steps: [
@@ -6875,7 +7110,7 @@
         {
           id: 'password-wrong', group: 'Password Sign-In',
           label: 'Wrong Password',
-          figmaUrl: FIGMA + '198-145',
+          figmaUrl: FIGMA + '660-413',
           steps: [
             { screen: 'screen-chooser',  state: 'default', label: 'Chooser — no passkey' },
             { screen: 'screen-password', state: null,      label: 'Password — entry' },
@@ -6885,7 +7120,7 @@
         {
           id: 'password-account-locked', group: 'Password Sign-In',
           label: 'Account Locked',
-          figmaUrl: FIGMA + '198-156',
+          figmaUrl: FIGMA + '660-438',
           steps: [
             { screen: 'screen-chooser',       state: 'default', label: 'Chooser — no passkey' },
             { screen: 'screen-password',      state: null,      label: 'Password — entry' },
@@ -6894,11 +7129,22 @@
           ],
         },
         {
+          id: 'password-identifier-first', group: 'Password Sign-In',
+          label: 'Identifier-First Password Entry',
+          figmaUrl: FIGMA + '660-471',
+          steps: [
+            { screen: 'screen-chooser',  state: 'default', identifier: 'shopper@example.com', label: 'Chooser — email entered' },
+            { screen: 'screen-password', state: null,      label: 'Password — prefilled identifier context' },
+            { screen: 'screen-otp',      state: 'default', label: 'MFA — verify code' },
+            { screen: 'screen-passkey-enroll', state: 'prompt', label: 'Signed in — passkey enrollment offer (terminal step)' },
+          ],
+        },
+        {
           id: 'password-forgot', group: 'Password Sign-In',
           label: 'Forgot Password → Reset',
-          figmaUrl: FIGMA + '198-170',
+          figmaUrl: FIGMA + '660-650',
           steps: [
-            { screen: 'screen-chooser',         state: 'default', label: 'Chooser — no passkey' },
+            { screen: 'screen-chooser',         state: 'default', identifier: 'shopper@example.com', label: 'Chooser — no passkey' },
             { screen: 'screen-password',        state: null,      label: 'Password — entry' },
             { screen: 'screen-forgot-password', state: null,      label: 'Forgot password — email entry' },
             { screen: 'screen-reset-sent',      state: null,      label: 'Reset email sent' },
@@ -6918,7 +7164,7 @@
         {
           id: 'otp-happy', group: 'One-Time Code (OTP) Sign-In',
           label: 'Happy Path — OTP Sign-In',
-          figmaUrl: FIGMA + '198-185',
+          figmaUrl: FIGMA + '660-492',
           // Terminal step is the post-sign-in enrollment offer — by design
           // there is no separate signed-in / home destination in this prototype.
           steps: [
@@ -6931,7 +7177,7 @@
         {
           id: 'otp-wrong-code', group: 'One-Time Code (OTP) Sign-In',
           label: 'Wrong Code',
-          figmaUrl: FIGMA + '198-196',
+          figmaUrl: FIGMA + '660-525',
           steps: [
             { screen: 'screen-chooser', state: 'default', label: 'Chooser — no passkey' },
             { screen: 'screen-otp',     state: 'request',      label: 'OTP — request code' },
@@ -6942,7 +7188,7 @@
         {
           id: 'otp-resend-cooldown', group: 'One-Time Code (OTP) Sign-In',
           label: 'Resend Cooldown',
-          figmaUrl: FIGMA + '198-210',
+          figmaUrl: FIGMA + '670-212',
           steps: [
             { screen: 'screen-otp',    state: 'request',       label: 'OTP — request code' },
             { screen: 'screen-otp', state: 'default',  label: 'Code entry' },
@@ -6952,7 +7198,7 @@
         {
           id: 'otp-expired', group: 'One-Time Code (OTP) Sign-In',
           label: 'Expired Code',
-          figmaUrl: FIGMA + '198-221',
+          figmaUrl: FIGMA + '660-550',
           steps: [
             { screen: 'screen-otp',    state: 'request',      label: 'OTP — request code' },
             { screen: 'screen-otp', state: 'default', label: 'Code entry' },
@@ -6962,7 +7208,7 @@
         {
           id: 'otp-locked', group: 'One-Time Code (OTP) Sign-In',
           label: 'Account Locked',
-          figmaUrl: FIGMA + '198-232',
+          figmaUrl: FIGMA + '660-575',
           steps: [
             { screen: 'screen-otp',    state: 'request',      label: 'OTP — request code' },
             { screen: 'screen-otp', state: 'default', label: 'Code entry' },
@@ -6973,7 +7219,7 @@
         {
           id: 'otp-resent-confirm', group: 'One-Time Code (OTP) Sign-In',
           label: 'Code Resent',
-          figmaUrl: FIGMA + '198-246',
+          figmaUrl: FIGMA + '670-237',
           steps: [
             { screen: 'screen-otp', state: 'default', label: 'Code entry' },
             { screen: 'screen-otp', state: 'resent',  label: 'Code entry — code resent' },
@@ -6982,7 +7228,7 @@
         {
           id: 'otp-no-access', group: 'One-Time Code (OTP) Sign-In',
           label: "Can't Access Code",
-          figmaUrl: FIGMA + '198-254',
+          figmaUrl: FIGMA + '670-262',
           steps: [
             { screen: 'screen-otp',       state: 'default', label: 'Code entry' },
             { screen: 'screen-otp-no-access', state: null,     label: "Can't access code" },
@@ -6991,7 +7237,7 @@
         {
           id: 'otp-no-access-use-password', group: 'One-Time Code (OTP) Sign-In',
           label: "Can't Access Code → Switch to Password",
-          figmaUrl: FIGMA + '198-254',
+          figmaUrl: FIGMA + '670-287',
           steps: [
             { screen: 'screen-otp',           state: 'default', label: 'Code entry' },
             { screen: 'screen-otp-no-access', state: null,     label: "Can't access code — escape options" },
@@ -7003,7 +7249,7 @@
         {
           id: 'enroll-happy', group: 'Passkey Registration & Enrollment',
           label: 'Happy Path — Passkey Registration',
-          figmaUrl: FIGMA + '198-266',
+          figmaUrl: FIGMA + '660-612',
           // Terminal step is the enrollment success state — the user is
           // signed in and a passkey has been saved. No separate signed-in
           // destination by design; this confirmation is the end of the flow.
@@ -7015,7 +7261,7 @@
         {
           id: 'enroll-biometric-fail', group: 'Passkey Registration & Enrollment',
           label: 'Biometric Fails / User Cancels',
-          figmaUrl: FIGMA + '198-274',
+          figmaUrl: FIGMA + '670-326',
           steps: [
             { screen: 'screen-passkey-enroll', state: 'prompt', label: 'Enrollment — opt-in prompt' },
             { screen: 'screen-passkey-enroll', state: 'error',  label: 'Enrollment — failed / cancelled' },
@@ -7024,7 +7270,7 @@
         {
           id: 'enroll-already-enrolled', group: 'Passkey Registration & Enrollment',
           label: 'Passkey Already Exists',
-          figmaUrl: FIGMA + '198-282',
+          figmaUrl: FIGMA + '670-343',
           steps: [
             { screen: 'screen-passkey-enroll', state: 'prompt',           label: 'Enrollment — opt-in prompt' },
             { screen: 'screen-passkey-enroll', state: 'already-enrolled', label: 'Enrollment — already enrolled' },
@@ -7033,7 +7279,7 @@
         {
           id: 'enroll-declined', group: 'Passkey Registration & Enrollment',
           label: 'User Declines Setup',
-          figmaUrl: FIGMA + '198-290',
+          figmaUrl: FIGMA + '670-360',
           steps: [
             { screen: 'screen-passkey-enroll', state: 'prompt',   label: 'Enrollment — opt-in prompt' },
             { screen: 'screen-passkey-enroll', state: 'declined', label: 'Enrollment — declined / skipped' },
@@ -7042,7 +7288,7 @@
         {
           id: 'enroll-declined-fork', group: 'Passkey Registration & Enrollment',
           label: 'Declined Fork — Maybe Later',
-          figmaUrl: FIGMA + '198-298',
+          figmaUrl: FIGMA + '670-377',
           // Demo loops back to the chooser as a stand-in terminal — by design
           // there is no separate signed-in / home destination in this prototype.
           // In the real product the user is already signed in and would land
@@ -7055,7 +7301,7 @@
         {
           id: 'enroll-declined-never', group: 'Passkey Registration & Enrollment',
           label: 'Declined Fork — Don\'t Ask Again',
-          figmaUrl: FIGMA + '198-298',
+          figmaUrl: FIGMA + '660-629',
           // Same caveat as enroll-declined-fork — chooser is a stand-in for
           // the signed-in destination that does not exist in this prototype.
           steps: [
@@ -7069,7 +7315,7 @@
         {
           id: 'reset-happy', group: 'Password Reset',
           label: 'Happy Path — Password Reset',
-          figmaUrl: FIGMA + '198-310',
+          figmaUrl: FIGMA + '660-650',
           steps: [
             { screen: 'screen-forgot-password', state: null,      label: 'Forgot password — email entry' },
             { screen: 'screen-reset-sent',      state: null,      label: 'Reset email sent' },
@@ -7080,7 +7326,7 @@
         {
           id: 'reset-link-expired', group: 'Password Reset',
           label: 'Reset Link Expired',
-          figmaUrl: FIGMA + '198-324',
+          figmaUrl: FIGMA + '660-683',
           steps: [
             { screen: 'screen-forgot-password', state: null,      label: 'Forgot password — email entry' },
             { screen: 'screen-reset-sent',      state: null,      label: 'Reset email sent' },
@@ -7090,7 +7336,7 @@
         {
           id: 'reset-rate-limited', group: 'Password Reset',
           label: 'Rate Limiting',
-          figmaUrl: FIGMA + '198-343',
+          figmaUrl: FIGMA + '670-408',
           steps: [
             { screen: 'screen-forgot-password', state: null,           label: 'Forgot password — email entry' },
             { screen: 'screen-forgot-password', state: 'rate-limited', label: 'Forgot password — rate limited' },
@@ -7099,7 +7345,7 @@
         {
           id: 'reset-edit-different-email', group: 'Password Reset',
           label: 'Edit Identifier — Send to Different Email',
-          figmaUrl: FIGMA + '198-310',
+          figmaUrl: FIGMA + '677-309',
           steps: [
             { screen: 'screen-forgot-password', state: null, label: 'Forgot password — email entry' },
             { screen: 'screen-reset-sent',      state: null, label: 'Reset email sent — identifier strip visible' },
@@ -7127,7 +7373,7 @@
         {
           id: 'recovery-email-setup-happy', group: 'Recovery Email Setup',
           label: 'Happy Path — Add Recovery Email',
-          figmaUrl: FIGMA + '463-475',
+          figmaUrl: FIGMA + '660-712',
           steps: [
             { screen: 'screen-settings-security',       state: 'recovery-not-set',                 label: 'Security hub — Recovery email not set' },
             { screen: 'screen-settings-recovery-email', state: 'request',                          label: 'Recovery email — enter backup address' },
@@ -7138,7 +7384,7 @@
         {
           id: 'recovery-email-setup-pending', group: 'Recovery Email Setup',
           label: 'Pending Verification — Hub Reflects Status',
-          figmaUrl: FIGMA + '463-475',
+          figmaUrl: FIGMA + '677-370',
           steps: [
             { screen: 'screen-settings-security',       state: 'recovery-not-set',                 label: 'Security hub — Recovery email not set' },
             { screen: 'screen-settings-recovery-email', state: 'request',                          label: 'Recovery email — enter backup address' },
@@ -7149,7 +7395,7 @@
         {
           id: 'recovery-email-setup-change', group: 'Recovery Email Setup',
           label: 'Use a Different Email — Loop Back',
-          figmaUrl: FIGMA + '463-475',
+          figmaUrl: FIGMA + '677-431',
           steps: [
             { screen: 'screen-settings-recovery-email', state: 'request', label: 'Recovery email — enter backup address' },
             { screen: 'screen-settings-recovery-email', state: 'sent',    label: 'Recovery email — verification link sent' },
@@ -7161,7 +7407,7 @@
         {
           id: 'settings-overview', group: 'Account Settings & Security',
           label: 'Overview — Security Settings',
-          figmaUrl: FIGMA + '198-389',
+          figmaUrl: FIGMA + '670-447',
           steps: [
             { screen: 'screen-settings-security', state: null, label: 'Security hub' },
           ],
@@ -7169,7 +7415,7 @@
         {
           id: 'settings-activity-log', group: 'Account Settings & Security',
           label: 'Sign-In Activity Log',
-          figmaUrl: FIGMA + '198-394',
+          figmaUrl: FIGMA + '660-749',
           steps: [
             { screen: 'screen-settings-security', state: null, label: 'Security hub' },
             { screen: 'screen-activity',          state: null, label: 'Activity log' },
@@ -7178,7 +7424,7 @@
         {
           id: 'settings-active-devices', group: 'Account Settings & Security',
           label: 'Active Devices & Remote Sign-Out',
-          figmaUrl: FIGMA + '198-402',
+          figmaUrl: FIGMA + '660-766',
           steps: [
             { screen: 'screen-settings-security', state: null, label: 'Security hub' },
             { screen: 'screen-active-devices',    state: null, label: 'Active devices' },
@@ -7187,7 +7433,7 @@
         {
           id: 'settings-rename-passkey', group: 'Account Settings & Security',
           label: 'Rename a Passkey',
-          figmaUrl: FIGMA + '198-410',
+          figmaUrl: FIGMA + '670-464',
           steps: [
             { screen: 'screen-settings-security', state: null,     label: 'Security hub' },
             { screen: 'screen-settings-passkeys', state: 'list',   label: 'Passkeys list' },
@@ -7197,7 +7443,7 @@
         {
           id: 'settings-remove-passkey', group: 'Account Settings & Security',
           label: 'Remove a Passkey',
-          figmaUrl: FIGMA + '198-418',
+          figmaUrl: FIGMA + '670-489',
           steps: [
             { screen: 'screen-settings-security', state: null,     label: 'Security hub' },
             { screen: 'screen-settings-passkeys', state: 'list',   label: 'Passkeys list' },
@@ -7207,7 +7453,7 @@
         {
           id: 'settings-remove-last-passkey', group: 'Account Settings & Security',
           label: 'Remove Last Passkey (Only Passkey)',
-          figmaUrl: FIGMA + '421-2',
+          figmaUrl: FIGMA + '660-783',
           steps: [
             { screen: 'screen-settings-security', state: null,          label: 'Security hub' },
             { screen: 'screen-settings-passkeys', state: 'list',        label: 'Passkeys list — one passkey' },
@@ -7223,6 +7469,11 @@
         const target = NAV_SCREENS[step.screen];
         const state  = step.state || null;
         if (!target) return;
+
+        // Optional per-step identifier seed for identifier-first realism.
+        if (step.identifier !== undefined) {
+          setSignInIdentifier(step.identifier || '');
+        }
 
         // Reset passkey ring when leaving or entering passkey screen
         if (currentScreen === screenPasskey || target === screenPasskey) {
@@ -7379,6 +7630,15 @@
           const target = NAV_SCREENS[btn.dataset.navTarget];
           const navState = btn.dataset.navState || null;
           if (!target) return;
+
+          // Optional demo identifier pre-fill. Lets a nav item simulate
+          // "user typed an email at the chooser and continued" — e.g.
+          // the Sign-In Entry → "Email entered → Password (pre-filled)"
+          // jump. setSignInIdentifier fans the value out to the password,
+          // OTP, reset, and identifier-strip displays.
+          if (btn.dataset.navIdentifier !== undefined) {
+            setSignInIdentifier(btn.dataset.navIdentifier);
+          }
 
           // Reset passkey ring if leaving or entering passkey screen
           if (currentScreen === screenPasskey || target === screenPasskey) {
@@ -7542,11 +7802,13 @@
       });
 
       // ── Flow button clicks ────────────────────────────────────────
+      // Panel stays open after picking a flow so the user can see the
+      // flow list update (active state) and easily switch flows without
+      // reopening the drawer.
       flowsList.addEventListener('click', e => {
         const btn = e.target.closest('.proto-flow-btn:not([disabled])');
         if (!btn) return;
         enterFlow(btn.dataset.flowId);
-        closeNav();
       });
 
     })();
@@ -7674,10 +7936,16 @@
     document.getElementById('reset-resend-btn').addEventListener('click', () => {
       if (!document.getElementById('reset-resend-btn').disabled) startResetCooldown();
     });
-    // W2.5-lite · reset-simulate-link-btn ("I received the link →") removed.
-    // The New Password screen is now reachable only via the prototype navigator,
-    // which is the correct mental model: in production the user lands there
-    // via a real reset link, not a button on the same screen.
+    // ── Reset Sent: continue flow in-prototype (reduces navigator-only forcing) ──
+    document.getElementById('reset-open-link-btn').addEventListener('click', () => {
+      screenNewPw.removeAttribute('data-newpw-state');
+      switchScreen(screenResetSent, screenNewPw, 'forward');
+      currentScreen = screenNewPw;
+    });
+    document.getElementById('reset-sent-back-btn').addEventListener('click', () => {
+      switchScreen(screenResetSent, screenChooser, 'backward');
+      currentScreen = screenChooser;
+    });
 
     // ── New Password: strength bar + save ───────────────────────
     document.getElementById('new-pw-1').addEventListener('input', function () {
@@ -7696,6 +7964,16 @@
     document.getElementById('save-pw-btn').addEventListener('click', () => {
       switchScreen(screenNewPw, screenResetSuccess, 'forward');
       currentScreen = screenResetSuccess;
+    });
+    document.getElementById('newpw-back-btn').addEventListener('click', () => {
+      screenNewPw.removeAttribute('data-newpw-state');
+      switchScreen(screenNewPw, screenChooser, 'backward');
+      currentScreen = screenChooser;
+    });
+    document.getElementById('newpw-expired-back-btn').addEventListener('click', () => {
+      screenNewPw.removeAttribute('data-newpw-state');
+      switchScreen(screenNewPw, screenChooser, 'backward');
+      currentScreen = screenChooser;
     });
 
     // ── Reset Success → Sign In (W1.3 · land at chooser with re-auth toast per A1) ───
@@ -8024,6 +8302,528 @@
         if (input) { input.focus(); input.select(); }
       }, 250);
     });
+
+    /* ─── Comments overlay (prototype review tool) ─────────────────────
+       Owner-only writes via Bearer token (stored in localStorage).
+       Public reads — anyone viewing the preview URL sees the dots.
+       Backend: /api/comments  (api/comments.js + Vercel KV)
+       Storage isolation: by git branch (VERCEL_GIT_COMMIT_REF on server).
+       This block is fully self-contained — it does NOT modify
+       switchScreen, goToFlowStep, FLOWS, or proto-nav listeners.
+    ─────────────────────────────────────────────────────────────────── */
+    (function commentsOverlay() {
+      'use strict';
+
+      const API_URL = '/api/comments';
+      const LS_TOKEN = 'comments.token';
+      const LS_MODE = 'comments.mode';
+      const SCREEN_SELECTOR = '#screens-container > div';
+      const STAGE_SELECTOR = '#screens-container';
+      const OVERLAY_CLASS = 'comments-overlay-layer';
+
+      // ── State ────────────────────────────────────────────────
+      let comments = [];          // all comments for current branch
+      let commentMode = false;    // is comment-mode active?
+      let activePopover = null;   // currently-open popover element
+      let activeDotId = null;     // id of comment whose popover is open (or 'new')
+      let pendingNewPoint = null; // { screenId, xPct, yPct } for unsaved new comment
+      let toggleBtn = null;
+      let countPill = null;
+      let lastRenderedScreenId = null;
+
+      // ── Token + auth helpers ─────────────────────────────────
+      function getToken() {
+        try { return localStorage.getItem(LS_TOKEN) || ''; }
+        catch (_) { return ''; }
+      }
+      function setToken(t) {
+        try { localStorage.setItem(LS_TOKEN, t); } catch (_) {}
+      }
+      function clearToken() {
+        try { localStorage.removeItem(LS_TOKEN); } catch (_) {}
+      }
+      function promptForToken() {
+        const existing = getToken();
+        const v = window.prompt(
+          'Paste your COMMENT_WRITE_TOKEN to save comments.\n(Anyone can view; only you can write.)',
+          existing
+        );
+        if (v && v.trim()) {
+          setToken(v.trim());
+          return v.trim();
+        }
+        return null;
+      }
+      function authHeaders() {
+        const t = getToken();
+        return t ? { 'Authorization': 'Bearer ' + t } : {};
+      }
+
+      // ── API client ───────────────────────────────────────────
+      async function apiLoad() {
+        try {
+          const res = await fetch(API_URL, { method: 'GET' });
+          if (!res.ok) throw new Error('GET ' + res.status);
+          const data = await res.json();
+          comments = Array.isArray(data.comments) ? data.comments : [];
+          return comments;
+        } catch (err) {
+          console.warn('[comments] load failed:', err);
+          comments = [];
+          return comments;
+        }
+      }
+      async function apiCreate(payload) {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          body: JSON.stringify(payload),
+        });
+        if (res.status === 401) {
+          if (promptForToken()) return apiCreate(payload);
+          throw new Error('unauthorized');
+        }
+        if (!res.ok) throw new Error('POST ' + res.status);
+        return res.json();
+      }
+      async function apiUpdate(id, patch) {
+        const res = await fetch(API_URL + '?id=' + encodeURIComponent(id), {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          body: JSON.stringify(patch),
+        });
+        if (res.status === 401) {
+          if (promptForToken()) return apiUpdate(id, patch);
+          throw new Error('unauthorized');
+        }
+        if (!res.ok) throw new Error('PATCH ' + res.status);
+        return res.json();
+      }
+      async function apiDelete(id) {
+        const res = await fetch(API_URL + '?id=' + encodeURIComponent(id), {
+          method: 'DELETE',
+          headers: { ...authHeaders() },
+        });
+        if (res.status === 401) {
+          if (promptForToken()) return apiDelete(id);
+          throw new Error('unauthorized');
+        }
+        if (res.status !== 204 && !res.ok) throw new Error('DELETE ' + res.status);
+      }
+
+      // ── Screen detection ─────────────────────────────────────
+      function getActiveScreen() {
+        const stage = document.querySelector(STAGE_SELECTOR);
+        if (!stage) return null;
+        const visible = Array.from(stage.children).filter(
+          (el) => el.nodeType === 1 && !el.hasAttribute('hidden')
+        );
+        if (visible.length === 0) return null;
+        if (visible.length === 1) return visible[0];
+        // Mid-animation: incoming screen has no pointer-events:none inline
+        const incoming = visible.find((el) => el.style.pointerEvents !== 'none');
+        return incoming || visible[visible.length - 1];
+      }
+      function getScreenStateAttrs(screen) {
+        if (!screen || !screen.attributes) return {};
+        const out = {};
+        for (const attr of Array.from(screen.attributes)) {
+          if (attr.name && attr.name.indexOf('data-') === 0) {
+            out[attr.name] = attr.value;
+          }
+        }
+        return out;
+      }
+      function ensureOverlay(screen) {
+        if (!screen) return null;
+        let overlay = screen.querySelector(':scope > .' + OVERLAY_CLASS);
+        if (!overlay) {
+          overlay = document.createElement('div');
+          overlay.className = OVERLAY_CLASS;
+          screen.appendChild(overlay);
+        }
+        return overlay;
+      }
+
+      // ── Render dots on the active screen ─────────────────────
+      function renderDots() {
+        // Remove popover if its anchor is gone (screen change)
+        if (activePopover && activeDotId !== 'new') {
+          const anchorStillVisible = activePopover.isConnected;
+          if (!anchorStillVisible) closePopover();
+        }
+        const screen = getActiveScreen();
+        if (!screen) return;
+        lastRenderedScreenId = screen.id;
+        // Clear stale overlays in non-active screens (cheap)
+        document.querySelectorAll('.' + OVERLAY_CLASS).forEach((el) => {
+          if (el.parentElement !== screen) el.innerHTML = '';
+        });
+        const overlay = ensureOverlay(screen);
+        if (!overlay) return;
+        overlay.innerHTML = '';
+        const screenComments = comments.filter((c) => c.screenId === screen.id);
+        // Sort: open first, then by createdAt
+        screenComments.sort((a, b) => {
+          if (a.status !== b.status) return a.status === 'open' ? -1 : 1;
+          return (a.createdAt || 0) - (b.createdAt || 0);
+        });
+        let i = 1;
+        for (const c of screenComments) {
+          const dot = document.createElement('div');
+          dot.className = 'comments-dot';
+          dot.dataset.id = c.id;
+          dot.dataset.status = c.status || 'open';
+          dot.style.left = ((c.xPct || 0) * 100) + '%';
+          dot.style.top = ((c.yPct || 0) * 100) + '%';
+          dot.textContent = String(i);
+          dot.title = (c.text || '').slice(0, 80);
+          dot.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            openPopoverForComment(c, dot);
+          });
+          overlay.appendChild(dot);
+          i += 1;
+        }
+        updateCountPill();
+      }
+
+      function updateCountPill() {
+        if (!countPill) return;
+        const open = comments.filter((c) => c.status === 'open').length;
+        if (open > 0) {
+          countPill.textContent = open > 99 ? '99+' : String(open);
+          countPill.style.display = '';
+        } else {
+          countPill.style.display = 'none';
+        }
+      }
+
+      // ── Popover (compose / view / edit) ──────────────────────
+      function closePopover() {
+        if (activePopover && activePopover.parentNode) {
+          activePopover.parentNode.removeChild(activePopover);
+        }
+        activePopover = null;
+        activeDotId = null;
+        pendingNewPoint = null;
+        // Remove active highlight
+        document.querySelectorAll('.comments-dot.is-active').forEach((el) => {
+          el.classList.remove('is-active');
+        });
+      }
+
+      function makePopoverShell() {
+        const pop = document.createElement('div');
+        pop.className = 'comments-popover';
+        // Stop body click-to-place from firing inside the popover
+        pop.addEventListener('click', (e) => e.stopPropagation());
+        pop.addEventListener('mousedown', (e) => e.stopPropagation());
+        return pop;
+      }
+
+      function placePopoverAt(screen, xPct, yPct, pop) {
+        const overlay = ensureOverlay(screen);
+        overlay.appendChild(pop);
+        pop.style.left = (xPct * 100) + '%';
+        pop.style.top = (yPct * 100) + '%';
+      }
+
+      function openPopoverForNew(screen, xPct, yPct) {
+        closePopover();
+        pendingNewPoint = { screenId: screen.id, xPct, yPct };
+        const pop = makePopoverShell();
+        pop.innerHTML = ''
+          + '<p class="comments-popover-meta"><span>New comment · ' + screen.id + '</span></p>'
+          + '<textarea placeholder="Write a note about this spot…"></textarea>'
+          + '<p class="comments-popover-error" style="display:none;"></p>'
+          + '<div class="comments-popover-actions">'
+          +   '<button type="button" data-action="cancel">Cancel</button>'
+          +   '<button type="button" class="primary" data-action="save">Save</button>'
+          + '</div>';
+        placePopoverAt(screen, xPct, yPct, pop);
+        activePopover = pop;
+        activeDotId = 'new';
+        const ta = pop.querySelector('textarea');
+        const errEl = pop.querySelector('.comments-popover-error');
+        setTimeout(() => ta && ta.focus(), 50);
+        pop.querySelector('[data-action="cancel"]').addEventListener('click', closePopover);
+        pop.querySelector('[data-action="save"]').addEventListener('click', async () => {
+          const text = (ta.value || '').trim();
+          if (!text) { ta.focus(); return; }
+          if (!getToken() && !promptForToken()) return;
+          try {
+            const created = await apiCreate({
+              screenId: screen.id,
+              stateAttrs: getScreenStateAttrs(screen),
+              xPct,
+              yPct,
+              text,
+            });
+            comments.push(created);
+            closePopover();
+            renderDots();
+          } catch (err) {
+            errEl.textContent = 'Save failed: ' + err.message;
+            errEl.style.display = '';
+          }
+        });
+        ta.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+            e.preventDefault();
+            pop.querySelector('[data-action="save"]').click();
+          } else if (e.key === 'Escape') {
+            e.preventDefault();
+            closePopover();
+          }
+        });
+      }
+
+      function openPopoverForComment(comment, dotEl) {
+        closePopover();
+        activeDotId = comment.id;
+        if (dotEl) dotEl.classList.add('is-active');
+        const screen = getActiveScreen();
+        if (!screen) return;
+        const pop = makePopoverShell();
+        const when = comment.createdAt
+          ? new Date(comment.createdAt).toLocaleString()
+          : '';
+        const statusLabel = comment.status === 'resolved' ? 'resolved' : 'open';
+        const resolveLabel = comment.status === 'resolved' ? 'Reopen' : 'Resolve';
+        pop.innerHTML = ''
+          + '<p class="comments-popover-meta">'
+          +   '<span>' + escapeHtml(when) + '</span>'
+          +   '<span class="comments-popover-status" data-status="' + statusLabel + '">' + statusLabel + '</span>'
+          + '</p>'
+          + '<p class="comments-popover-body"></p>'
+          + '<p class="comments-popover-error" style="display:none;"></p>'
+          + '<div class="comments-popover-actions">'
+          +   '<button type="button" data-action="edit">Edit</button>'
+          +   '<button type="button" data-action="toggle">' + resolveLabel + '</button>'
+          +   '<button type="button" class="danger" data-action="delete">Delete</button>'
+          + '</div>';
+        pop.querySelector('.comments-popover-body').textContent = comment.text || '';
+        placePopoverAt(screen, comment.xPct || 0, comment.yPct || 0, pop);
+        activePopover = pop;
+        const errEl = pop.querySelector('.comments-popover-error');
+        pop.querySelector('[data-action="delete"]').addEventListener('click', async () => {
+          if (!confirm('Delete this comment?')) return;
+          if (!getToken() && !promptForToken()) return;
+          try {
+            await apiDelete(comment.id);
+            comments = comments.filter((c) => c.id !== comment.id);
+            closePopover();
+            renderDots();
+          } catch (err) {
+            errEl.textContent = 'Delete failed: ' + err.message;
+            errEl.style.display = '';
+          }
+        });
+        pop.querySelector('[data-action="toggle"]').addEventListener('click', async () => {
+          if (!getToken() && !promptForToken()) return;
+          const newStatus = comment.status === 'resolved' ? 'open' : 'resolved';
+          try {
+            const updated = await apiUpdate(comment.id, { status: newStatus });
+            const idx = comments.findIndex((c) => c.id === comment.id);
+            if (idx >= 0) comments[idx] = updated;
+            closePopover();
+            renderDots();
+          } catch (err) {
+            errEl.textContent = 'Update failed: ' + err.message;
+            errEl.style.display = '';
+          }
+        });
+        pop.querySelector('[data-action="edit"]').addEventListener('click', () => {
+          // Swap body for textarea
+          const bodyEl = pop.querySelector('.comments-popover-body');
+          const ta = document.createElement('textarea');
+          ta.value = comment.text || '';
+          bodyEl.replaceWith(ta);
+          // Replace actions
+          const actions = pop.querySelector('.comments-popover-actions');
+          actions.innerHTML = ''
+            + '<button type="button" data-action="cancel-edit">Cancel</button>'
+            + '<button type="button" class="primary" data-action="save-edit">Save</button>';
+          setTimeout(() => ta.focus(), 30);
+          actions.querySelector('[data-action="cancel-edit"]').addEventListener('click', () => {
+            openPopoverForComment(comment, document.querySelector('.comments-dot[data-id="' + comment.id + '"]'));
+          });
+          actions.querySelector('[data-action="save-edit"]').addEventListener('click', async () => {
+            const text = (ta.value || '').trim();
+            if (!text) { ta.focus(); return; }
+            if (!getToken() && !promptForToken()) return;
+            try {
+              const updated = await apiUpdate(comment.id, { text });
+              const idx = comments.findIndex((c) => c.id === comment.id);
+              if (idx >= 0) comments[idx] = updated;
+              closePopover();
+              renderDots();
+            } catch (err) {
+              errEl.textContent = 'Save failed: ' + err.message;
+              errEl.style.display = '';
+            }
+          });
+        });
+      }
+
+      function escapeHtml(s) {
+        return String(s == null ? '' : s)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      // ── Mode toggle ──────────────────────────────────────────
+      function enterMode() {
+        commentMode = true;
+        document.body.classList.add('comments-mode-on');
+        if (toggleBtn) toggleBtn.setAttribute('aria-pressed', 'true');
+        try { localStorage.setItem(LS_MODE, '1'); } catch (_) {}
+      }
+      function exitMode() {
+        commentMode = false;
+        document.body.classList.remove('comments-mode-on');
+        if (toggleBtn) toggleBtn.setAttribute('aria-pressed', 'false');
+        try { localStorage.removeItem(LS_MODE); } catch (_) {}
+        closePopover();
+      }
+      function toggleMode() {
+        if (commentMode) exitMode(); else enterMode();
+      }
+
+      // ── Click-to-place handler (capture phase) ───────────────
+      function onStageClick(e) {
+        if (!commentMode) return;
+        // Ignore clicks inside the popover or on a dot
+        if (e.target.closest && (e.target.closest('.comments-popover') || e.target.closest('.comments-dot'))) {
+          return;
+        }
+        const screen = getActiveScreen();
+        if (!screen) return;
+        // Must be inside the active screen
+        if (!screen.contains(e.target)) return;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        const rect = screen.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return;
+        const xPct = (e.clientX - rect.left) / rect.width;
+        const yPct = (e.clientY - rect.top) / rect.height;
+        const clampedX = Math.max(0, Math.min(1, xPct));
+        const clampedY = Math.max(0, Math.min(1, yPct));
+        openPopoverForNew(screen, clampedX, clampedY);
+      }
+
+      // ── Toggle button injection into proto-nav header ────────
+      function injectToggleButton() {
+        const headerTop = document.querySelector('.proto-nav-header-top');
+        const closeBtn = document.getElementById('proto-nav-close');
+        if (!headerTop) return null;
+        const wrap = document.createElement('span');
+        wrap.className = 'comments-toggle-wrap';
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.id = 'comments-toggle';
+        btn.className = 'comments-toggle';
+        btn.setAttribute('aria-label', 'Toggle comment mode');
+        btn.setAttribute('aria-pressed', 'false');
+        btn.title = 'Toggle comment mode (place notes on the prototype)';
+        btn.innerHTML =
+          '<svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true">'
+          + '<path d="M240-400h320v-80H240v80Zm0-120h480v-80H240v80Zm0-120h480v-80H240v80ZM80-80v-760q0-33 23.5-56.5T160-920h640q33 0 56.5 23.5T880-840v520q0 33-23.5 56.5T800-240H240L80-80Z"/>'
+          + '</svg>';
+        const pill = document.createElement('span');
+        pill.className = 'comments-count-pill';
+        pill.style.display = 'none';
+        pill.textContent = '0';
+        wrap.appendChild(btn);
+        wrap.appendChild(pill);
+        if (closeBtn && closeBtn.parentNode === headerTop) {
+          headerTop.insertBefore(wrap, closeBtn);
+        } else {
+          headerTop.appendChild(wrap);
+        }
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleMode();
+        });
+        toggleBtn = btn;
+        countPill = pill;
+        return btn;
+      }
+
+      // ── MutationObserver to re-render on screen swap ─────────
+      function installObservers() {
+        const stage = document.querySelector(STAGE_SELECTOR);
+        if (!stage) return;
+        let pending = false;
+        const reRender = () => {
+          if (pending) return;
+          pending = true;
+          requestAnimationFrame(() => {
+            pending = false;
+            const screen = getActiveScreen();
+            if (!screen) return;
+            if (screen.id !== lastRenderedScreenId) {
+              closePopover();
+            }
+            renderDots();
+          });
+        };
+        const mo = new MutationObserver(reRender);
+        mo.observe(stage, {
+          attributes: true,
+          subtree: true,
+          attributeFilter: ['hidden'],
+        });
+        // Re-render on resize (percent-based positions need no math, but
+        // popover anchoring is also percent-based, so this is mostly cheap).
+        window.addEventListener('resize', () => {
+          // No-op — dots are percentage-positioned and scale automatically.
+        });
+        // Esc to exit mode / close popover
+        document.addEventListener('keydown', (e) => {
+          if (e.key !== 'Escape') return;
+          if (activePopover) { closePopover(); return; }
+          if (commentMode) { exitMode(); }
+        });
+        // Capture-phase click for click-to-place
+        document.addEventListener('click', onStageClick, true);
+      }
+
+      // ── Init ─────────────────────────────────────────────────
+      async function init() {
+        try {
+          injectToggleButton();
+          installObservers();
+          await apiLoad();
+          // Restore mode from last session
+          let savedMode = '';
+          try { savedMode = localStorage.getItem(LS_MODE) || ''; } catch (_) {}
+          if (savedMode) enterMode();
+          renderDots();
+        } catch (err) {
+          console.warn('[comments] init failed:', err);
+        }
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init, { once: true });
+      } else {
+        init();
+      }
+
+      // Expose tiny debug API for the owner (no writes, just visibility)
+      window.__comments = {
+        list: () => comments.slice(),
+        reload: async () => { await apiLoad(); renderDots(); },
+        enter: enterMode,
+        exit: exitMode,
+        clearToken,
+      };
+    })();
 
   </script>
 
