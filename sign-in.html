@@ -3384,55 +3384,72 @@
     }
 
     /* ─── Comments overlay (prototype review tool, owner-only writes) ─── */
+    .comments-toggle-wrap {
+      position: fixed;
+      top: 84px;
+      right: 24px;
+      z-index: 250;
+      display: inline-flex;
+    }
     .comments-toggle {
       appearance: none;
-      background: transparent;
-      border: 1px solid rgba(255,255,255,0.18);
-      color: rgba(255,255,255,0.85);
-      width: 28px;
-      height: 28px;
-      border-radius: 6px;
+      background: #fff;
+      border: 1px solid #D1D5DB;
+      color: #1F2937;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      margin-right: 8px;
       padding: 0;
-      transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.06);
+      transition: background 120ms ease, border-color 120ms ease, color 120ms ease, transform 120ms ease, box-shadow 120ms ease;
     }
     .comments-toggle:hover {
-      background: rgba(255,255,255,0.08);
-      color: #fff;
+      background: #F9FAFB;
+      border-color: #9CA3AF;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.16), 0 1px 2px rgba(0,0,0,0.06);
+    }
+    .comments-toggle:focus-visible {
+      outline: 2px solid #d40029;
+      outline-offset: 2px;
     }
     .comments-toggle[aria-pressed="true"] {
       background: #FFC107;
-      border-color: #FFC107;
+      border-color: #E0A800;
       color: #1F2937;
     }
+    .comments-toggle[aria-pressed="true"]:hover {
+      background: #E0A800;
+    }
     .comments-toggle svg {
-      width: 16px;
-      height: 16px;
+      width: 18px;
+      height: 18px;
       display: block;
     }
     .comments-count-pill {
       position: absolute;
       top: -4px;
       right: -4px;
-      min-width: 16px;
-      height: 16px;
-      padding: 0 4px;
-      border-radius: 8px;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      border-radius: 9px;
       background: #d40029;
       color: #fff;
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 600;
-      line-height: 16px;
+      line-height: 18px;
       text-align: center;
       pointer-events: none;
+      box-shadow: 0 0 0 2px #fff;
     }
-    .comments-toggle-wrap {
-      position: relative;
-      display: inline-flex;
+    @media (max-width: 480px) {
+      .comments-toggle-wrap { top: 80px; right: 12px; }
+      .comments-toggle { width: 36px; height: 36px; }
+      .comments-toggle svg { width: 16px; height: 16px; }
     }
 
     /* Body cursor + screen positioning when comment mode is on */
@@ -8384,7 +8401,8 @@
           throw new Error('unauthorized');
         }
         if (!res.ok) throw new Error('POST ' + res.status);
-        return res.json();
+        const data = await res.json();
+        return data.comment || data;
       }
       async function apiUpdate(id, patch) {
         const res = await fetch(API_URL + '?id=' + encodeURIComponent(id), {
@@ -8397,7 +8415,8 @@
           throw new Error('unauthorized');
         }
         if (!res.ok) throw new Error('PATCH ' + res.status);
-        return res.json();
+        const data = await res.json();
+        return data.comment || data;
       }
       async function apiDelete(id) {
         const res = await fetch(API_URL + '?id=' + encodeURIComponent(id), {
@@ -8715,13 +8734,11 @@
         openPopoverForNew(screen, clampedX, clampedY);
       }
 
-      // ── Toggle button injection into proto-nav header ────────
+      // ── Toggle button injection (fixed top-right, below header) ──
       function injectToggleButton() {
-        const headerTop = document.querySelector('.proto-nav-header-top');
-        const closeBtn = document.getElementById('proto-nav-close');
-        if (!headerTop) return null;
         const wrap = document.createElement('span');
         wrap.className = 'comments-toggle-wrap';
+        wrap.id = 'comments-toggle-wrap';
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.id = 'comments-toggle';
@@ -8739,11 +8756,7 @@
         pill.textContent = '0';
         wrap.appendChild(btn);
         wrap.appendChild(pill);
-        if (closeBtn && closeBtn.parentNode === headerTop) {
-          headerTop.insertBefore(wrap, closeBtn);
-        } else {
-          headerTop.appendChild(wrap);
-        }
+        document.body.appendChild(wrap);
         btn.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -8789,8 +8802,18 @@
           if (activePopover) { closePopover(); return; }
           if (commentMode) { exitMode(); }
         });
-        // Capture-phase click for click-to-place
+        // Capture-phase click for click-to-place (only fires in comment mode)
         document.addEventListener('click', onStageClick, true);
+        // Bubble-phase click to dismiss an open popover when clicking outside
+        document.addEventListener('click', (e) => {
+          if (!activePopover) return;
+          if (!e.target.closest) return;
+          // Ignore clicks inside the popover, on any dot, or on the toggle button.
+          if (e.target.closest('.comments-popover')) return;
+          if (e.target.closest('.comments-dot')) return;
+          if (e.target.closest('.comments-toggle-wrap')) return;
+          closePopover();
+        });
       }
 
       // ── Init ─────────────────────────────────────────────────
