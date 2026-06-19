@@ -8074,6 +8074,15 @@
       // expected route. Cleared whenever the on-screen state matches a
       // flow step again (auto-advance or return-to-flow click).
       let flowIsOffRoute = false;
+      // W3.5 · One-shot suppression for the screenchange event echoed
+      // back by our own applyStep() calls. Without this, flows whose
+      // steps repeat the same {screen, state} pair (e.g. a chooser
+      // step followed later by the same chooser with a banner, or a
+      // forgot-password → reset-sent → forgot-password loop) would
+      // skip-ahead the moment enterFlow/goToFlowStep applied step 0,
+      // because the listener's forward search treats every matching
+      // later step as a candidate.
+      let suppressNextScreenChange = false;
 
       const flowNavBar     = document.getElementById('flow-nav-bar');
       const flowPrevBtn    = document.getElementById('flow-prev');
@@ -8120,6 +8129,10 @@
         // Re-applying a step is a "we're back on route" gesture, so clear
         // the off-route flag before updating the UI.
         flowIsOffRoute = false;
+        // W3.5 · Drop the echo screenchange our applyStep is about to
+        // cause — otherwise the auto-tracker can skip-ahead through any
+        // later step that matches the same {screen, state}.
+        suppressNextScreenChange = true;
         applyStep(activeFlow.steps[clamped]);
         updateFlowNavUI();
       }
@@ -8148,6 +8161,9 @@
         activeFlowStep = 0;
         flowIsOffRoute = false;
         flowNavBar.hidden = false;
+        // W3.5 · See goToFlowStep — drop the echo screenchange from
+        // this initial applyStep so the tracker doesn't skip-ahead.
+        suppressNextScreenChange = true;
         applyStep(flow.steps[0]);
         updateFlowNavUI();
       }
@@ -8166,11 +8182,14 @@
       //     (user came back) — clear the off-route flag.
       //   • Otherwise                               → mark off-route.
       //
-      // The predicate self-protects against false advances triggered by
-      // the flow itself: goToFlowStep updates activeFlowStep *before*
-      // applyStep runs, so by the time the mutation observer fires the
-      // event, activeFlowStep is already at the new index — and the
-      // "next" step has moved one further, no false advance.
+      // To avoid false advances triggered by the flow's own applyStep
+      // (which mutates DOM and fires its own screenchange echo), every
+      // applyStep we initiate first sets suppressNextScreenChange, which
+      // this listener consumes on the next event. Without that, a flow
+      // whose later step shares {screen, state} with step 0 — e.g. the
+      // chooser revisit in passkey-not-found, or the loops in
+      // reset-edit-different-email and recovery-email-setup-change —
+      // would skip-ahead the moment enterFlow ran.
       function stepMatchesCurrent(step, current) {
         if (!step || step.screen !== current.screen) return false;
         // Step state of null means "any state on this screen counts".
@@ -8180,6 +8199,11 @@
 
       document.addEventListener('screenchange', e => {
         if (!activeFlow) return;
+        // W3.5 · Drop the one-shot echo from our own applyStep.
+        if (suppressNextScreenChange) {
+          suppressNextScreenChange = false;
+          return;
+        }
         const current = e.detail;
         if (!current || !current.screen) return;
 
