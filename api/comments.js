@@ -138,8 +138,12 @@ function normalizeOnCreate(input) {
 
 function validateCreate(c) {
   if (!c.screenId) return 'screenId is required';
-  if (typeof c.xPct !== 'number' || c.xPct < 0 || c.xPct > 1) return 'xPct must be 0..1';
-  if (typeof c.yPct !== 'number' || c.yPct < 0 || c.yPct > 1) return 'yPct must be 0..1';
+  // xPct/yPct are screen-relative percentages, but a click outside the
+  // screen card (gutter, narrative caption, etc.) is allowed and produces
+  // values outside [0,1]. Clamp to a generous sanity range so we still
+  // catch NaN/Infinity/runaway coordinates.
+  if (!Number.isFinite(c.xPct) || c.xPct < -5 || c.xPct > 5) return 'xPct out of range';
+  if (!Number.isFinite(c.yPct) || c.yPct < -5 || c.yPct > 5) return 'yPct out of range';
   if (typeof c.text !== 'string') return 'text must be a string';
   if (c.text.length > 4000) return 'text exceeds 4000 chars';
   return null;
