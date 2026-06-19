@@ -8783,18 +8783,23 @@
       }
 
       // ── Mode toggle ──────────────────────────────────────────
+      // Mode is intentionally NOT persisted across reloads: every fresh
+      // page load starts with comment mode off so the toggle’s next click
+      // always means “enter commenting”, never an invisible “exit”.
       function enterMode() {
+        if (commentMode) return;
         commentMode = true;
         document.body.classList.add('comments-mode-on');
         if (toggleBtn) toggleBtn.setAttribute('aria-pressed', 'true');
-        try { localStorage.setItem(LS_MODE, '1'); } catch (_) {}
+        showToast('Comment mode on — click anywhere to add a comment');
       }
       function exitMode() {
+        if (!commentMode) return;
         commentMode = false;
         document.body.classList.remove('comments-mode-on');
         if (toggleBtn) toggleBtn.setAttribute('aria-pressed', 'false');
-        try { localStorage.removeItem(LS_MODE); } catch (_) {}
         closePopover();
+        hideToast();
       }
       function toggleMode() {
         if (commentMode) exitMode(); else enterMode();
@@ -8910,10 +8915,9 @@
           injectToggleButton();
           installObservers();
           await apiLoad();
-          // Restore mode from last session
-          let savedMode = '';
-          try { savedMode = localStorage.getItem(LS_MODE) || ''; } catch (_) {}
-          if (savedMode) enterMode();
+          // Mode always starts off after a reload — force-clear any stale
+          // persisted flag from older builds so the toggle behaves predictably.
+          try { localStorage.removeItem(LS_MODE); } catch (_) {}
           renderDots();
         } catch (err) {
           console.warn('[comments] init failed:', err);
