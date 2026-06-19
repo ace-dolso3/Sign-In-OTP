@@ -8580,14 +8580,62 @@
         return pop;
       }
 
-      function placePopoverAt(screen, xPct, yPct, pop) {
-        const overlay = ensureOverlay(screen);
-        overlay.appendChild(pop);
-        pop.style.left = (xPct * 100) + '%';
-        pop.style.top = (yPct * 100) + '%';
+      // Popover is appended to <body> with position:absolute in page
+      // coords, then clamped to the viewport so it stays fully visible no
+      // matter where the user clicks (including the right edge of a screen
+      // or outside the screen card entirely).
+      function placePopoverAtPagePoint(pop, pageX, pageY) {
+        document.body.appendChild(pop);
+        pop.style.position = 'absolute';
+        pop.style.transform = 'none';
+        pop.style.left = '0px';
+        pop.style.top = '0px';
+        pop.style.visibility = 'hidden';
+        // Force layout so offsetWidth/Height are accurate
+        const popW = pop.offsetWidth || 260;
+        const popH = pop.offsetHeight || 160;
+        const margin = 8;
+        const gap = 12;
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const sx = window.scrollX;
+        const sy = window.scrollY;
+        // Default: centered horizontally on anchor, just below it
+        let left = pageX - popW / 2;
+        let top = pageY + gap;
+        // Flip above anchor if it would overflow the bottom of the viewport
+        if (top + popH > sy + vh - margin) {
+          top = pageY - popH - gap;
+        }
+        // Clamp to viewport (with small margin) in page coords
+        left = Math.max(sx + margin, Math.min(left, sx + vw - popW - margin));
+        top = Math.max(sy + margin, Math.min(top, sy + vh - popH - margin));
+        pop.style.left = left + 'px';
+        pop.style.top = top + 'px';
+        pop.style.visibility = '';
       }
 
-      function openPopoverForNew(screen, xPct, yPct) {
+      // Convert a comment's screen-relative xPct/yPct into page coords for
+      // popover placement. Falls back to viewport center if the screen has
+      // no layout (e.g. hidden).
+      function pagePointForComment(comment) {
+        const screen = document.getElementById(comment.screenId) || getActiveScreen();
+        if (screen) {
+          const r = screen.getBoundingClientRect();
+          if (r.width > 0 && r.height > 0) {
+            return {
+              x: r.left + window.scrollX + (comment.xPct || 0) * r.width,
+              y: r.top  + window.scrollY + (comment.yPct || 0) * r.height,
+            };
+          }
+        }
+        return {
+          x: window.scrollX + window.innerWidth / 2,
+          y: window.scrollY + window.innerHeight / 2,
+        };
+      }
+
+      function openPopoverForNew(screen, xPct, yPct, pageX, pageY) {
         closePopover();
         pendingNewPoint = { screenId: screen.id, xPct, yPct };
         const pop = makePopoverShell();
@@ -8599,7 +8647,7 @@
           +   '<button type="button" data-action="cancel">Cancel</button>'
           +   '<button type="button" class="primary" data-action="save">Save</button>'
           + '</div>';
-        placePopoverAt(screen, xPct, yPct, pop);
+        placePopoverAtPagePoint(pop, pageX, pageY);
         activePopover = pop;
         activeDotId = 'new';
         const ta = pop.querySelector('textarea');
@@ -8662,7 +8710,19 @@
           +   '<button type="button" class="danger" data-action="delete">Delete</button>'
           + '</div>';
         pop.querySelector('.comments-popover-body').textContent = comment.text || '';
-        placePopoverAt(screen, comment.xPct || 0, comment.yPct || 0, pop);
+        // Anchor on the dot if we still have it; otherwise compute from the
+        // comment's stored screen-relative position.
+        let anchorX, anchorY;
+        if (dotEl && dotEl.isConnected) {
+          const dr = dotEl.getBoundingClientRect();
+          anchorX = dr.left + window.scrollX + dr.width / 2;
+          anchorY = dr.top  + window.scrollY + dr.height / 2;
+        } else {
+          const p = pagePointForComment(comment);
+          anchorX = p.x;
+          anchorY = p.y;
+        }
+        placePopoverAtPagePoint(pop, anchorX, anchorY);
         activePopover = pop;
         const errEl = pop.querySelector('.comments-popover-error');
         pop.querySelector('[data-action="delete"]').addEventListener('click', async () => {
@@ -8806,25 +8866,41 @@
       }
 
       // ── Click-to-place handler (capture phase) ───────────────
+      // Selector for chrome we never want to hijack — the user must still
+      // be able to operate the comment toggle, open existing comments, and
+      // navigate between screens via the Demo controls panel while comment
+      // mode is on.
+      const COMMENT_IGNORE_SEL = [
+        '.comments-toggle-wrap',
+        '.comments-popover',
+        '.comments-dot',
+        '.comments-toast',
+        '#proto-nav-toggle',
+        '#proto-nav-panel',
+        '#proto-nav-backdrop',
+      ].join(',');
+
       function onStageClick(e) {
         if (!commentMode) return;
-        // Ignore clicks inside the popover or on a dot
-        if (e.target.closest && (e.target.closest('.comments-popover') || e.target.closest('.comments-dot'))) {
-          return;
-        }
+        if (e.target.closest && e.target.closest(COMMENT_IGNORE_SEL)) return;
         const screen = getActiveScreen();
         if (!screen) return;
-        // Must be inside the active screen
-        if (!screen.contains(e.target)) return;
-        e.preventDefault();
-        e.stopImmediatePropagation();
         const rect = screen.getBoundingClientRect();
         if (rect.width === 0 || rect.height === 0) return;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        // xPct/yPct are computed relative to the active screen so the dot
+        // travels with the screen, but they are intentionally NOT clamped
+        // to [0,1] — a click in the gutter or below the screen places a
+        // dot at a negative or >100% coordinate, which still renders
+        // because the overlay layer and #screens-container both allow
+        // overflow. The page-level click point is what we use to anchor
+        // the compose popover, so it always opens right under the cursor.
         const xPct = (e.clientX - rect.left) / rect.width;
-        const yPct = (e.clientY - rect.top) / rect.height;
-        const clampedX = Math.max(0, Math.min(1, xPct));
-        const clampedY = Math.max(0, Math.min(1, yPct));
-        openPopoverForNew(screen, clampedX, clampedY);
+        const yPct = (e.clientY - rect.top)  / rect.height;
+        const pageX = e.pageX != null ? e.pageX : e.clientX + window.scrollX;
+        const pageY = e.pageY != null ? e.pageY : e.clientY + window.scrollY;
+        openPopoverForNew(screen, xPct, yPct, pageX, pageY);
       }
 
       // ── Toggle button injection (fixed top-right, below header) ──
