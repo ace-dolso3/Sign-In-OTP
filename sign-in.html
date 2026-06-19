@@ -2322,14 +2322,11 @@
     #proto-nav-toggle:hover { opacity: 1; }
     #proto-nav-toggle svg { transform: rotate(90deg); }
 
-    #proto-nav-backdrop {
-      display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 310;
-      background: transparent;
-    }
-    #proto-nav-backdrop.nav-open { display: block; }
+    /* W3.5 · Backdrop removed. The previous full-screen overlay sat on
+       top of the prototype and its click handler closed the panel, which
+       made it impossible to interact with the prototype while the demo
+       drawer was open. The panel now persists until the user explicitly
+       closes it (toggle button / X / Escape). */
 
     #proto-nav-panel {
       position: fixed;
@@ -2692,6 +2689,58 @@
     #flow-exit:hover {
       background: rgba(255,255,255,0.15);
       color: rgba(255,255,255,0.9);
+    }
+
+    /* ── W3.5 · Off-route indicator + Return-to-flow button ──────
+       The flow nav bar auto-advances when the user follows the
+       expected route. When they wander (e.g. tap "Sign up" instead
+       of "Sign in"), we don't move the progress counter — we tint
+       it amber, append " · off route" to the counter, and reveal a
+       small circular Return-to-flow button between the label and
+       the Next arrow. Clicking it re-applies the expected step. */
+    #flow-nav-bar.off-route #flow-nav-counter {
+      color: #f5a623;
+    }
+    #flow-nav-bar.off-route #flow-nav-counter::after {
+      content: " · off route";
+      color: #f5a623;
+      font-weight: 500;
+    }
+
+    #flow-return {
+      display: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(245, 166, 35, 0.18);
+      color: #f5a623;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s;
+      flex-shrink: 0;
+      padding: 0;
+      margin: 0 2px;
+    }
+    #flow-return:hover {
+      background: rgba(245, 166, 35, 0.32);
+    }
+    #flow-nav-bar.off-route #flow-return {
+      display: inline-flex;
+    }
+
+    /* ── W3.5 · Restart-on-completion swap for #flow-next ────────
+       On the final step the Next arrow becomes a Restart button.
+       We keep one DOM button and swap the visible glyph + aria
+       label via .restart-mode. The button stays enabled so the
+       user can replay the flow without exiting and re-entering. */
+    #flow-next .flow-icon-restart { display: none; }
+    #flow-next.restart-mode .flow-icon-next { display: none; }
+    #flow-next.restart-mode .flow-icon-restart { display: inline; }
+    #flow-next.restart-mode {
+      color: rgba(255,255,255,0.9);
+      opacity: 1;
     }
 
     /* ─────────────────────────────────────────────────────────────
@@ -4829,15 +4878,6 @@
             <button class="sign-in-btn" id="reset-open-link-btn" type="button">I opened the reset link</button>
             <button class="reset-resend-btn" id="reset-resend-btn" type="button">Resend email</button>
             <p class="reset-cooldown-text" id="reset-cooldown-text"></p>
-            <!-- Wave-3 audit · Always-visible affordance for the
-                 reset-edit-different-email flow. The identifier-strip
-                 above offers the same action but only when an
-                 identifier has been set; this button guarantees the
-                 escape hatch regardless of entry path. Reuses the
-                 existing [data-identifier-edit="forgot-password"]
-                 delegated handler (see ~L8355). -->
-            <button class="sign-in-another-way-btn" id="reset-sent-edit-email-btn"
-              type="button" data-identifier-edit="forgot-password">Send to a different email</button>
             <button class="sign-in-another-way-btn" id="reset-sent-back-btn" type="button">Back to sign in</button>
             <!-- W2.5-lite · Demo "I received the link →" shortcut removed.
                  To preview the New Password screen, use the prototype navigator → "New password". -->
@@ -5111,7 +5151,7 @@
     Demo
   </button>
 
-  <div id="proto-nav-backdrop" aria-hidden="true"></div>
+  <!-- W3.5 · #proto-nav-backdrop removed — see CSS note above. -->
 
   <nav id="proto-nav-panel" aria-label="Demo controls" aria-hidden="true">
     <div class="proto-nav-header">
@@ -5480,8 +5520,17 @@
       <span id="flow-nav-step"></span>
       <span id="flow-nav-counter"></span>
     </div>
+    <!-- W3.5 · Return-to-flow. Hidden by default; revealed via
+         .off-route on #flow-nav-bar. Click re-applies the expected
+         step so the auto-tracker can clear the off-route flag. -->
+    <button id="flow-return" aria-label="Return to expected step" title="Return to expected step">
+      <svg width="14" height="14" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v240H560v-80h128q-32-56-87.5-88T480-760q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z"/></svg>
+    </button>
     <button id="flow-next" class="flow-nav-arrow" aria-label="Next step">
-      <svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"/></svg>
+      <!-- W3.5 · Dual-glyph: default forward arrow + restart circle.
+           Toggled via .restart-mode (final step). -->
+      <svg class="flow-icon-next" width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"/></svg>
+      <svg class="flow-icon-restart" width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v240H560v-80h128q-32-56-87.5-88T480-760q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z"/></svg>
     </button>
     <button id="flow-exit" aria-label="Exit flow">
       <svg width="12" height="12" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="m249-207-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z"/></svg>
@@ -6118,6 +6167,101 @@
     screenChooser.removeAttribute('hidden');
     let currentScreen = screenChooser;
     updateBlurb();
+
+    // ── W3.5 · Screen-change observer ─────────────────────────
+    // Emits a `screenchange` CustomEvent on `document` whenever the
+    // active screen changes OR a per-screen `data-*-state` attribute
+    // changes. Used by the flow nav tracker to auto-advance the
+    // progress bar and detect off-route navigation. Implemented via
+    // MutationObserver instead of instrumenting ~13 state setters —
+    // this catches every transition path with one setup block and is
+    // resilient to future code paths that mutate state attributes.
+    //
+    // Event detail: { screen: <id>, state: <string|null> }
+    // (Mirrors the per-screen state extraction in updateBlurb.)
+    (function initScreenChangeObserver() {
+      const SCREEN_IDS = [
+        'screen-chooser', 'screen-passkey', 'screen-passkey-enroll',
+        'screen-settings-security', 'screen-activity', 'screen-active-devices',
+        'screen-settings-passkeys', 'screen-settings-recovery-email',
+        'screen-recovery', 'screen-reenroll', 'screen-password',
+        'screen-account-locked', 'screen-forgot-password', 'screen-reset-sent',
+        'screen-new-password', 'screen-reset-success', 'screen-otp-no-access',
+        'screen-otp',
+      ];
+      const STATE_ATTRS = [
+        'data-chooser-state', 'data-passkey-state', 'data-enroll-state',
+        'data-settings-state', 'data-recovery-email-state',
+        'data-recovery-state', 'data-reenroll-state', 'data-pw-state',
+        'data-forgotpw-state', 'data-newpw-state',
+        'data-otp-state', 'data-otp-substate',
+      ];
+
+      function getCurrentScreenAndState() {
+        // Find the visible screen (the one without [hidden]).
+        let visibleId = null;
+        for (const id of SCREEN_IDS) {
+          const el = document.getElementById(id);
+          if (el && !el.hasAttribute('hidden')) { visibleId = id; break; }
+        }
+        if (!visibleId) return { screen: null, state: null };
+
+        const el = document.getElementById(visibleId);
+        let state = null;
+        if (visibleId === 'screen-otp') {
+          const otpState = el.getAttribute('data-otp-state') || 'request';
+          state = (otpState === 'request')
+            ? 'request'
+            : (el.getAttribute('data-otp-substate') || 'default');
+        } else if (visibleId === 'screen-passkey') {
+          state = el.getAttribute('data-passkey-state') || 'idle';
+        } else if (visibleId === 'screen-passkey-enroll') {
+          state = el.getAttribute('data-enroll-state') || 'prompt';
+        } else if (visibleId === 'screen-settings-passkeys') {
+          state = el.getAttribute('data-settings-state') || 'list';
+        } else if (visibleId === 'screen-settings-recovery-email') {
+          state = el.getAttribute('data-recovery-email-state') || 'request';
+        } else if (visibleId === 'screen-chooser') {
+          state = el.getAttribute('data-chooser-state') || 'default';
+        } else if (visibleId === 'screen-reenroll') {
+          state = el.getAttribute('data-reenroll-state') || 'prompt';
+        } else if (visibleId === 'screen-recovery') {
+          state = el.getAttribute('data-recovery-state') || null;
+        } else if (visibleId === 'screen-new-password') {
+          state = el.getAttribute('data-newpw-state') || null;
+        } else if (visibleId === 'screen-forgot-password') {
+          state = el.getAttribute('data-forgotpw-state') || null;
+        } else if (visibleId === 'screen-password') {
+          state = el.getAttribute('data-pw-state') || null;
+        }
+        return { screen: visibleId, state };
+      }
+
+      // Coalesce multiple mutations within the same tick into a single
+      // event. A screen swap typically touches [hidden] on two elements
+      // back-to-back, and state setters often run sequentially; we only
+      // care about the final resting state.
+      let pendingScreenEmit = false;
+      function emitScreenChange() {
+        if (pendingScreenEmit) return;
+        pendingScreenEmit = true;
+        queueMicrotask(() => {
+          pendingScreenEmit = false;
+          const detail = getCurrentScreenAndState();
+          document.dispatchEvent(new CustomEvent('screenchange', { detail }));
+        });
+      }
+
+      const observer = new MutationObserver(emitScreenChange);
+      SCREEN_IDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        observer.observe(el, {
+          attributes: true,
+          attributeFilter: ['hidden', ...STATE_ATTRS],
+        });
+      });
+    })();
 
     // ── Biometric state helper ────────────────────────────────
     function setBiometricState(state, label, sub) {
@@ -7030,7 +7174,6 @@
     (function () {
       const toggle    = document.getElementById('proto-nav-toggle');
       const panel     = document.getElementById('proto-nav-panel');
-      const backdrop  = document.getElementById('proto-nav-backdrop');
       const closeBtn  = document.getElementById('proto-nav-close');
 
       // ── Flow definitions ──────────────────────────────────────
@@ -7088,37 +7231,28 @@
             { screen: 'screen-chooser', state: 'default', banner: 'passkey-not-found', label: 'Chooser — no passkey on this device (banner)' },
           ],
         },
-        // The four os-sheet flows below show what happens INSIDE the browser/OS
-        // WebAuthn dialog (Touch ID, Face ID, security key, QR-scan handoff). These
-        // are not HTML screens the prototype can walk — they live entirely in the
-        // user-agent. `trigger: 'os-sheet'` tells the audit harness to skip click-
-        // path validation; the rendered Figma frame is the source of truth.
         {
           id: 'passkey-os-sheet-happy', group: 'Passkey Sign-In',
           label: 'OS Native Sheet — Happy Path',
           figmaUrl: FIGMA + '198-63',
-          trigger: 'os-sheet',
           steps: null,
         },
         {
           id: 'passkey-os-sheet-biometric-fail', group: 'Passkey Sign-In',
           label: 'Biometric Fails (OS Sheet)',
           figmaUrl: FIGMA + '198-68',
-          trigger: 'os-sheet',
           steps: null,
         },
         {
           id: 'passkey-os-sheet-no-passkey', group: 'Passkey Sign-In',
           label: 'No Passkey Enrolled (OS Sheet)',
           figmaUrl: FIGMA + '198-73',
-          trigger: 'os-sheet',
           steps: null,
         },
         {
           id: 'passkey-os-sheet-enroll-nudge', group: 'Passkey Sign-In',
           label: 'Enrollment Nudge (OS Sheet)',
           figmaUrl: FIGMA + '198-78',
-          trigger: 'os-sheet',
           steps: null,
         },
 
@@ -7216,10 +7350,7 @@
             { screen: 'screen-chooser',       state: 'default', label: 'Chooser — no passkey' },
             { screen: 'screen-password',      state: null,      label: 'Password — entry' },
             { screen: 'screen-password',      state: 'error',   label: 'Password — wrong password' },
-            // Lockout is reached automatically after the 3rd wrong attempt
-            // (no button click). Marked `trigger: 'auto'` so the audit
-            // harness skips clickable-path checks for this transition.
-            { screen: 'screen-account-locked', state: null,     label: 'Account locked', trigger: 'auto' },
+            { screen: 'screen-account-locked', state: null,     label: 'Account locked' },
           ],
         },
         {
@@ -7307,10 +7438,7 @@
             { screen: 'screen-otp',    state: 'request',      label: 'OTP — request code' },
             { screen: 'screen-otp', state: 'default', label: 'Code entry' },
             { screen: 'screen-otp', state: 'wrong',   label: 'Code entry — wrong code' },
-            // Lockout fires automatically after the 3rd wrong code (no
-            // button click). `trigger: 'auto'` tells the audit harness
-            // to skip clickable-path checks for this transition.
-            { screen: 'screen-otp', state: 'locked',  label: 'Code entry — locked out', trigger: 'auto' },
+            { screen: 'screen-otp', state: 'locked',  label: 'Code entry — locked out' },
           ],
         },
         {
@@ -7665,7 +7793,6 @@
 
       function openNav() {
         panel.classList.add('nav-open');
-        backdrop.classList.add('nav-open');
         toggle.setAttribute('aria-expanded', 'true');
         panel.setAttribute('aria-hidden', 'false');
         updateActiveItem();
@@ -7673,7 +7800,6 @@
 
       function closeNav() {
         panel.classList.remove('nav-open');
-        backdrop.classList.remove('nav-open');
         toggle.setAttribute('aria-expanded', 'false');
         panel.setAttribute('aria-hidden', 'true');
       }
@@ -7716,7 +7842,7 @@
       });
 
       closeBtn.addEventListener('click', closeNav);
-      backdrop.addEventListener('click', closeNav);
+      // W3.5 · backdrop click-to-close removed along with the backdrop itself.
 
       document.addEventListener('keydown', e => {
         if (e.key === 'Escape' && panel.classList.contains('nav-open')) closeNav();
@@ -7828,11 +7954,16 @@
       // ── Flow navigation state & functions ─────────────────────────
       let activeFlow     = null;
       let activeFlowStep = 0;
+      // W3.5 · True when the user has navigated off the active flow's
+      // expected route. Cleared whenever the on-screen state matches a
+      // flow step again (auto-advance or return-to-flow click).
+      let flowIsOffRoute = false;
 
       const flowNavBar     = document.getElementById('flow-nav-bar');
       const flowPrevBtn    = document.getElementById('flow-prev');
       const flowNextBtn    = document.getElementById('flow-next');
       const flowExitBtn    = document.getElementById('flow-exit');
+      const flowReturnBtn  = document.getElementById('flow-return');
       const flowNavStep    = document.getElementById('flow-nav-step');
       const flowNavCounter = document.getElementById('flow-nav-counter');
 
@@ -7842,7 +7973,25 @@
         flowNavStep.textContent    = steps[n].label;
         flowNavCounter.textContent = `${n + 1} / ${steps.length}`;
         flowPrevBtn.disabled = (n === 0);
-        flowNextBtn.disabled = (n === steps.length - 1);
+
+        // W3.5 · Restart-on-completion. On the final step the disabled
+        // next arrow is repurposed as a restart affordance — same button,
+        // swapped glyph (handled in CSS via .restart-mode), swapped
+        // behavior (handled in the click listener below).
+        const isLast = (n === steps.length - 1);
+        flowNextBtn.classList.toggle('restart-mode', isLast);
+        flowNextBtn.disabled = false;
+        flowNextBtn.setAttribute(
+          'aria-label',
+          isLast ? 'Restart flow' : 'Next step'
+        );
+        flowNextBtn.setAttribute(
+          'title',
+          isLast ? 'Restart flow' : 'Next step'
+        );
+
+        flowNavBar.classList.toggle('off-route', flowIsOffRoute);
+
         flowsList.querySelectorAll('.proto-flow-btn').forEach(b =>
           b.classList.toggle('flow-active', b.dataset.flowId === activeFlow.id)
         );
@@ -7852,6 +8001,9 @@
         if (!activeFlow) return;
         const clamped = Math.max(0, Math.min(n, activeFlow.steps.length - 1));
         activeFlowStep = clamped;
+        // Re-applying a step is a "we're back on route" gesture, so clear
+        // the off-route flag before updating the UI.
+        flowIsOffRoute = false;
         applyStep(activeFlow.steps[clamped]);
         updateFlowNavUI();
       }
@@ -7859,7 +8011,10 @@
       function exitFlow() {
         activeFlow     = null;
         activeFlowStep = 0;
+        flowIsOffRoute = false;
         flowNavBar.hidden = true;
+        flowNavBar.classList.remove('off-route');
+        flowNextBtn.classList.remove('restart-mode');
         flowsList.querySelectorAll('.proto-flow-btn').forEach(b =>
           b.classList.remove('flow-active')
         );
@@ -7875,14 +8030,89 @@
         setSignInIdentifier('shopper@example.com');
         activeFlow     = flow;
         activeFlowStep = 0;
+        flowIsOffRoute = false;
         flowNavBar.hidden = false;
         applyStep(flow.steps[0]);
         updateFlowNavUI();
       }
 
+      // W3.5 · Flow auto-progress tracker.
+      // Subscribes to the screenchange event (fired by a MutationObserver
+      // on every screen's [hidden] and data-*-state attrs). When a flow
+      // is active, the listener compares the new on-screen state to the
+      // active flow's step list and:
+      //
+      //   • If the new state matches the NEXT step  → auto-advance.
+      //   • If it matches a LATER step              → skip-ahead to it.
+      //     (Some flows compress multiple states under one user click —
+      //     e.g. passkey idle → success in one biometric scan.)
+      //   • If it matches the CURRENT step          → on-route stay
+      //     (user came back) — clear the off-route flag.
+      //   • Otherwise                               → mark off-route.
+      //
+      // The predicate self-protects against false advances triggered by
+      // the flow itself: goToFlowStep updates activeFlowStep *before*
+      // applyStep runs, so by the time the mutation observer fires the
+      // event, activeFlowStep is already at the new index — and the
+      // "next" step has moved one further, no false advance.
+      function stepMatchesCurrent(step, current) {
+        if (!step || step.screen !== current.screen) return false;
+        // Step state of null means "any state on this screen counts".
+        if (step.state == null) return true;
+        return step.state === current.state;
+      }
+
+      document.addEventListener('screenchange', e => {
+        if (!activeFlow) return;
+        const current = e.detail;
+        if (!current || !current.screen) return;
+
+        const steps = activeFlow.steps;
+        const n     = activeFlowStep;
+
+        // Forward-match: find the earliest step AFTER the current one
+        // that matches. Catches both exact next-step and skip-ahead.
+        for (let i = n + 1; i < steps.length; i++) {
+          if (stepMatchesCurrent(steps[i], current)) {
+            goToFlowStep(i);   // clears off-route, applies step, updates UI
+            return;
+          }
+        }
+
+        // Stay-on-current match — user is still on the right step
+        // (maybe came back from off-route, maybe a re-render). Clear
+        // the off-route flag silently without re-applying the step.
+        if (stepMatchesCurrent(steps[n], current)) {
+          if (flowIsOffRoute) {
+            flowIsOffRoute = false;
+            updateFlowNavUI();
+          }
+          return;
+        }
+
+        // No forward or current match → off-route. Reveal the indicator
+        // and the Return-to-flow button without advancing.
+        if (!flowIsOffRoute) {
+          flowIsOffRoute = true;
+          updateFlowNavUI();
+        }
+      });
+
       flowPrevBtn.addEventListener('click', () => goToFlowStep(activeFlowStep - 1));
-      flowNextBtn.addEventListener('click', () => goToFlowStep(activeFlowStep + 1));
+      flowNextBtn.addEventListener('click', () => {
+        // W3.5 · In restart mode (final step) the next button restarts
+        // the flow from step 1 instead of advancing.
+        if (flowNextBtn.classList.contains('restart-mode')) {
+          enterFlow(activeFlow.id);
+        } else {
+          goToFlowStep(activeFlowStep + 1);
+        }
+      });
       flowExitBtn.addEventListener('click', exitFlow);
+      // W3.5 · Return-to-flow: re-apply the expected step. The state
+      // change that follows will satisfy stepMatchesCurrent and clear
+      // the off-route flag via the screenchange listener.
+      flowReturnBtn.addEventListener('click', () => goToFlowStep(activeFlowStep));
 
       // Clicking a screen in the Screens tab while a flow is active exits the flow
       panel.querySelectorAll('.proto-nav-item[data-nav-target]').forEach(btn => {
@@ -8967,7 +9197,8 @@
         '.comments-toast',
         '#proto-nav-toggle',
         '#proto-nav-panel',
-        '#proto-nav-backdrop',
+        // W3.5 · #proto-nav-backdrop removed — kept here only as a no-op
+        // anchor would be misleading; just drop the reference.
       ].join(',');
 
       function onStageClick(e) {
