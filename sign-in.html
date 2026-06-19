@@ -8716,7 +8716,14 @@
 
       function updateCountPill() {
         if (!countPill) return;
-        const open = comments.filter((c) => c.status === 'open').length;
+        // Scope the toggle's pill to the currently viewed screen so it
+        // mirrors exactly what's rendered as dots. (Per-screen and
+        // per-flow totals still live in the Demo controls nav.)
+        const screen = getActiveScreen();
+        const screenId = screen && screen.id;
+        const open = screenId
+          ? comments.filter((c) => c.screenId === screenId && c.status === 'open').length
+          : 0;
         if (open > 0) {
           countPill.textContent = open > 99 ? '99+' : String(open);
           countPill.style.display = '';
