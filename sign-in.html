@@ -8519,13 +8519,12 @@
         const overlay = ensureOverlay(screen);
         if (!overlay) return;
         overlay.innerHTML = '';
-        // Resolved comments are hidden from the canvas by design — the
-        // count pill and toast/undo flow surface them when needed.
-        const screenComments = comments.filter((c) =>
-          c.screenId === screen.id && c.status !== 'resolved'
-        );
-        // Sort by createdAt (open-only after filter)
-        screenComments.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+        const screenComments = comments.filter((c) => c.screenId === screen.id);
+        // Sort: open first, then resolved; within each group by createdAt
+        screenComments.sort((a, b) => {
+          if (a.status !== b.status) return a.status === 'open' ? -1 : 1;
+          return (a.createdAt || 0) - (b.createdAt || 0);
+        });
         let i = 1;
         for (const c of screenComments) {
           const dot = document.createElement('div');
