@@ -1,0 +1,95 @@
+[
+  {
+    "id": "passkey-happy",
+    "label": "Happy Path — Passkey / Face ID",
+    "setupError": null,
+    "transitions": [
+      {
+        "from": "screen-chooser/passkey-first",
+        "to": "screen-passkey/idle",
+        "broken": false,
+        "forwardPaths": ["chooser-passkey-cta"]
+      },
+      {
+        "from": "screen-passkey/idle",
+        "to": "screen-passkey/success",
+        "broken": false,
+        "forwardPaths": ["passkey-try-btn"]
+      }
+    ]
+  },
+  {
+    "id": "passkey-biometric-failed",
+    "label": "Biometric Failed",
+    "setupError": null,
+    "transitions": [
+      {
+        "from": "screen-chooser/passkey-first",
+        "to": "screen-passkey/idle",
+        "broken": true,
+        "note": "On 2nd+ run, biometric simulation succeeds → passkey/success, not idle baseline. Test side-effect, not real bug."
+      },
+      {
+        "from": "screen-passkey/idle",
+        "to": "screen-passkey/failed",
+        "broken": true,
+        "note": "passkey-try-btn always goes to success in this prototype. No button on passkey/idle leads to failed state — failed must be triggered via demo nav or auto-escalation. NEEDS FIX: add a way to reach failed from idle, OR remove this transition from flow definition."
+      }
+    ]
+  },
+  {
+    "id": "passkey-failed-fallback-password",
+    "label": "Biometric Failed → Password Fallback",
+    "setupError": null,
+    "transitions": [
+      {
+        "from": "screen-passkey/idle",
+        "to": "screen-passkey/failed",
+        "broken": true,
+        "note": "Same as above — no idle→failed path."
+      },
+      {
+        "from": "screen-passkey/failed",
+        "to": "screen-password/*",
+        "broken": true,
+        "note": "passkey-fallback-password lands on screen-passkey/idle, not screen-password. BUG: 'Password' fallback button doesn't navigate to password screen."
+      }
+    ]
+  },
+  {
+    "id": "passkey-not-found",
+    "label": "No Passkey Found",
+    "setupError": null,
+    "transitions": [
+      {
+        "from": "screen-chooser/default",
+        "to": "screen-passkey/idle",
+        "broken": true,
+        "note": "From chooser/default (no passkey detected), no button leads to screen-passkey. tile-passkey, chooser-continue-btn all stay on chooser. This may be CORRECT — when no passkey is detected, you shouldn't be able to reach the passkey screen via Face ID tile. The 'No Passkey Found' flow may need redefinition: starting state should be passkey/idle directly (via OS sheet)."
+      },
+      {
+        "from": "screen-passkey/idle",
+        "to": "screen-chooser/default",
+        "broken": true,
+        "note": "passkey-other-btn lands on passkey/idle, not chooser/default. BUG: 'Sign in another way' should return to chooser."
+      }
+    ]
+  },
+  {
+    "id": "passkey-os-sheet-happy",
+    "error": "Cannot read properties of null (reading '0')",
+    "note": "Flow definition uses null screen for OS sheet step. Need to handle in harness."
+  },
+  {
+    "id": "passkey-os-sheet-biometric-fail",
+    "error": "Cannot read properties of null (reading '0')"
+  },
+  {
+    "id": "passkey-os-sheet-no-passkey",
+    "error": "Cannot read properties of null (reading '0')"
+  },
+  {
+    "id": "passkey-os-sheet-enroll-nudge",
+    "error": "Cannot read properties of null (reading '0')"
+  }
+]

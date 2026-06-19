@@ -1,0 +1,44 @@
+{
+  "batch": "C",
+  "groups": ["Passkey Registration & Enrollment", "Password Reset"],
+  "totalFlows": 10,
+  "realBugs": [
+    {
+      "severity": "P1",
+      "id": "enroll-declined-no-exit",
+      "details": "screen-passkey-enroll/declined has no button that navigates to chooser. User reaches a dead-end after declining enrollment.",
+      "flow": "enroll-declined-fork"
+    },
+    {
+      "severity": "P1",
+      "id": "enroll-suppressed-no-exit",
+      "details": "screen-passkey-enroll/suppressed (Don't ask again confirmed) has no button to return to chooser/main app. Dead-end.",
+      "flow": "enroll-declined-never step 1"
+    },
+    {
+      "severity": "P0",
+      "id": "new-password-save-broken",
+      "details": "Save new password button on screen-new-password does not navigate to screen-reset-success. Confirmed in both reset-happy and password-forgot flows.",
+      "flow": "reset-happy"
+    },
+    {
+      "severity": "P1",
+      "id": "reset-sent-edit-different-email",
+      "details": "'Edit' button on screen-reset-sent (Send the reset to a different email) does not navigate back to screen-forgot-password.",
+      "flow": "reset-edit-different-email"
+    }
+  ],
+  "workingCorrectly": [
+    "enroll-setup-btn → enroll/success",
+    "enroll-skip-btn → enroll/declined",
+    "enroll-decline-later-btn (reaches suppressed screen)",
+    "reset-send-btn → reset-sent",
+    "reset-open-link-btn → new-password",
+    "reset-open-link-btn → new-password/expired (in expired-link flow)",
+    "rate-limit trigger via send-reset-email button"
+  ],
+  "screenOnlyAcceptable": [
+    "enroll-biometric-fail (real failure state requires actual WebAuthn error)",
+    "enroll-already-enrolled (requires InvalidStateError)"
+  ]
+}

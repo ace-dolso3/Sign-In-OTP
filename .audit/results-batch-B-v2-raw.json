@@ -1,0 +1,545 @@
+{
+  "count": 13,
+  "results": [
+    {
+      "id": "password-happy",
+      "label": "Happy Path \u2014 Password Sign-In",
+      "group": "Password Sign-In",
+      "setupError": null,
+      "transitions": [
+        {
+          "from": "screen-chooser/default",
+          "to": "screen-password/",
+          "trigger": "click",
+          "skipped": false,
+          "fromMatched": true,
+          "fromActual": "screen-chooser/default",
+          "forwardPaths": [
+            "tile-password-chooser"
+          ],
+          "forwardScreenOnly": [],
+          "broken": false
+        },
+        {
+          "from": "screen-password/",
+          "to": "screen-otp/default",
+          "trigger": "click",
+          "skipped": false,
+          "fromMatched": true,
+          "fromActual": "screen-password/",
+          "forwardPaths": [
+            "pw-submit-btn"
+          ],
+          "forwardScreenOnly": [],
+          "broken": false
+        },
+        {
+          "from": "screen-otp/default",
+          "to": "screen-passkey-enroll/prompt",
+          "trigger": "click",
+          "skipped": true,
+          "fromActual": null,
+          "forwardPaths": [],
+          "forwardScreenOnly": [],
+          "broken": false
+        }
+      ]
+    },
+    {
+      "id": "password-wrong",
+      "label": "Wrong Password",
+      "group": "Password Sign-In",
+      "setupError": null,
+      "transitions": [
+        {
+          "from": "screen-chooser/default",
+          "to": "screen-password/",
+          "trigger": "click",
+          "skipped": false,
+          "fromMatched": true,
+          "fromActual": "screen-chooser/default",
+          "forwardPaths": [
+            "tile-password-chooser"
+          ],
+          "forwardScreenOnly": [],
+          "broken": false
+        },
+        {
+          "from": "screen-password/",
+          "to": "screen-password/error",
+          "trigger": "click",
+          "skipped": false,
+          "fromMatched": true,
+          "fromActual": "screen-password/",
+          "forwardPaths": [
+            "idx:38",
+            "idx:40",
+            "idx:54",
+            "idx:55"
+          ],
+          "forwardScreenOnly": [],
+          "broken": false
+        }
+      ]
+    },
+    {
+      "id": "password-account-locked",
+      "label": "Account Locked",
+      "group": "Password Sign-In",
+      "setupError": null,
+      "transitions": [
+        {
+          "from": "screen-chooser/default",
+          "to": "screen-password/",
+          "trigger": "click",
+          "skipped": false,
+          "fromMatched": true,
+          "fromActual": "screen-chooser/default",
+          "forwardPaths": [
+            "tile-password-chooser"
+          ],
+          "forwardScreenOnly": [],
+          "broken": false
+        },
+        {
+          "from": "screen-password/",
+          "to": "screen-password/error",
+          "trigger": "click",
+          "skipped": false,
+          "fromMatched": true,
+          "fromActual": "screen-password/",
+          "forwardPaths": [
+            "idx:38",
+            "idx:40",
+            "idx:54",
+            "idx:55"
+          ],
+          "forwardScreenOnly": [],
+          "broken": false
+        },
+        {
+          "from": "screen-password/error",
+          "to": "screen-account-locked/",
+          "trigger": "click",
+          "skipped": false,
+          "fromMatched": true,
+          "fromActual": "screen-password/error",
+          "forwardPaths": [],
+          "forwardScreenOnly": [],
+          "broken": true
+        }
+      ]
+    },
+    {
+      "id": "password-identifier-first",
+      "label": "Identifier-First Password Entry",
+      "group": "Password Sign-In",
+      "setupError": null,
+      "transitions": [
+        {
+          "from": "screen-chooser/default",
+          "to": "screen-password/",
+          "trigger": "click",
+          "skipped": false,
+          "fromMatched": true,
+          "fromActual": "screen-chooser/default",
+          "forwardPaths": [
+            "tile-password-chooser"
+          ],
+          "forwardScreenOnly": [],
+          "broken": false
+        },
+        {
+          "from": "screen-password/",
+          "to": "screen-otp/default",
+          "trigger": "click",
+          "skipped": false,
+          "fromMatched": true,
+          "fromActual": "screen-password/",
+          "forwardPaths": [
+            "pw-submit-btn"
+          ],
+          "forwardScreenOnly": [],
+          "broken": false
+        },
+        {
+          "from": "screen-otp/default",
+          "to": "screen-passkey-enroll/prompt",
+          "trigger": "click",
+          "skipped": true,
+          "fromActual": null,
+          "forwardPaths": [],
+          "forwardScreenOnly": [],
+          "broken": false
+        }
+      ]
+    },
+    {
+      "id": "password-forgot",
+      "label": "Forgot Password \u2192 Reset",
+      "group": "Password Sign-In",
+      "setupError": null,
+      "transitions": [
+        {
+          "from": "screen-chooser/default",
+          "to": "screen-password/",
+          "trigger": "click",
+          "skipped": false,
+          "fromMatched": true,
+          "fromActual": "screen-chooser/default",
+          "forwardPaths": [
+            "tile-password-chooser"
+          ],
+          "forwardScreenOnly": [],
+          "broken": false
+        },
+        {
+          "from": "screen-password/",
+          "to": "screen-forgot-password/",
+          "trigger": "click",
+          "skipped": false,
+          "fromMatched": true,
+          "fromActual": "screen-password/",
+          "forwardPaths": [
+            "idx:26"
+          ],
+          "forwardScreenOnly": [],
+          "broken": false
+        },
+        {
+          "from": "screen-forgot-password/",
+          "to": "screen-reset-sent/",
+          "trigger": "click",
+          "skipped": false,
+          "fromMatched": true,
+          "fromActual": "screen-forgot-password/",
+          "forwardPaths": [
+            "reset-send-btn"
+          ],
+          "forwardScreenOnly": [],
+          "broken": false
+        },
+        {
+          "from": "screen-reset-sent/",
+          "to": "screen-new-password/",
+          "trigger": "click",
+          "skipped": false,
+          "fromMatched": false,
+          "fromActual": "screen-forgot-password/",
+          "forwardPaths": [],
+          "forwardScreenOnly": [],
+          "broken": true
+        },
+        {
+          "from": "screen-new-password/",
+          "to": "screen-reset-success/",
+          "trigger": "click",
+          "skipped": false,
+          "fromMatched": false,
+          "fromActual": "screen-reset-sent/",
+          "forwardPaths": [],
+          "forwardScreenOnly": [],
+          "broken": true
+        }
+      ]
+    },
+    {
+      "id": "otp-happy",
+      "label": "Happy Path \u2014 OTP Sign-In",
+      "group": "One-Time Code (OTP) Sign-In",
+      "setupError": null,
+      "transitions": [
+        {
+          "from": "screen-chooser/default",
+          "to": "screen-otp/request",
+          "trigger": "click",
+          "skipped": false,
+          "fromMatched": true,
+          "fromActual": "screen-chooser/default",
+          "forwardPaths": [
+            "tile-otp-chooser"
+          ],
+          "forwardScreenOnly": [],
+          "broken": false
+        },
+        {
+          "from": "screen-otp/request",
+          "to": "screen-otp/default",
+          "trigger": "click",
+          "skipped": false,
+          "fromMatched": true,
+          "fromActual": "screen-otp/request",
+          "forwardPaths": [
+            "otp-send-btn"
+          ],
+          "forwardScreenOnly": [
+            "otp-screen-tile-email",
+            "otp-screen-tile-phone",
+            "idx:46",
+            "idx:47",
+            "idx:48"
+          ],
+          "broken": false
+        },
+        {
+          "from": "screen-otp/default",
+          "to": "screen-passkey-enroll/prompt",
+          "trigger": "click",
+          "skipped": true,
+          "fromActual": null,
+          "forwardPaths": [],
+          "forwardScreenOnly": [],
+          "broken": false
+        }
+      ]
+    },
+    {
+      "id": "otp-wrong-code",
+      "label": "Wrong Code",
+      "group": "One-Time Code (OTP) Sign-In",
+      "setupError": null,
+      "transitions": [
+        {
+          "from": "screen-chooser/default",
+          "to": "screen-otp/request",
+          "trigger": "click",
+          "skipped": false,
+          "fromMatched": true,
+          "fromActual": "screen-chooser/default",
+          "forwardPaths": [
+            "tile-otp-chooser"
+          ],
+          "forwardScreenOnly": [],
+          "broken": false
+        },
+        {
+          "from": "screen-otp/request",
+          "to": "screen-otp/default",
+          "trigger": "click",
+          "skipped": false,
+          "fromMatched": true,
+          "fromActual": "screen-otp/request",
+          "forwardPaths": [
+            "otp-send-btn"
+          ],
+          "forwardScreenOnly": [
+            "otp-screen-tile-email",
+            "otp-screen-tile-phone",
+            "idx:46",
+            "idx:47",
+            "idx:48"
+          ],
+          "broken": false
+        },
+        {
+          "from": "screen-otp/default",
+          "to": "screen-otp/wrong",
+          "trigger": "click",
+          "skipped": false,
+          "fromMatched": true,
+          "fromActual": "screen-otp/entered",
+          "forwardPaths": [
+            "verify-btn",
+            "resend-btn"
+          ],
+          "forwardScreenOnly": [],
+          "broken": false
+        }
+      ]
+    },
+    {
+      "id": "otp-resend-cooldown",
+      "label": "Resend Cooldown",
+      "group": "One-Time Code (OTP) Sign-In",
+      "setupError": null,
+      "transitions": [
+        {
+          "from": "screen-otp/request",
+          "to": "screen-otp/default",
+          "trigger": "click",
+          "skipped": false,
+          "fromMatched": true,
+          "fromActual": "screen-otp/request",
+          "forwardPaths": [
+            "otp-send-btn"
+          ],
+          "forwardScreenOnly": [
+            "otp-screen-tile-email",
+            "otp-screen-tile-phone",
+            "idx:46",
+            "idx:47",
+            "idx:48"
+          ],
+          "broken": false
+        },
+        {
+          "from": "screen-otp/default",
+          "to": "screen-otp/cooldown",
+          "trigger": "click",
+          "skipped": true,
+          "fromActual": null,
+          "forwardPaths": [],
+          "forwardScreenOnly": [],
+          "broken": false
+        }
+      ]
+    },
+    {
+      "id": "otp-expired",
+      "label": "Expired Code",
+      "group": "One-Time Code (OTP) Sign-In",
+      "setupError": null,
+      "transitions": [
+        {
+          "from": "screen-otp/request",
+          "to": "screen-otp/default",
+          "trigger": "click",
+          "skipped": false,
+          "fromMatched": true,
+          "fromActual": "screen-otp/request",
+          "forwardPaths": [
+            "otp-send-btn"
+          ],
+          "forwardScreenOnly": [
+            "otp-screen-tile-email",
+            "otp-screen-tile-phone",
+            "idx:46",
+            "idx:47",
+            "idx:48"
+          ],
+          "broken": false
+        },
+        {
+          "from": "screen-otp/default",
+          "to": "screen-otp/expired",
+          "trigger": "click",
+          "skipped": true,
+          "fromActual": null,
+          "forwardPaths": [],
+          "forwardScreenOnly": [],
+          "broken": false
+        }
+      ]
+    },
+    {
+      "id": "otp-locked",
+      "label": "Account Locked",
+      "group": "One-Time Code (OTP) Sign-In",
+      "setupError": null,
+      "transitions": [
+        {
+          "from": "screen-otp/request",
+          "to": "screen-otp/default",
+          "trigger": "click",
+          "skipped": false,
+          "fromMatched": true,
+          "fromActual": "screen-otp/request",
+          "forwardPaths": [
+            "otp-send-btn"
+          ],
+          "forwardScreenOnly": [
+            "otp-screen-tile-email",
+            "otp-screen-tile-phone",
+            "idx:46",
+            "idx:47",
+            "idx:48"
+          ],
+          "broken": false
+        },
+        {
+          "from": "screen-otp/default",
+          "to": "screen-otp/wrong",
+          "trigger": "click",
+          "skipped": false,
+          "fromMatched": true,
+          "fromActual": "screen-otp/entered",
+          "forwardPaths": [
+            "verify-btn",
+            "resend-btn"
+          ],
+          "forwardScreenOnly": [],
+          "broken": false
+        },
+        {
+          "from": "screen-otp/wrong",
+          "to": "screen-otp/locked",
+          "trigger": "click",
+          "skipped": true,
+          "fromActual": null,
+          "forwardPaths": [],
+          "forwardScreenOnly": [],
+          "broken": false
+        }
+      ]
+    },
+    {
+      "id": "otp-resent-confirm",
+      "label": "Code Resent",
+      "group": "One-Time Code (OTP) Sign-In",
+      "setupError": null,
+      "transitions": [
+        {
+          "from": "screen-otp/default",
+          "to": "screen-otp/resent",
+          "trigger": "click",
+          "skipped": true,
+          "fromActual": null,
+          "forwardPaths": [],
+          "forwardScreenOnly": [],
+          "broken": false
+        }
+      ]
+    },
+    {
+      "id": "otp-no-access",
+      "label": "Can't Access Code",
+      "group": "One-Time Code (OTP) Sign-In",
+      "setupError": null,
+      "transitions": [
+        {
+          "from": "screen-otp/default",
+          "to": "screen-otp-no-access/",
+          "trigger": "click",
+          "skipped": false,
+          "fromMatched": true,
+          "fromActual": "screen-otp/entered",
+          "forwardPaths": [],
+          "forwardScreenOnly": [],
+          "broken": true
+        }
+      ]
+    },
+    {
+      "id": "otp-no-access-use-password",
+      "label": "Can't Access Code \u2192 Switch to Password",
+      "group": "One-Time Code (OTP) Sign-In",
+      "setupError": null,
+      "transitions": [
+        {
+          "from": "screen-otp/default",
+          "to": "screen-otp-no-access/",
+          "trigger": "click",
+          "skipped": false,
+          "fromMatched": true,
+          "fromActual": "screen-otp/entered",
+          "forwardPaths": [],
+          "forwardScreenOnly": [],
+          "broken": true
+        },
+        {
+          "from": "screen-otp-no-access/",
+          "to": "screen-password/",
+          "trigger": "click",
+          "skipped": false,
+          "fromMatched": true,
+          "fromActual": "screen-otp-no-access/",
+          "forwardPaths": [
+            "no-access-password-btn"
+          ],
+          "forwardScreenOnly": [],
+          "broken": false
+        }
+      ]
+    }
+  ]
+}

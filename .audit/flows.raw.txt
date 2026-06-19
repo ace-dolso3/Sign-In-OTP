@@ -1,0 +1,507 @@
+[
+
+        
+        {
+          "id": "passkey-happy", "group": "Passkey Sign-In",
+          "label": "Happy Path — Passkey / Face ID",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=660-213",
+          
+          
+          
+          
+          "steps": [
+            { "screen": "screen-chooser",  "state": "passkey-first", "label": "Chooser — passkey detected" },
+            { "screen": "screen-passkey",  "state": "idle",          "label": "Passkey prompt — biometric idle" },
+            { "screen": "screen-passkey",  "state": "success",       "label": "Signed in — biometric confirmed (terminal step)" }
+          ]
+        },
+        {
+          "id": "passkey-biometric-failed", "group": "Passkey Sign-In",
+          "label": "Biometric Failed",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=660-238",
+          "steps": [
+            { "screen": "screen-chooser", "state": "passkey-first", "label": "Chooser — passkey detected" },
+            { "screen": "screen-passkey", "state": "idle",          "label": "Passkey prompt — biometric idle" },
+            { "screen": "screen-passkey", "state": "failed",        "label": "Passkey — biometric failed" }
+          ]
+        },
+        {
+          "id": "passkey-failed-fallback-password", "group": "Passkey Sign-In",
+          "label": "Biometric Failed → Password Fallback",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=677-195",
+          "steps": [
+            { "screen": "screen-passkey",  "state": "idle",   "label": "Passkey prompt — biometric idle" },
+            { "screen": "screen-passkey",  "state": "failed", "label": "Passkey failed — fallback tiles visible" },
+            { "screen": "screen-password", "state": null,     "label": "Password — entry (chose Use a password)" }
+          ]
+        },
+        {
+          "id": "passkey-not-found", "group": "Passkey Sign-In",
+          "label": "No Passkey Found",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=660-263",
+          "steps": [
+            { "screen": "screen-chooser", "state": "default", "label": "Chooser — no passkey" },
+            { "screen": "screen-passkey", "state": "idle",    "label": "Passkey prompt — initiating auth" },
+            
+            
+            
+            
+            { "screen": "screen-chooser", "state": "default", "banner": "passkey-not-found", "label": "Chooser — no passkey on this device (banner)" }
+          ]
+        },
+        {
+          "id": "passkey-os-sheet-happy", "group": "Passkey Sign-In",
+          "label": "OS Native Sheet — Happy Path",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=198-63",
+          "steps": null
+        },
+        {
+          "id": "passkey-os-sheet-biometric-fail", "group": "Passkey Sign-In",
+          "label": "Biometric Fails (OS Sheet)",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=198-68",
+          "steps": null
+        },
+        {
+          "id": "passkey-os-sheet-no-passkey", "group": "Passkey Sign-In",
+          "label": "No Passkey Enrolled (OS Sheet)",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=198-73",
+          "steps": null
+        },
+        {
+          "id": "passkey-os-sheet-enroll-nudge", "group": "Passkey Sign-In",
+          "label": "Enrollment Nudge (OS Sheet)",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=198-78",
+          "steps": null
+        },
+
+        
+        {
+          "id": "cross-device-happy", "group": "Cross-Device Passkey Sign-In",
+          "label": "Happy Path — Cross-Device via QR",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=660-292",
+          
+          
+          
+          "steps": [
+            { "screen": "screen-chooser",        "state": "default",      "label": "Chooser — no passkey" },
+            { "screen": "screen-passkey",        "state": "idle",         "label": "Passkey prompt — use another device" },
+            { "screen": "screen-passkey",        "state": "cross-device", "label": "Cross-device — QR shown" },
+            { "screen": "screen-passkey-enroll", "state": "prompt",       "label": "Signed in — passkey enrollment offer (terminal step)" }
+          ]
+        },
+        {
+          "id": "cross-device-direct", "group": "Cross-Device Passkey Sign-In",
+          "label": "Direct Entry — “Use Another Device” Tile",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=677-248",
+          "steps": [
+            { "screen": "screen-chooser", "state": "default",      "label": "Chooser — user taps “Use another device” tile" },
+            { "screen": "screen-passkey", "state": "cross-device", "label": "Cross-device — QR shown (skips passkey idle)" }
+          ]
+        },
+        {
+          "id": "cross-device-qr-expired", "group": "Cross-Device Passkey Sign-In",
+          "label": "QR Code Expired",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=660-325",
+          "steps": [
+            { "screen": "screen-passkey", "state": "cross-device",        "label": "Cross-device — QR shown" },
+            { "screen": "screen-passkey", "state": "cross-device-failed", "label": "Cross-device — QR expired" }
+          ]
+        },
+        {
+          "id": "cross-device-no-passkey", "group": "Cross-Device Passkey Sign-In",
+          "label": "No Passkey on Phone",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=660-342",
+          "steps": [
+            { "screen": "screen-passkey", "state": "cross-device",               "label": "Cross-device — QR shown" },
+            { "screen": "screen-passkey", "state": "cross-device-no-credential", "label": "Cross-device — no passkey on phone" }
+          ]
+        },
+        {
+          "id": "cross-device-bluetooth-error", "group": "Cross-Device Passkey Sign-In",
+          "label": "Bluetooth / Proximity Error",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=660-359",
+          "steps": [
+            { "screen": "screen-passkey", "state": "cross-device",                "label": "Cross-device — QR shown" },
+            { "screen": "screen-passkey", "state": "cross-device-transport-error", "label": "Cross-device — Bluetooth error" }
+          ]
+        },
+        {
+          "id": "cross-device-transport-fork", "group": "Cross-Device Passkey Sign-In",
+          "label": "Transport Error Fork",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=670-181",
+          "steps": [
+            { "screen": "screen-passkey", "state": "cross-device-transport-error", "label": "Cross-device — Bluetooth error" },
+            { "screen": "screen-passkey", "state": "cross-device",                 "label": "Retry — QR shown again" },
+            { "screen": "screen-chooser", "state": "default",                      "label": "Sign in another way — chooser" }
+          ]
+        },
+
+        
+        {
+          "id": "password-happy", "group": "Password Sign-In",
+          "label": "Happy Path — Password Sign-In",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=660-380",
+          
+          
+          "steps": [
+            { "screen": "screen-chooser",        "state": "default", "label": "Chooser — no passkey" },
+            { "screen": "screen-password",       "state": null,      "label": "Password — entry" },
+            { "screen": "screen-otp",         "state": "default", "label": "MFA — verify code" },
+            { "screen": "screen-passkey-enroll", "state": "prompt",  "label": "Signed in — passkey enrollment offer (terminal step)" }
+          ]
+        },
+        {
+          "id": "password-wrong", "group": "Password Sign-In",
+          "label": "Wrong Password",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=660-413",
+          "steps": [
+            { "screen": "screen-chooser",  "state": "default", "label": "Chooser — no passkey" },
+            { "screen": "screen-password", "state": null,      "label": "Password — entry" },
+            { "screen": "screen-password", "state": "error",   "label": "Password — wrong password" }
+          ]
+        },
+        {
+          "id": "password-account-locked", "group": "Password Sign-In",
+          "label": "Account Locked",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=660-438",
+          "steps": [
+            { "screen": "screen-chooser",       "state": "default", "label": "Chooser — no passkey" },
+            { "screen": "screen-password",      "state": null,      "label": "Password — entry" },
+            { "screen": "screen-password",      "state": "error",   "label": "Password — wrong password" },
+            { "screen": "screen-account-locked", "state": null,     "label": "Account locked" }
+          ]
+        },
+        {
+          "id": "password-identifier-first", "group": "Password Sign-In",
+          "label": "Identifier-First Password Entry",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=660-471",
+          "steps": [
+            { "screen": "screen-chooser",  "state": "default", "identifier": "shopper@example.com", "label": "Chooser — email entered" },
+            { "screen": "screen-password", "state": null,      "label": "Password — prefilled identifier context" },
+            { "screen": "screen-otp",      "state": "default", "label": "MFA — verify code" },
+            { "screen": "screen-passkey-enroll", "state": "prompt", "label": "Signed in — passkey enrollment offer (terminal step)" }
+          ]
+        },
+        {
+          "id": "password-forgot", "group": "Password Sign-In",
+          "label": "Forgot Password → Reset",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=660-650",
+          "steps": [
+            { "screen": "screen-chooser",         "state": "default", "identifier": "shopper@example.com", "label": "Chooser — no passkey" },
+            { "screen": "screen-password",        "state": null,      "label": "Password — entry" },
+            { "screen": "screen-forgot-password", "state": null,      "label": "Forgot password — email entry" },
+            { "screen": "screen-reset-sent",      "state": null,      "label": "Reset email sent" },
+            { "screen": "screen-new-password",    "state": null,      "label": "New password entry" },
+            { "screen": "screen-reset-success",   "state": null,      "label": "Password reset success" }
+          ]
+        },
+
+        
+        
+        
+        
+        
+        
+        
+        
+        {
+          "id": "otp-happy", "group": "One-Time Code (OTP) Sign-In",
+          "label": "Happy Path — OTP Sign-In",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=660-492",
+          
+          
+          "steps": [
+            { "screen": "screen-chooser",        "state": "default", "label": "Chooser — no passkey" },
+            { "screen": "screen-otp",            "state": "request",      "label": "OTP — request code (delivery picker panel)" },
+            { "screen": "screen-otp",         "state": "default", "label": "OTP — code entry (entered panel · default substate)" },
+            { "screen": "screen-passkey-enroll", "state": "prompt",  "label": "Signed in — passkey enrollment offer (terminal step)" }
+          ]
+        },
+        {
+          "id": "otp-wrong-code", "group": "One-Time Code (OTP) Sign-In",
+          "label": "Wrong Code",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=660-525",
+          "steps": [
+            { "screen": "screen-chooser", "state": "default", "label": "Chooser — no passkey" },
+            { "screen": "screen-otp",     "state": "request",      "label": "OTP — request code" },
+            { "screen": "screen-otp",  "state": "default", "label": "Code entry" },
+            { "screen": "screen-otp",  "state": "wrong",   "label": "Code entry — wrong code" }
+          ]
+        },
+        {
+          "id": "otp-resend-cooldown", "group": "One-Time Code (OTP) Sign-In",
+          "label": "Resend Cooldown",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=670-212",
+          "steps": [
+            { "screen": "screen-otp",    "state": "request",       "label": "OTP — request code" },
+            { "screen": "screen-otp", "state": "default",  "label": "Code entry" },
+            { "screen": "screen-otp", "state": "cooldown", "label": "Code entry — resend cooldown" }
+          ]
+        },
+        {
+          "id": "otp-expired", "group": "One-Time Code (OTP) Sign-In",
+          "label": "Expired Code",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=660-550",
+          "steps": [
+            { "screen": "screen-otp",    "state": "request",      "label": "OTP — request code" },
+            { "screen": "screen-otp", "state": "default", "label": "Code entry" },
+            { "screen": "screen-otp", "state": "expired", "label": "Code entry — code expired" }
+          ]
+        },
+        {
+          "id": "otp-locked", "group": "One-Time Code (OTP) Sign-In",
+          "label": "Account Locked",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=660-575",
+          "steps": [
+            { "screen": "screen-otp",    "state": "request",      "label": "OTP — request code" },
+            { "screen": "screen-otp", "state": "default", "label": "Code entry" },
+            { "screen": "screen-otp", "state": "wrong",   "label": "Code entry — wrong code" },
+            { "screen": "screen-otp", "state": "locked",  "label": "Code entry — locked out" }
+          ]
+        },
+        {
+          "id": "otp-resent-confirm", "group": "One-Time Code (OTP) Sign-In",
+          "label": "Code Resent",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=670-237",
+          "steps": [
+            { "screen": "screen-otp", "state": "default", "label": "Code entry" },
+            { "screen": "screen-otp", "state": "resent",  "label": "Code entry — code resent" }
+          ]
+        },
+        {
+          "id": "otp-no-access", "group": "One-Time Code (OTP) Sign-In",
+          "label": "Can't Access Code",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=670-262",
+          "steps": [
+            { "screen": "screen-otp",       "state": "default", "label": "Code entry" },
+            { "screen": "screen-otp-no-access", "state": null,     "label": "Can't access code" }
+          ]
+        },
+        {
+          "id": "otp-no-access-use-password", "group": "One-Time Code (OTP) Sign-In",
+          "label": "Can't Access Code → Switch to Password",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=670-287",
+          "steps": [
+            { "screen": "screen-otp",           "state": "default", "label": "Code entry" },
+            { "screen": "screen-otp-no-access", "state": null,     "label": "Can't access code — escape options" },
+            { "screen": "screen-password",      "state": null,     "label": "Password — entry (chose Use Password Instead)" }
+          ]
+        },
+
+        
+        {
+          "id": "enroll-happy", "group": "Passkey Registration & Enrollment",
+          "label": "Happy Path — Passkey Registration",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=660-612",
+          
+          
+          
+          "steps": [
+            { "screen": "screen-passkey-enroll", "state": "prompt",  "label": "Enrollment — opt-in prompt" },
+            { "screen": "screen-passkey-enroll", "state": "success", "label": "Passkey saved — sign-in complete (terminal step)" }
+          ]
+        },
+        {
+          "id": "enroll-biometric-fail", "group": "Passkey Registration & Enrollment",
+          "label": "Biometric Fails / User Cancels",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=670-326",
+          "steps": [
+            { "screen": "screen-passkey-enroll", "state": "prompt", "label": "Enrollment — opt-in prompt" },
+            { "screen": "screen-passkey-enroll", "state": "error",  "label": "Enrollment — failed / cancelled" }
+          ]
+        },
+        {
+          "id": "enroll-already-enrolled", "group": "Passkey Registration & Enrollment",
+          "label": "Passkey Already Exists",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=670-343",
+          "steps": [
+            { "screen": "screen-passkey-enroll", "state": "prompt",           "label": "Enrollment — opt-in prompt" },
+            { "screen": "screen-passkey-enroll", "state": "already-enrolled", "label": "Enrollment — already enrolled" }
+          ]
+        },
+        {
+          "id": "enroll-declined", "group": "Passkey Registration & Enrollment",
+          "label": "User Declines Setup",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=670-360",
+          "steps": [
+            { "screen": "screen-passkey-enroll", "state": "prompt",   "label": "Enrollment — opt-in prompt" },
+            { "screen": "screen-passkey-enroll", "state": "declined", "label": "Enrollment — declined / skipped" }
+          ]
+        },
+        {
+          "id": "enroll-declined-fork", "group": "Passkey Registration & Enrollment",
+          "label": "Declined Fork — Maybe Later",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=670-377",
+          
+          
+          
+          
+          "steps": [
+            { "screen": "screen-passkey-enroll", "state": "declined",   "label": "Declined — choice shown" },
+            { "screen": "screen-chooser",        "state": "default",    "label": "Maybe Later — demo loops back to chooser (no signed-in destination)" }
+          ]
+        },
+        {
+          "id": "enroll-declined-never", "group": "Passkey Registration & Enrollment",
+          "label": "Declined Fork — Don\'t Ask Again",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=660-629",
+          
+          
+          "steps": [
+            { "screen": "screen-passkey-enroll", "state": "declined",   "label": "Declined — choice shown" },
+            { "screen": "screen-passkey-enroll", "state": "suppressed", "label": "Don\'t ask again — preference confirmed" },
+            { "screen": "screen-chooser",        "state": "default",    "label": "Demo loops back to chooser (no signed-in destination)" }
+          ]
+        },
+
+        
+        {
+          "id": "reset-happy", "group": "Password Reset",
+          "label": "Happy Path — Password Reset",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=660-650",
+          "steps": [
+            { "screen": "screen-forgot-password", "state": null,      "label": "Forgot password — email entry" },
+            { "screen": "screen-reset-sent",      "state": null,      "label": "Reset email sent" },
+            { "screen": "screen-new-password",    "state": null,      "label": "New password entry" },
+            { "screen": "screen-reset-success",   "state": null,      "label": "Password reset success" }
+          ]
+        },
+        {
+          "id": "reset-link-expired", "group": "Password Reset",
+          "label": "Reset Link Expired",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=660-683",
+          "steps": [
+            { "screen": "screen-forgot-password", "state": null,      "label": "Forgot password — email entry" },
+            { "screen": "screen-reset-sent",      "state": null,      "label": "Reset email sent" },
+            { "screen": "screen-new-password",    "state": "expired", "label": "New password — link expired" }
+          ]
+        },
+        {
+          "id": "reset-rate-limited", "group": "Password Reset",
+          "label": "Rate Limiting",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=670-408",
+          "steps": [
+            { "screen": "screen-forgot-password", "state": null,           "label": "Forgot password — email entry" },
+            { "screen": "screen-forgot-password", "state": "rate-limited", "label": "Forgot password — rate limited" }
+          ]
+        },
+        {
+          "id": "reset-edit-different-email", "group": "Password Reset",
+          "label": "Edit Identifier — Send to Different Email",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=677-309",
+          "steps": [
+            { "screen": "screen-forgot-password", "state": null, "label": "Forgot password — email entry" },
+            { "screen": "screen-reset-sent",      "state": null, "label": "Reset email sent — identifier strip visible" },
+            { "screen": "screen-forgot-password", "state": null, "label": "Edit tapped — back to entry, field cleared" },
+            { "screen": "screen-reset-sent",      "state": null, "label": "Reset email sent — new address" }
+          ]
+        },
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+
+        
+        
+        
+        {
+          "id": "recovery-email-setup-happy", "group": "Recovery Email Setup",
+          "label": "Happy Path — Add Recovery Email",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=660-712",
+          "steps": [
+            { "screen": "screen-settings-security",       "state": "recovery-not-set",                 "label": "Security hub — Recovery email not set" },
+            { "screen": "screen-settings-recovery-email", "state": "request",                          "label": "Recovery email — enter backup address" },
+            { "screen": "screen-settings-recovery-email", "state": "sent",                             "label": "Recovery email — verification link sent" },
+            { "screen": "screen-settings-security",       "state": "recovery-verified",                "label": "Security hub — Recovery email verified" }
+          ]
+        },
+        {
+          "id": "recovery-email-setup-pending", "group": "Recovery Email Setup",
+          "label": "Pending Verification — Hub Reflects Status",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=677-370",
+          "steps": [
+            { "screen": "screen-settings-security",       "state": "recovery-not-set",                 "label": "Security hub — Recovery email not set" },
+            { "screen": "screen-settings-recovery-email", "state": "request",                          "label": "Recovery email — enter backup address" },
+            { "screen": "screen-settings-recovery-email", "state": "sent",                             "label": "Recovery email — verification link sent" },
+            { "screen": "screen-settings-security",       "state": "recovery-pending",                 "label": "Security hub — Recovery email pending verification" }
+          ]
+        },
+        {
+          "id": "recovery-email-setup-change", "group": "Recovery Email Setup",
+          "label": "Use a Different Email — Loop Back",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=677-431",
+          "steps": [
+            { "screen": "screen-settings-recovery-email", "state": "request", "label": "Recovery email — enter backup address" },
+            { "screen": "screen-settings-recovery-email", "state": "sent",    "label": "Recovery email — verification link sent" },
+            { "screen": "screen-settings-recovery-email", "state": "request", "label": "Recovery email — tap “Use a different email” → back to entry" }
+          ]
+        },
+
+        
+        {
+          "id": "settings-overview", "group": "Account Settings & Security",
+          "label": "Overview — Security Settings",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=670-447",
+          "steps": [
+            { "screen": "screen-settings-security", "state": null, "label": "Security hub" }
+          ]
+        },
+        {
+          "id": "settings-activity-log", "group": "Account Settings & Security",
+          "label": "Sign-In Activity Log",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=660-749",
+          "steps": [
+            { "screen": "screen-settings-security", "state": null, "label": "Security hub" },
+            { "screen": "screen-activity",          "state": null, "label": "Activity log" }
+          ]
+        },
+        {
+          "id": "settings-active-devices", "group": "Account Settings & Security",
+          "label": "Active Devices & Remote Sign-Out",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=660-766",
+          "steps": [
+            { "screen": "screen-settings-security", "state": null, "label": "Security hub" },
+            { "screen": "screen-active-devices",    "state": null, "label": "Active devices" }
+          ]
+        },
+        {
+          "id": "settings-rename-passkey", "group": "Account Settings & Security",
+          "label": "Rename a Passkey",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=670-464",
+          "steps": [
+            { "screen": "screen-settings-security", "state": null,     "label": "Security hub" },
+            { "screen": "screen-settings-passkeys", "state": "list",   "label": "Passkeys list" },
+            { "screen": "screen-settings-passkeys", "state": "rename", "label": "Rename passkey — edit field" }
+          ]
+        },
+        {
+          "id": "settings-remove-passkey", "group": "Account Settings & Security",
+          "label": "Remove a Passkey",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=670-489",
+          "steps": [
+            { "screen": "screen-settings-security", "state": null,     "label": "Security hub" },
+            { "screen": "screen-settings-passkeys", "state": "list",   "label": "Passkeys list" },
+            { "screen": "screen-settings-passkeys", "state": "remove", "label": "Remove passkey — confirmation" }
+          ]
+        },
+        {
+          "id": "settings-remove-last-passkey", "group": "Account Settings & Security",
+          "label": "Remove Last Passkey (Only Passkey)",
+          "figmaUrl": "https://www.figma.com/design/IDuYbd4aYwGsFgo6c3ThVX/Sign-In-Redesign--OTP-?node-id=660-783",
+          "steps": [
+            { "screen": "screen-settings-security", "state": null,          "label": "Security hub" },
+            { "screen": "screen-settings-passkeys", "state": "list",        "label": "Passkeys list — one passkey" },
+            { "screen": "screen-settings-passkeys", "state": "remove-last", "label": "Remove last — stricter warning" }
+          ]
+        }
+
+      ]

@@ -1,0 +1,80 @@
+{
+  "batch": "A",
+  "groups": ["Passkey Sign-In", "Cross-Device Passkey Sign-In"],
+  "patchedHarness": true,
+  "summary": {
+    "totalFlows": 14,
+    "errors": 4,
+    "brokenTransitions": 2,
+    "screenOnlyMatches": 5,
+    "fullyWorkingTransitions": 9,
+    "skippedAuto": 4
+  },
+  "realBugs": [
+    {
+      "flow": "passkey-failed-fallback-password",
+      "transition": "screen-passkey/failed → screen-password",
+      "details": "passkey-fallback-password button does not navigate to screen-password",
+      "severity": "P1"
+    },
+    {
+      "flow": "cross-device-direct",
+      "transition": "screen-chooser/default → screen-passkey/cross-device",
+      "details": "tile-cd-chooser does NOT navigate (no clickables matched screen-passkey at all). The 'Use another device' chooser tile is dead.",
+      "severity": "P0"
+    },
+    {
+      "flow": "cross-device-transport-fork",
+      "transition": "screen-passkey/cross-device → screen-chooser/default",
+      "details": "passkey-qr-cancel button lands on null/empty screen (not chooser). Likely animation race or broken handler. Re-verify manually.",
+      "severity": "P1"
+    }
+  ],
+  "errors": [
+    {
+      "flowIds": ["passkey-os-sheet-happy","passkey-os-sheet-biometric-fail","passkey-os-sheet-no-passkey","passkey-os-sheet-enroll-nudge"],
+      "error": "Cannot read properties of null (reading '0')",
+      "cause": "Flow step has screen:null (OS-level system sheet, not a prototype screen). Runner needs null-screen handling.",
+      "action": "Mark these step transitions as trigger:'os-sheet' (not auditable in HTML prototype)"
+    }
+  ],
+  "results": [
+    {"id":"passkey-happy","group":"Passkey Sign-In","transitions":[
+      {"from":"screen-chooser/passkey-first","to":"screen-passkey/idle","status":"OK","via":["chooser-passkey-cta"]},
+      {"from":"screen-passkey/idle","to":"screen-passkey/success","status":"OK","via":["passkey-try-btn"]}
+    ]},
+    {"id":"passkey-biometric-failed","group":"Passkey Sign-In","transitions":[
+      {"from":"screen-chooser/passkey-first","to":"screen-passkey/idle","status":"OK","via":["chooser-passkey-cta"]},
+      {"from":"screen-passkey/idle","to":"screen-passkey/failed","status":"SCREEN-ONLY","note":"passkey-try-btn lands on success not failed (only demo-nav reaches failed)"}
+    ]},
+    {"id":"passkey-failed-fallback-password","group":"Passkey Sign-In","transitions":[
+      {"from":"screen-passkey/idle","to":"screen-passkey/failed","status":"SCREEN-ONLY","note":"same as above"},
+      {"from":"screen-passkey/failed","to":"screen-password","status":"BROKEN","details":"passkey-fallback-password handler missing or wrong dest"}
+    ]},
+    {"id":"passkey-not-found","group":"Passkey Sign-In","transitions":[
+      {"from":"screen-chooser/default","to":"screen-passkey/idle","status":"OK","via":["tile-passkey"]},
+      {"from":"screen-passkey/idle","to":"screen-chooser/default","status":"SCREEN-ONLY","note":"passkey-other-btn reaches chooser screen (state differs)"}
+    ]},
+    {"id":"cross-device-happy","group":"Cross-Device Passkey Sign-In","transitions":[
+      {"from":"screen-chooser/default","to":"screen-passkey/idle","status":"OK","via":["tile-passkey"]},
+      {"from":"screen-passkey/idle","to":"screen-passkey/cross-device","status":"OK","via":["passkey-cd-btn"]},
+      {"from":"screen-passkey/cross-device","to":"screen-passkey-enroll/prompt","status":"AUTO-SKIPPED"}
+    ]},
+    {"id":"cross-device-direct","group":"Cross-Device Passkey Sign-In","transitions":[
+      {"from":"screen-chooser/default","to":"screen-passkey/cross-device","status":"BROKEN","details":"tile-cd-chooser does not navigate at all"}
+    ]},
+    {"id":"cross-device-qr-expired","group":"Cross-Device Passkey Sign-In","transitions":[
+      {"from":"screen-passkey/cross-device","to":"screen-passkey/cross-device-failed","status":"AUTO-SKIPPED"}
+    ]},
+    {"id":"cross-device-no-passkey","group":"Cross-Device Passkey Sign-In","transitions":[
+      {"from":"screen-passkey/cross-device","to":"screen-passkey/cross-device-no-credential","status":"AUTO-SKIPPED"}
+    ]},
+    {"id":"cross-device-bluetooth-error","group":"Cross-Device Passkey Sign-In","transitions":[
+      {"from":"screen-passkey/cross-device","to":"screen-passkey/cross-device-transport-error","status":"AUTO-SKIPPED"}
+    ]},
+    {"id":"cross-device-transport-fork","group":"Cross-Device Passkey Sign-In","transitions":[
+      {"from":"screen-passkey/cross-device-transport-error","to":"screen-passkey/cross-device","status":"OK","via":["passkey-transport-retry-btn"]},
+      {"from":"screen-passkey/cross-device","to":"screen-chooser/default","status":"BROKEN","details":"passkey-qr-cancel does not navigate"}
+    ]}
+  ]
+}

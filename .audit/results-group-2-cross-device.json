@@ -1,0 +1,47 @@
+[
+  {
+    "id": "cross-device-happy",
+    "label": "Happy Path — Cross-Device via QR",
+    "transitions": [
+      { "from": "screen-chooser/default", "to": "screen-passkey/idle", "broken": false, "forwardPaths": ["tile-passkey"] },
+      { "from": "screen-passkey/idle", "to": "screen-passkey/cross-device", "broken": false, "forwardPaths": ["passkey-cd-btn"] },
+      { "from": "screen-passkey/cross-device", "to": "screen-passkey-enroll/prompt", "broken": true, "note": "Only clickable is 'Sign in another way' → idle. No path from QR to enrollment prompt. May be simulated (timed) state — not a CTA-driven transition. NEEDS-DECISION: is this transition expected to be auto-triggered after successful cross-device sign-in?" }
+    ]
+  },
+  {
+    "id": "cross-device-direct",
+    "label": "Direct Entry — \"Use Another Device\" Tile",
+    "transitions": [
+      { "from": "screen-chooser/default", "to": "screen-passkey/cross-device", "broken": true, "note": "REAL BUG: tile-cd-chooser click stays on chooser/default. The 'Use another device' tile on chooser should navigate directly to passkey/cross-device. FIX: wire tile-cd-chooser to call switchScreen('screen-chooser','screen-passkey') + setPasskeyState('cross-device')." }
+    ]
+  },
+  {
+    "id": "cross-device-qr-expired",
+    "label": "QR Code Expired",
+    "transitions": [
+      { "from": "screen-passkey/cross-device", "to": "screen-passkey/cross-device-failed", "broken": true, "note": "Only button is 'Sign in another way' which exits to chooser. QR-expired state likely fires via timer simulation. Expected — not a click-driven transition. Acceptable." }
+    ]
+  },
+  {
+    "id": "cross-device-no-passkey",
+    "label": "No Passkey on Phone",
+    "transitions": [
+      { "from": "screen-passkey/cross-device", "to": "screen-passkey/cross-device-no-credential", "broken": true, "note": "Same as above — simulated state, not click-driven. Acceptable." }
+    ]
+  },
+  {
+    "id": "cross-device-bluetooth-error",
+    "label": "Bluetooth / Proximity Error",
+    "transitions": [
+      { "from": "screen-passkey/cross-device", "to": "screen-passkey/cross-device-transport-error", "broken": true, "note": "Same — simulated. Acceptable." }
+    ]
+  },
+  {
+    "id": "cross-device-transport-fork",
+    "label": "Transport Error Fork",
+    "transitions": [
+      { "from": "screen-passkey/cross-device-transport-error", "to": "screen-passkey/cross-device", "broken": false, "forwardPaths": ["passkey-transport-retry-btn"] },
+      { "from": "screen-passkey/cross-device", "to": "screen-chooser/default", "broken": true, "note": "passkey-qr-cancel landed=null (mid-animation race). Likely WORKING — re-test." }
+    ]
+  }
+]

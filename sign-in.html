@@ -4829,6 +4829,15 @@
             <button class="sign-in-btn" id="reset-open-link-btn" type="button">I opened the reset link</button>
             <button class="reset-resend-btn" id="reset-resend-btn" type="button">Resend email</button>
             <p class="reset-cooldown-text" id="reset-cooldown-text"></p>
+            <!-- Wave-3 audit · Always-visible affordance for the
+                 reset-edit-different-email flow. The identifier-strip
+                 above offers the same action but only when an
+                 identifier has been set; this button guarantees the
+                 escape hatch regardless of entry path. Reuses the
+                 existing [data-identifier-edit="forgot-password"]
+                 delegated handler (see ~L8355). -->
+            <button class="sign-in-another-way-btn" id="reset-sent-edit-email-btn"
+              type="button" data-identifier-edit="forgot-password">Send to a different email</button>
             <button class="sign-in-another-way-btn" id="reset-sent-back-btn" type="button">Back to sign in</button>
             <!-- W2.5-lite · Demo "I received the link →" shortcut removed.
                  To preview the New Password screen, use the prototype navigator → "New password". -->
@@ -7079,28 +7088,37 @@
             { screen: 'screen-chooser', state: 'default', banner: 'passkey-not-found', label: 'Chooser — no passkey on this device (banner)' },
           ],
         },
+        // The four os-sheet flows below show what happens INSIDE the browser/OS
+        // WebAuthn dialog (Touch ID, Face ID, security key, QR-scan handoff). These
+        // are not HTML screens the prototype can walk — they live entirely in the
+        // user-agent. `trigger: 'os-sheet'` tells the audit harness to skip click-
+        // path validation; the rendered Figma frame is the source of truth.
         {
           id: 'passkey-os-sheet-happy', group: 'Passkey Sign-In',
           label: 'OS Native Sheet — Happy Path',
           figmaUrl: FIGMA + '198-63',
+          trigger: 'os-sheet',
           steps: null,
         },
         {
           id: 'passkey-os-sheet-biometric-fail', group: 'Passkey Sign-In',
           label: 'Biometric Fails (OS Sheet)',
           figmaUrl: FIGMA + '198-68',
+          trigger: 'os-sheet',
           steps: null,
         },
         {
           id: 'passkey-os-sheet-no-passkey', group: 'Passkey Sign-In',
           label: 'No Passkey Enrolled (OS Sheet)',
           figmaUrl: FIGMA + '198-73',
+          trigger: 'os-sheet',
           steps: null,
         },
         {
           id: 'passkey-os-sheet-enroll-nudge', group: 'Passkey Sign-In',
           label: 'Enrollment Nudge (OS Sheet)',
           figmaUrl: FIGMA + '198-78',
+          trigger: 'os-sheet',
           steps: null,
         },
 
@@ -7198,7 +7216,10 @@
             { screen: 'screen-chooser',       state: 'default', label: 'Chooser — no passkey' },
             { screen: 'screen-password',      state: null,      label: 'Password — entry' },
             { screen: 'screen-password',      state: 'error',   label: 'Password — wrong password' },
-            { screen: 'screen-account-locked', state: null,     label: 'Account locked' },
+            // Lockout is reached automatically after the 3rd wrong attempt
+            // (no button click). Marked `trigger: 'auto'` so the audit
+            // harness skips clickable-path checks for this transition.
+            { screen: 'screen-account-locked', state: null,     label: 'Account locked', trigger: 'auto' },
           ],
         },
         {
@@ -7286,7 +7307,10 @@
             { screen: 'screen-otp',    state: 'request',      label: 'OTP — request code' },
             { screen: 'screen-otp', state: 'default', label: 'Code entry' },
             { screen: 'screen-otp', state: 'wrong',   label: 'Code entry — wrong code' },
-            { screen: 'screen-otp', state: 'locked',  label: 'Code entry — locked out' },
+            // Lockout fires automatically after the 3rd wrong code (no
+            // button click). `trigger: 'auto'` tells the audit harness
+            // to skip clickable-path checks for this transition.
+            { screen: 'screen-otp', state: 'locked',  label: 'Code entry — locked out', trigger: 'auto' },
           ],
         },
         {

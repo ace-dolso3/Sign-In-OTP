@@ -1,0 +1,25 @@
+{
+  "batch": "D",
+  "groups": ["Recovery Email Setup", "Account Settings & Security", "Account Recovery"],
+  "totalFlows": 9,
+  "noteGap": "FLOWS registry has no 'Account Recovery' group entries despite Demo navigator listing 5 recovery screens (Recovery entry, Rate-limited, Re-enroll prompt/success/failed). Either un-registered or named differently in code.",
+  "realBugs": [
+    {
+      "severity": "P3",
+      "id": "remove-last-passkey-state",
+      "details": "Remove button on passkeys list always lands on /remove state, never /remove-last — likely because list state doesn't track 'only one passkey left' to swap buttons. Cosmetic state-tracking gap; the remove action itself works.",
+      "flow": "settings-remove-last-passkey"
+    }
+  ],
+  "workingCorrectly": [
+    "security-recovery-email-btn → recovery-email/request",
+    "recovery-email-send-btn → recovery-email/sent",
+    "recovery-email-change-btn → recovery-email/request (loop)",
+    "security-activity-link → activity",
+    "security-manage-devices-btn → active-devices",
+    "security-passkeys-btn → passkeys/list",
+    "Rename buttons (idx:13, idx:23) → passkeys/rename",
+    "Remove buttons (idx:14, idx:24) → passkeys/remove",
+    "recovery-email-done-btn → security (state changes are async via verification simulation)"
+  ]
+}

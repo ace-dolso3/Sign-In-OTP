@@ -1,0 +1,205 @@
+
+== password-happy (Happy Path — Password Sign-In) [Password Sign-In]
+  [BROKEN] screen-chooser/default -> screen-password/  fwd=(none)
+      chooser-continue-btn: -> screen-chooser/default
+      tile-passkey: -> screen-passkey/idle
+      tile-cd-chooser: -> screen-chooser/default
+      tile-password-chooser: -> screen-chooser/default
+      tile-otp-chooser: -> screen-chooser/default
+      Create an Account: -> screen-chooser/default
+  [BROKEN] screen-password/ -> screen-otp/default  fwd=(none)
+      (unlabeled): -> screen-password/
+      (unlabeled): -> screen-password/
+      Forgot password?: -> screen-forgot-password/
+      Privacy: -> screen-password/
+      Terms: -> screen-password/
+      pw-submit-btn: -> screen-otp/
+  [BROKEN] screen-otp/default -> screen-passkey-enroll/prompt  fwd=(none)
+      verify-btn: -> screen-otp/
+      resend-btn: -> screen-otp/
+      verify-other-btn: -> screen-chooser/default
+      verify-cant-access-btn: -> null/
+
+== password-wrong (Wrong Password) [Password Sign-In]
+  [BROKEN] screen-chooser/default -> screen-password/  fwd=(none)
+      chooser-continue-btn: -> screen-chooser/default
+      tile-passkey: -> screen-passkey/idle
+      tile-cd-chooser: -> screen-chooser/default
+      tile-password-chooser: -> screen-chooser/default
+      tile-otp-chooser: -> screen-chooser/default
+      Create an Account: -> screen-chooser/default
+  [BROKEN] screen-password/ -> screen-password/error  fwd=(none)
+      (unlabeled): -> screen-password/
+      (unlabeled): -> screen-password/
+      Forgot password?: -> screen-forgot-password/
+      Privacy: -> screen-password/
+      Terms: -> screen-password/
+      pw-submit-btn: -> screen-otp/
+
+== password-account-locked (Account Locked) [Password Sign-In]
+  [BROKEN] screen-chooser/default -> screen-password/  fwd=(none)
+      chooser-continue-btn: -> screen-chooser/default
+      tile-passkey: -> screen-passkey/idle
+      tile-cd-chooser: -> screen-chooser/default
+      tile-password-chooser: -> screen-chooser/default
+      tile-otp-chooser: -> screen-chooser/default
+      Create an Account: -> screen-chooser/default
+  [BROKEN] screen-password/ -> screen-password/error  fwd=(none)
+      (unlabeled): -> screen-password/
+      (unlabeled): -> screen-password/
+      Forgot password?: -> screen-forgot-password/
+      Privacy: -> screen-password/
+      Terms: -> screen-password/
+      pw-submit-btn: -> screen-otp/
+  [BROKEN] screen-password/error -> screen-account-locked/  fwd=(none)
+      (unlabeled): -> screen-password/error
+      (unlabeled): -> screen-password/error
+      Forgot password?: -> screen-forgot-password/
+      Privacy: -> screen-password/error
+      Terms: -> screen-password/error
+      pw-submit-btn: -> screen-otp/
+
+== password-identifier-first (Identifier-First Password Entry) [Password Sign-In]
+  [BROKEN] screen-chooser/default -> screen-password/  fwd=(none)
+      chooser-continue-btn: -> screen-chooser/default
+      tile-passkey: -> screen-passkey/idle
+      tile-cd-chooser: -> screen-chooser/default
+      tile-password-chooser: -> screen-chooser/default
+      tile-otp-chooser: -> screen-chooser/default
+      Create an Account: -> screen-chooser/default
+  [BROKEN] screen-password/ -> screen-otp/default  fwd=(none)
+      (unlabeled): -> screen-password/
+      (unlabeled): -> screen-password/
+      Forgot password?: -> screen-forgot-password/
+      Privacy: -> screen-password/
+      Terms: -> screen-password/
+      pw-submit-btn: -> screen-otp/
+  [BROKEN] screen-otp/default -> screen-passkey-enroll/prompt  fwd=(none)
+      verify-btn: -> screen-otp/
+      resend-btn: -> screen-otp/
+      verify-other-btn: -> screen-chooser/default
+      verify-cant-access-btn: -> screen-otp-no-access/
+
+== password-forgot (Forgot Password → Reset) [Password Sign-In]
+  [BROKEN] screen-chooser/default -> screen-password/  fwd=(none)
+      chooser-continue-btn: -> screen-chooser/default
+      tile-passkey: -> screen-passkey/idle
+      tile-cd-chooser: -> screen-chooser/default
+      tile-password-chooser: -> screen-chooser/default
+      tile-otp-chooser: -> screen-chooser/default
+      Create an Account: -> screen-chooser/default
+  [OK] screen-password/ -> screen-forgot-password/  fwd=idx:26
+  [OK] screen-forgot-password/ -> screen-reset-sent/  fwd=reset-send-btn
+  [OK] screen-reset-sent/ -> screen-new-password/  fwd=reset-open-link-btn
+  [OK] screen-new-password/ -> screen-reset-success/  fwd=save-pw-btn
+
+== otp-happy (Happy Path — OTP Sign-In) [One-Time Code (OTP) Sign-In]
+  [BROKEN] screen-chooser/default -> screen-otp/request  fwd=(none)
+      chooser-continue-btn: -> screen-chooser/default
+      tile-passkey: -> screen-passkey/idle
+      tile-cd-chooser: -> screen-chooser/default
+      tile-password-chooser: -> screen-chooser/default
+      tile-otp-chooser: -> screen-chooser/default
+      Create an Account: -> screen-chooser/default
+  [BROKEN] screen-otp/request -> screen-otp/default  fwd=(none)
+      otp-screen-tile-email: -> screen-otp/
+      otp-screen-tile-phone: -> screen-otp/
+      otp-send-btn: -> screen-otp/
+      otp-other-btn: -> screen-chooser/default
+      otp-cant-access-link: -> screen-otp-no-access/
+      Ace Rewards® Terms: -> null/
+  [BROKEN] screen-otp/default -> screen-passkey-enroll/prompt  fwd=(none)
+      verify-btn: -> screen-otp/
+      resend-btn: -> screen-otp/
+      verify-other-btn: -> screen-chooser/default
+      verify-cant-access-btn: -> screen-otp-no-access/
+
+== otp-wrong-code (Wrong Code) [One-Time Code (OTP) Sign-In]
+  [BROKEN] screen-chooser/default -> screen-otp/request  fwd=(none)
+      chooser-continue-btn: -> screen-chooser/default
+      tile-passkey: -> screen-passkey/idle
+      tile-cd-chooser: -> screen-chooser/default
+      tile-password-chooser: -> screen-chooser/default
+      tile-otp-chooser: -> screen-chooser/default
+      Create an Account: -> screen-chooser/default
+  [BROKEN] screen-otp/request -> screen-otp/default  fwd=(none)
+      otp-screen-tile-email: -> screen-otp/
+      otp-screen-tile-phone: -> screen-otp/
+      otp-send-btn: -> screen-otp/
+      otp-other-btn: -> screen-chooser/default
+      otp-cant-access-link: -> screen-otp-no-access/
+      Ace Rewards® Terms: -> screen-otp/
+  [BROKEN] screen-otp/default -> screen-otp/wrong  fwd=(none)
+      verify-btn: -> screen-otp/
+      resend-btn: -> screen-otp/
+      verify-other-btn: -> screen-chooser/default
+      verify-cant-access-btn: -> null/
+
+== otp-resend-cooldown (Resend Cooldown) [One-Time Code (OTP) Sign-In]
+  [BROKEN] screen-otp/request -> screen-otp/default  fwd=(none)
+      otp-screen-tile-email: -> screen-otp/
+      otp-screen-tile-phone: -> screen-otp/
+      otp-send-btn: -> screen-otp/
+      otp-other-btn: -> screen-otp/
+      otp-cant-access-link: -> screen-otp-no-access/
+      Ace Rewards® Terms: -> screen-otp/
+  [BROKEN] screen-otp/default -> screen-otp/cooldown  fwd=(none)
+      verify-btn: -> screen-otp/
+      resend-btn: -> screen-otp/
+      verify-other-btn: -> screen-chooser/default
+      verify-cant-access-btn: -> screen-otp-no-access/
+
+== otp-expired (Expired Code) [One-Time Code (OTP) Sign-In]
+  [BROKEN] screen-otp/request -> screen-otp/default  fwd=(none)
+      otp-screen-tile-email: -> screen-otp/
+      otp-screen-tile-phone: -> screen-otp/
+      otp-send-btn: -> screen-otp/
+      otp-other-btn: -> screen-otp/
+      otp-cant-access-link: -> screen-otp-no-access/
+      Ace Rewards® Terms: -> screen-otp/
+  [BROKEN] screen-otp/default -> screen-otp/expired  fwd=(none)
+      verify-btn: -> screen-otp/
+      resend-btn: -> screen-otp/
+      verify-other-btn: -> screen-chooser/default
+      verify-cant-access-btn: -> screen-otp-no-access/
+
+== otp-locked (Account Locked) [One-Time Code (OTP) Sign-In]
+  [BROKEN] screen-otp/request -> screen-otp/default  fwd=(none)
+      otp-screen-tile-email: -> screen-otp/
+      otp-screen-tile-phone: -> screen-otp/
+      otp-send-btn: -> screen-otp/
+      otp-other-btn: -> screen-chooser/default
+      otp-cant-access-link: -> screen-otp/
+      Ace Rewards® Terms: -> screen-otp/
+  [BROKEN] screen-otp/default -> screen-otp/wrong  fwd=(none)
+      verify-btn: -> screen-otp/
+      resend-btn: -> screen-otp/
+      verify-other-btn: -> screen-chooser/default
+      verify-cant-access-btn: -> null/
+  [BROKEN] screen-otp/wrong -> screen-otp/locked  fwd=(none)
+      verify-btn: -> screen-otp/
+      resend-btn: -> screen-otp/
+      verify-other-btn: -> screen-chooser/default
+      verify-cant-access-btn: -> null/
+
+== otp-resent-confirm (Code Resent) [One-Time Code (OTP) Sign-In]
+  [BROKEN] screen-otp/default -> screen-otp/resent  fwd=(none)
+      verify-btn: -> screen-otp/
+      resend-btn: -> screen-otp/
+      verify-other-btn: -> screen-chooser/default
+      verify-cant-access-btn: -> null/
+
+== otp-no-access (Can't Access Code) [One-Time Code (OTP) Sign-In]
+  [BROKEN] screen-otp/default -> screen-otp-no-access/  fwd=(none)
+      verify-btn: -> screen-otp/
+      resend-btn: -> screen-otp/
+      verify-other-btn: -> screen-chooser/default
+      verify-cant-access-btn: -> null/
+
+== otp-no-access-use-password (Can't Access Code → Switch to Password) [One-Time Code (OTP) Sign-In]
+  [BROKEN] screen-otp/default -> screen-otp-no-access/  fwd=(none)
+      verify-btn: -> screen-otp/
+      resend-btn: -> screen-otp/
+      verify-other-btn: -> screen-chooser/default
+      verify-cant-access-btn: -> null/
+  [OK] screen-otp-no-access/ -> screen-password/  fwd=no-access-password-btn

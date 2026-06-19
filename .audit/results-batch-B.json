@@ -1,0 +1,56 @@
+{
+  "batch": "B",
+  "groups": ["Password Sign-In", "One-Time Code (OTP) Sign-In"],
+  "totalFlows": 13,
+  "realBugs": [
+    {
+      "severity": "P0",
+      "id": "tile-password-chooser-dead",
+      "details": "Clicking 'Use a password' on chooser does NOT navigate to screen-password. Confirmed across 5 flows: password-happy, password-wrong, password-account-locked, password-identifier-first, password-forgot.",
+      "affectedFlows": ["password-happy","password-wrong","password-account-locked","password-identifier-first","password-forgot"]
+    },
+    {
+      "severity": "P0",
+      "id": "tile-otp-chooser-dead",
+      "details": "Clicking 'Get a one-time code' on chooser does NOT navigate to screen-otp/request. Confirmed across otp flows.",
+      "affectedFlows": ["otp-happy","otp-wrong-code"]
+    },
+    {
+      "severity": "P1",
+      "id": "password-error-to-locked",
+      "details": "screen-password/error → screen-account-locked has no button path. Account-locked transition is likely auto-triggered after 3rd wrong attempt — needs to be marked trigger:'auto' OR the wrong-password handler needs to detect attempts and dispatch.",
+      "flow": "password-account-locked"
+    },
+    {
+      "severity": "P1",
+      "id": "new-password-save",
+      "details": "Save new password button on screen-new-password does NOT navigate to screen-reset-success.",
+      "flow": "password-forgot"
+    },
+    {
+      "severity": "P1",
+      "id": "otp-no-access-entry",
+      "details": "No button on screen-otp/default reaches screen-otp-no-access. 'Can't access this code? Get help' link href='#' likely doesn't have handler.",
+      "flow": "otp-no-access"
+    }
+  ],
+  "workingCorrectly": [
+    "pw-submit-btn → screen-otp/default",
+    "wrong-password 3-strike error display (idx-based buttons confirmed reach error state)",
+    "forgot password link in password screen → forgot-password",
+    "reset-send-btn → reset-sent",
+    "reset-open-link-btn → new-password",
+    "otp-send-btn → otp/default",
+    "verify-btn / resend-btn from otp/default reach otp/wrong",
+    "no-access-password-btn → screen-password"
+  ],
+  "autoSkipped": [
+    "password-happy step #2 (auto-enrollment prompt)",
+    "password-identifier-first step #2",
+    "otp-happy step #2",
+    "otp-resend-cooldown step #1 (cooldown timer)",
+    "otp-expired step #1 (expiry timer)",
+    "otp-locked step #2 (3-strike auto-lock)",
+    "otp-resent-confirm step #0 (resend confirmation)"
+  ]
+}
