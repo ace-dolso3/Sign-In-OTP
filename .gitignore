@@ -5,3 +5,5 @@ figma-export/
 .review-tmp/
 node_modules/
 .sync-tmp/
+standalone/
+.font-cache/
