@@ -8837,12 +8837,28 @@
     (function commentsOverlay() {
       'use strict';
 
+      // ── Build-time mode ──────────────────────────────────────
+      // 'api'   → talks to /api/comments (owner-side, working prototype)
+      // 'local' → localStorage-only, no fetch, export-as-JSON (standalone
+      //           -review.html handed to a colleague). Injected at build
+      //           time by scripts/build-standalone.mjs via window globals.
+      const MODE = (typeof window !== 'undefined' && window.__COMMENTS_MODE__) || 'api';
+      const SOURCE_HASH = (typeof window !== 'undefined' && window.__COMMENTS_SOURCE_HASH__) || 'dev';
+      const BRANCH_NAME = (typeof window !== 'undefined' && window.__COMMENTS_BRANCH__) || 'local';
+      const IS_LOCAL = MODE === 'local';
+
       const API_URL = '/api/comments';
       const LS_TOKEN = 'comments.token';
       const LS_MODE = 'comments.mode';
+      const LS_DATA = 'comments.data';       // local-mode: JSON blob of comments
+      const LS_REVIEWER = 'comments.reviewer'; // local-mode: { name }
       const SCREEN_SELECTOR = '#screens-container > div';
       const STAGE_SELECTOR = '#screens-container';
       const OVERLAY_CLASS = 'comments-overlay-layer';
+
+      // Sidecar JSON schema version (see /memories/repo notes for full shape).
+      // Bumped only when the exported file format changes in a breaking way.
+      const SCHEMA_VERSION = 1;
 
       // ── State ────────────────────────────────────────────────
       let comments = [];          // all comments for current branch
