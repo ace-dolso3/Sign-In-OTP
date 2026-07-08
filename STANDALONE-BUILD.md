@@ -4,16 +4,17 @@ Portable, self-contained snapshots of the sign-in prototype — one per branch �
 
 ## Output
 
-Running `npm run standalone` produces four files in `standalone/` (gitignored):
+Running `npm run standalone` produces the following files in `standalone/` (gitignored):
 
-| File | Source branch | Typical size |
-| --- | --- | --- |
-| `sign-in-main.html` | `main` | ~330 KB |
-| `sign-in-faceid-passkey.html` | `feature/faceid-passkey` | ~600 KB |
-| `sign-in-wave-1-scaffolding.html` | `feature/wave-1-scaffolding` | ~690 KB |
-| `sign-in-heuristic-alignment-wave2.html` | `feature/heuristic-alignment-wave2` | ~705 KB |
+| File | Source branch | Purpose | Typical size |
+| --- | --- | --- | --- |
+| `sign-in-main.html` | `main` | Read-only snapshot (comments stripped) | ~330 KB |
+| `sign-in-faceid-passkey.html` | `feature/faceid-passkey` | Read-only snapshot | ~600 KB |
+| `sign-in-wave-1-scaffolding.html` | `feature/wave-1-scaffolding` | Read-only snapshot | ~690 KB |
+| `sign-in-heuristic-alignment-wave2.html` | `feature/heuristic-alignment-wave2` | Read-only snapshot | ~705 KB |
+| `sign-in-heuristic-alignment-wave2-review.html` | `feature/heuristic-alignment-wave2` | **Review copy** — colleague can comment offline, then Export JSON | ~760 KB |
 
-Send one to a colleague via email/Slack/OneDrive — they double-click to open it. No install, no login, no network required.
+Read-only snapshots go to stakeholders who just need to see the prototype. The `-review.html` variant goes to reviewers who need to leave feedback. See [Review workflow](#review-workflow) below.
 
 ## What gets transformed
 
@@ -94,3 +95,82 @@ Standalone files fill that last gap.
 - `standalone/` — build output (gitignored).
 - `.font-cache/` — WOFF2 blob cache (gitignored).
 - `.git/hooks/post-commit` — optional auto-rebuild hook (local, per-clone, not tracked).
+
+---
+
+## Review workflow
+
+Only the `heuristic-alignment-wave2` branch currently emits a `-review.html` variant. To opt other branches in, add `reviewVariant: true` to their entry in the `BRANCHES` array.
+
+The review variant keeps the comment overlay in place and forces it into **local mode** via three build-time globals injected right after `<head>`:
+
+```html
+<script>
+  window.__COMMENTS_MODE__="local";
+  window.__COMMENTS_SOURCE_HASH__="sha256:<first-16-hex>";
+  window.__COMMENTS_BRANCH__="feature/heuristic-alignment-wave2";
+</script>
+```
+
+At runtime this makes the IIFE bypass `/api/comments` entirely and read/write `localStorage['comments.data']` instead.
+
+### For the reviewer (your colleague)
+
+1. Double-click the `-review.html` file. A yellow “Review copy” banner appears at the top.
+2. Click the amber toggle button (top-right) → enter comment mode.
+3. Click anywhere on the prototype to place a dot and leave a note. On the first save they’re asked once for their name.
+4. Click **Export** in the toolbar. A file downloads named `comments-<branch>-<reviewer>-<yyyymmddhhmm>.json`.
+5. Email/Slack/OneDrive that JSON back to the owner.
+
+Optional: **Import** in the toolbar accepts a previously-exported JSON so a reviewer can resume across machines. It merges by comment `id` (upsert) — no work is lost.
+
+### For the owner (you)
+
+1. Save the reviewer’s JSON somewhere convenient (Downloads is fine).
+2. Open your working prototype (`sign-in.html` via `vercel dev`, or the deployed preview URL).
+3. Click **Import review** in the toolbar (top-right, next to the amber toggle).
+4. Pick the JSON. Sign in with `COMMENT_WRITE_TOKEN` if prompted.
+5. Every comment is upserted into the current branch’s KV bucket. Reviewer dots render in **purple** so they’re instantly distinguishable from your own amber dots.
+
+A completion toast summarises: `Imported N/M from Jane Doe.` If the reviewer’s `sourceHash` doesn’t match your current build, the toast appends `(source drift: reviewed a different build)` — the import still succeeds, but you’ll want to eyeball anything that moved since the snapshot was sent.
+
+### Sidecar JSON schema (v1)
+
+```json
+{
+  "schema": 1,
+  "exportedAt": "2026-07-08T14:22:00.000Z",
+  "branch": "feature/heuristic-alignment-wave2",
+  "sourceHash": "sha256:abfbbb7c9afc1974",
+  "reviewer": { "name": "Jane Doe" },
+  "comments": [
+    {
+      "id": "c_kx0abc_xyz123",
+      "screenId": "screenPassword",
+      "stateAttrs": { "data-state": "…" },
+      "xPct": 0.42, "yPct": 0.71,
+      "text": "…",
+      "status": "open",
+      "source": "review",
+      "reviewer": { "name": "Jane Doe" },
+      "sourceHash": "sha256:abfbbb7c9afc1974",
+      "branch": "feature/heuristic-alignment-wave2",
+      "createdAt": 1751987000000,
+      "updatedAt": 1751987000000
+    }
+  ]
+}
+```
+
+### Reviewer identity in KV
+
+On Import the owner-side UI translates the sidecar into POSTs against the existing `/api/comments` endpoint. To avoid touching the server:
+
+- `id` is preserved so KV upserts (re-imports overwrite in place, no duplicates).
+- `authorId` is set to `review:<reviewer-slug>` — the client keys off the `review:` prefix to render purple dots.
+- `authorLabel` holds the reviewer’s display name.
+- Sidecar-only fields (`sourceHash`, `branch`, `reviewer` object, `source`) are dropped by the server’s `ALLOWED_FIELDS_ON_CREATE` filter — which is fine, since they’re only needed during import validation, not for long-term storage.
+
+### Debug API (both modes)
+
+`window.__comments` exposes: `mode`, `branch`, `sourceHash`, `list()`, `reload()`, `enter()`, `exit()`, `export()`, `import()`, `reviewer()`, `setReviewer()`, `clearAll()` (local only), `clearToken()`.
