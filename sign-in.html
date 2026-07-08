@@ -9240,6 +9240,118 @@
         updateExportButtonUi();
       }
 
+      // Owner-side (api mode): import a reviewer's sidecar JSON and upsert
+      // every comment into the shared KV bucket. Reviewer identity is
+      // preserved via authorId='review:<slug>' + authorLabel=<name>, so
+      // the server needs no changes (id upsert is already supported).
+      function pickOwnerImportFile() {
+        const inp = document.createElement('input');
+        inp.type = 'file';
+        inp.accept = 'application/json,.json';
+        inp.style.display = 'none';
+        document.body.appendChild(inp);
+        inp.addEventListener('change', () => {
+          const f = inp.files && inp.files[0];
+          if (f) ownerImportFile(f);
+          document.body.removeChild(inp);
+        });
+        inp.click();
+      }
+      async function ownerImportFile(file) {
+        let parsed;
+        try {
+          const text = await file.text();
+          parsed = JSON.parse(text);
+        } catch (err) {
+          showToast('Import failed: could not read JSON (' + err.message + ')');
+          return;
+        }
+        if (!parsed || parsed.schema !== SCHEMA_VERSION || !Array.isArray(parsed.comments)) {
+          showToast('Import failed: not a valid comments sidecar.');
+          return;
+        }
+        const reviewerName = (parsed.reviewer && parsed.reviewer.name) || 'Reviewer';
+        const reviewerSlug = slugify(reviewerName);
+
+        // Detect orphaned screenIds (screen no longer exists in the current DOM).
+        const knownScreens = new Set(
+          Array.from(document.querySelectorAll(SCREEN_SELECTOR)).map((el) => el.id).filter(Boolean)
+        );
+        const orphans = [];
+        const importable = [];
+        for (const c of parsed.comments) {
+          if (!c || !c.id || !c.screenId) continue;
+          if (!knownScreens.has(c.screenId)) {
+            orphans.push(c.screenId);
+            // Import anyway — they'll simply not render until/unless the
+            // matching screen exists again. Owner still sees them via
+            // window.__comments.list() and can decide what to do.
+          }
+          importable.push(c);
+        }
+
+        // Auth: mirror the pre-flight check used everywhere else.
+        if (!getToken() && !(await promptForToken())) {
+          showToast('Import cancelled: sign-in required.');
+          return;
+        }
+
+        let ok = 0, failed = 0;
+        for (const c of importable) {
+          const payload = {
+            id: c.id,                     // preserve reviewer id for upsert
+            screenId: c.screenId,
+            stateAttrs: c.stateAttrs || {},
+            xPct: Number.isFinite(c.xPct) ? c.xPct : 0,
+            yPct: Number.isFinite(c.yPct) ? c.yPct : 0,
+            text: typeof c.text === 'string' ? c.text : '',
+            status: c.status === 'resolved' ? 'resolved' : 'open',
+            authorId: 'review:' + reviewerSlug,
+            authorLabel: reviewerName,
+          };
+          try {
+            await apiCreate(payload);
+            ok += 1;
+          } catch (err) {
+            console.warn('[comments] import POST failed for', c.id, err);
+            failed += 1;
+          }
+        }
+
+        await apiLoad();
+        renderDots();
+
+        let msg = 'Imported ' + ok + '/' + importable.length + ' from ' + reviewerName + '.';
+        if (failed) msg += ' ' + failed + ' failed.';
+        if (orphans.length) msg += ' ' + orphans.length + ' reference orphan screen(s): ' + [...new Set(orphans)].slice(0, 3).join(', ') + (orphans.length > 3 ? '\u2026' : '');
+        if (parsed.sourceHash && parsed.sourceHash !== SOURCE_HASH) {
+          msg += ' (source drift: reviewed a different build)';
+          console.warn('[comments] sourceHash mismatch — reviewer:', parsed.sourceHash, 'current:', SOURCE_HASH);
+        }
+        showToast(msg);
+      }
+
+      // Owner-side toolbar: adds an "Import review" button next to the
+      // toggle when NOT in local mode. Owner keeps existing auth flow.
+      function injectOwnerToolbar() {
+        if (IS_LOCAL) return;
+        const wrap = document.getElementById('comments-toggle-wrap');
+        if (!wrap) return;
+        const importBtn = document.createElement('button');
+        importBtn.type = 'button';
+        importBtn.className = 'comments-toolbar-btn comments-import-btn';
+        importBtn.id = 'comments-import-review-btn';
+        importBtn.title = 'Import a reviewer\u2019s exported JSON into this branch';
+        importBtn.innerHTML = ''
+          + '<svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true" width="14" height="14">'
+          + '<path d="M440-320v-326L336-542l-56-58 200-200 200 200-56 58-104-104v326h-80ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z"/>'
+          + '</svg><span>Import review</span>';
+        importBtn.addEventListener('click', (e) => {
+          e.preventDefault(); e.stopPropagation(); pickOwnerImportFile();
+        });
+        wrap.appendChild(importBtn);
+      }
+
       // ── State ────────────────────────────────────────────────
       let comments = [];          // all comments for current branch
       let commentMode = false;    // is comment-mode active?
@@ -9486,7 +9598,11 @@
           dot.className = 'comments-dot';
           dot.dataset.id = c.id;
           dot.dataset.status = c.status || 'open';
-          dot.dataset.source = c.source || 'owner';
+          // Prefer explicit source (local-mode reviewer copy) but fall back
+          // to authorId prefix so imported comments render distinctly on the
+          // owner side too.
+          dot.dataset.source = c.source
+            || (typeof c.authorId === 'string' && c.authorId.startsWith('review:') ? 'review' : 'owner');
           const pageX = r.left + sx + (c.xPct || 0) * r.width;
           const pageY = r.top  + sy + (c.yPct || 0) * r.height;
           dot.style.left = pageX + 'px';
@@ -10085,6 +10201,7 @@
         try {
           injectToggleButton();
           injectLocalToolbar();
+          injectOwnerToolbar();
           installObservers();
           if (IS_LOCAL) installBeforeUnloadGuard();
           await apiLoad();
