@@ -3824,6 +3824,95 @@
       cursor: not-allowed;
     }
 
+    /* Local (review) mode: toolbar buttons alongside the round toggle.
+       Injected only when window.__COMMENTS_MODE__ === 'local'. */
+    .comments-toolbar-btn {
+      appearance: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 40px;
+      padding: 0 12px;
+      margin-left: 8px;
+      border: 1px solid #D1D5DB;
+      border-radius: 20px;
+      background: #fff;
+      color: #1F2937;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.06);
+      transition: background 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+      position: relative;
+    }
+    .comments-toolbar-btn:hover {
+      background: #F9FAFB;
+      border-color: #9CA3AF;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.16), 0 1px 2px rgba(0,0,0,0.06);
+    }
+    .comments-toolbar-btn:focus-visible {
+      outline: 2px solid #d40029;
+      outline-offset: 2px;
+    }
+    .comments-toolbar-btn svg { display: block; flex-shrink: 0; }
+    /* Amber unsaved-changes dot on the Export button */
+    .comments-export-btn.has-unsaved::after {
+      content: '';
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #FFC107;
+      box-shadow: 0 0 0 2px #fff;
+    }
+
+    /* Persistent "review copy" banner at the top of the viewport in local mode. */
+    .comments-review-banner {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 240;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 6px 16px;
+      background: #FFF8E1;
+      border-bottom: 1px solid #F4C430;
+      color: #6B4E00;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 12px;
+      line-height: 1.4;
+      pointer-events: none; /* purely informational; buttons live in the toolbar */
+    }
+    .comments-review-banner-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: #F4C430;
+      color: #3F2E00;
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+    .comments-review-banner-text strong { font-weight: 700; }
+    @media (max-width: 480px) {
+      .comments-review-banner { font-size: 11px; padding: 5px 10px; gap: 6px; }
+      .comments-toolbar-btn { height: 36px; padding: 0 10px; font-size: 12px; margin-left: 6px; }
+    }
+    /* Distinct badge for imported reviewer comments (Phase 5 uses this on the
+       owner side; harmless in local mode where all dots share this color). */
+    .comments-dot[data-source="review"] {
+      background: #7C3AED;
+      color: #fff;
+    }
+
     /* Toast (action confirmation w/ Undo) */
     .comments-toast {
       position: fixed;
@@ -8860,6 +8949,297 @@
       // Bumped only when the exported file format changes in a breaking way.
       const SCHEMA_VERSION = 1;
 
+      // ── Local mode: reviewer, storage, export/import ─────────
+      // When MODE === 'local', all persistence lives in this browser's
+      // localStorage; there is no /api/comments backend. Reviewer downloads
+      // a JSON sidecar via Export and sends it back to the owner, who
+      // Imports it into the working prototype. See scripts/build-standalone.mjs
+      // (Phase 4) for how this mode is baked into -review.html standalones.
+      let unsavedSinceExport = 0;      // local writes since last export
+      let firstCommentToastShown = false;
+      let exportBtnRef = null;          // populated by injectLocalToolbar
+
+      function readLocalData() {
+        try {
+          const raw = localStorage.getItem(LS_DATA);
+          if (!raw) return [];
+          const parsed = JSON.parse(raw);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (_) { return []; }
+      }
+      function writeLocalData(arr) {
+        try { localStorage.setItem(LS_DATA, JSON.stringify(arr)); }
+        catch (err) { console.warn('[comments] localStorage write failed:', err); }
+      }
+      function markUnsaved() {
+        unsavedSinceExport += 1;
+        updateExportButtonUi();
+      }
+      function markSaved() {
+        unsavedSinceExport = 0;
+        updateExportButtonUi();
+      }
+      function generateId() {
+        if (window.crypto && typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+        return 'c_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+      }
+      function slugify(s) {
+        return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'anon';
+      }
+
+      // Reviewer identity (local mode). Stored { name } in LS_REVIEWER.
+      function getReviewer() {
+        try {
+          const raw = localStorage.getItem(LS_REVIEWER);
+          if (!raw) return null;
+          const parsed = JSON.parse(raw);
+          return parsed && typeof parsed.name === 'string' && parsed.name.trim() ? parsed : null;
+        } catch (_) { return null; }
+      }
+      function setReviewer(name) {
+        const clean = String(name || '').trim().slice(0, 80);
+        if (!clean) return null;
+        const record = { name: clean };
+        try { localStorage.setItem(LS_REVIEWER, JSON.stringify(record)); } catch (_) {}
+        return record;
+      }
+      let __reviewerModalPromise = null;
+      function promptForReviewer() {
+        if (__reviewerModalPromise) return __reviewerModalPromise;
+        const existing = getReviewer();
+        __reviewerModalPromise = new Promise((resolve) => {
+          const overlay = document.createElement('div');
+          overlay.className = 'comments-auth-modal comments-reviewer-modal';
+          overlay.setAttribute('role', 'dialog');
+          overlay.setAttribute('aria-modal', 'true');
+          overlay.setAttribute('aria-labelledby', 'comments-reviewer-title');
+          overlay.innerHTML = ''
+            + '<div class="comments-auth-modal-card">'
+            +   '<h3 id="comments-reviewer-title">Who\u2019s reviewing?</h3>'
+            +   '<p>Your name goes on every comment so the owner can tell reviewers apart. You\u2019ll only be asked once on this device.</p>'
+            +   '<input type="text" autocomplete="name" spellcheck="false" maxlength="80" placeholder="e.g. Jane Doe" aria-label="Your name" />'
+            +   '<p class="comments-auth-modal-error" style="display:none;"></p>'
+            +   '<div class="comments-auth-modal-actions">'
+            +     '<button type="button" data-action="cancel">Cancel</button>'
+            +     '<button type="button" class="primary" data-action="save" disabled>Save</button>'
+            +   '</div>'
+            + '</div>';
+          document.body.appendChild(overlay);
+          const input = overlay.querySelector('input');
+          const saveBtn = overlay.querySelector('[data-action="save"]');
+          const cancelBtn = overlay.querySelector('[data-action="cancel"]');
+          if (existing && existing.name) input.value = existing.name;
+          const sync = () => { saveBtn.disabled = !input.value.trim(); };
+          sync();
+          input.addEventListener('input', sync);
+          const close = (result) => {
+            overlay.remove();
+            __reviewerModalPromise = null;
+            resolve(result);
+          };
+          saveBtn.addEventListener('click', () => close(setReviewer(input.value)));
+          cancelBtn.addEventListener('click', () => close(null));
+          input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && input.value.trim()) { e.preventDefault(); saveBtn.click(); }
+            else if (e.key === 'Escape') { e.preventDefault(); cancelBtn.click(); }
+          });
+          setTimeout(() => { input.focus(); input.select(); }, 0);
+        });
+        return __reviewerModalPromise;
+      }
+      async function ensureReviewer() {
+        const existing = getReviewer();
+        if (existing) return existing;
+        return promptForReviewer();
+      }
+
+      // Local API implementations — same return shape as the network apiLoad/… .
+      function localApiLoad() {
+        comments = readLocalData();
+        return comments;
+      }
+      async function localApiCreate(payload) {
+        const reviewer = await ensureReviewer();
+        if (!reviewer) throw new Error('reviewer name required');
+        const now = Date.now();
+        const record = Object.assign({}, payload, {
+          id: generateId(),
+          status: 'open',
+          createdAt: now,
+          updatedAt: now,
+          source: 'review',
+          reviewer: { name: reviewer.name },
+          sourceHash: SOURCE_HASH,
+          branch: BRANCH_NAME,
+        });
+        const arr = readLocalData();
+        arr.push(record);
+        writeLocalData(arr);
+        markUnsaved();
+        maybeShowFirstCommentToast();
+        return record;
+      }
+      function localApiUpdate(id, patch) {
+        const arr = readLocalData();
+        const idx = arr.findIndex((c) => c.id === id);
+        if (idx === -1) throw new Error('not found');
+        arr[idx] = Object.assign({}, arr[idx], patch, { updatedAt: Date.now() });
+        writeLocalData(arr);
+        markUnsaved();
+        return arr[idx];
+      }
+      function localApiDelete(id) {
+        const arr = readLocalData().filter((c) => c.id !== id);
+        writeLocalData(arr);
+        markUnsaved();
+      }
+
+      // Sidecar JSON export/import (local mode UI only).
+      function buildExportPayload() {
+        const reviewer = getReviewer();
+        return {
+          schema: SCHEMA_VERSION,
+          exportedAt: new Date().toISOString(),
+          branch: BRANCH_NAME,
+          sourceHash: SOURCE_HASH,
+          reviewer: reviewer ? { name: reviewer.name } : null,
+          comments: readLocalData(),
+        };
+      }
+      function exportComments() {
+        const arr = readLocalData();
+        if (arr.length === 0) {
+          showToast('No comments to export yet.');
+          return;
+        }
+        const reviewer = getReviewer();
+        const stamp = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 12); // yyyymmddhhmm
+        const filename = 'comments-' + slugify(BRANCH_NAME) + '-' + slugify(reviewer && reviewer.name) + '-' + stamp + '.json';
+        const blob = new Blob([JSON.stringify(buildExportPayload(), null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 0);
+        markSaved();
+        showToast('Exported ' + arr.length + ' comment' + (arr.length === 1 ? '' : 's') + ' \u2192 ' + filename);
+      }
+      function importCommentsFile(file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const parsed = JSON.parse(String(reader.result || ''));
+            if (!parsed || parsed.schema !== SCHEMA_VERSION || !Array.isArray(parsed.comments)) {
+              showToast('Import failed: unrecognised file format.');
+              return;
+            }
+            if (parsed.branch && parsed.branch !== BRANCH_NAME) {
+              console.warn('[comments] importing from branch', parsed.branch, 'into', BRANCH_NAME);
+            }
+            const existing = readLocalData();
+            const byId = new Map(existing.map((c) => [c.id, c]));
+            let added = 0, updated = 0;
+            for (const c of parsed.comments) {
+              if (!c || !c.id) continue;
+              if (byId.has(c.id)) updated += 1; else added += 1;
+              byId.set(c.id, c);
+            }
+            const merged = Array.from(byId.values());
+            writeLocalData(merged);
+            comments = merged;
+            renderDots();
+            markUnsaved();
+            showToast('Imported: +' + added + ' new, ' + updated + ' updated.');
+          } catch (err) {
+            console.warn('[comments] import failed:', err);
+            showToast('Import failed: ' + err.message);
+          }
+        };
+        reader.onerror = () => showToast('Import failed: could not read file.');
+        reader.readAsText(file);
+      }
+      function pickImportFile() {
+        const inp = document.createElement('input');
+        inp.type = 'file';
+        inp.accept = 'application/json,.json';
+        inp.style.display = 'none';
+        document.body.appendChild(inp);
+        inp.addEventListener('change', () => {
+          const f = inp.files && inp.files[0];
+          if (f) importCommentsFile(f);
+          document.body.removeChild(inp);
+        });
+        inp.click();
+      }
+
+      function maybeShowFirstCommentToast() {
+        if (firstCommentToastShown) return;
+        firstCommentToastShown = true;
+        showToast('Comments live on your device only. Click Export before closing to send them back.');
+      }
+
+      function installBeforeUnloadGuard() {
+        window.addEventListener('beforeunload', (e) => {
+          if (unsavedSinceExport === 0) return;
+          e.preventDefault();
+          e.returnValue = '';
+          return '';
+        });
+      }
+
+      function updateExportButtonUi() {
+        if (!exportBtnRef) return;
+        exportBtnRef.classList.toggle('has-unsaved', unsavedSinceExport > 0);
+        const n = readLocalData().length;
+        exportBtnRef.setAttribute('data-count', String(n));
+      }
+
+      // Extra toolbar (Export + Import) + banner shown only in local mode.
+      function injectLocalToolbar() {
+        if (!IS_LOCAL) return;
+        const wrap = document.getElementById('comments-toggle-wrap');
+        if (!wrap) return;
+
+        const banner = document.createElement('div');
+        banner.className = 'comments-review-banner';
+        banner.setAttribute('role', 'status');
+        banner.innerHTML = ''
+          + '<span class="comments-review-banner-badge">Review copy</span>'
+          + '<span class="comments-review-banner-text">Comments live on your device only. Use <strong>Export</strong> when you\u2019re done to send them back.</span>';
+        document.body.appendChild(banner);
+
+        const exportBtn = document.createElement('button');
+        exportBtn.type = 'button';
+        exportBtn.className = 'comments-toolbar-btn comments-export-btn';
+        exportBtn.title = 'Export comments as JSON to send back';
+        exportBtn.innerHTML = ''
+          + '<svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true" width="14" height="14">'
+          + '<path d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z"/>'
+          + '</svg><span>Export</span>';
+        exportBtn.addEventListener('click', (e) => {
+          e.preventDefault(); e.stopPropagation(); exportComments();
+        });
+        wrap.appendChild(exportBtn);
+        exportBtnRef = exportBtn;
+
+        const importBtn = document.createElement('button');
+        importBtn.type = 'button';
+        importBtn.className = 'comments-toolbar-btn comments-import-btn';
+        importBtn.title = 'Import a previously-exported JSON to resume';
+        importBtn.innerHTML = ''
+          + '<svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true" width="14" height="14">'
+          + '<path d="M440-320v-326L336-542l-56-58 200-200 200 200-56 58-104-104v326h-80ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z"/>'
+          + '</svg><span>Import</span>';
+        importBtn.addEventListener('click', (e) => {
+          e.preventDefault(); e.stopPropagation(); pickImportFile();
+        });
+        wrap.appendChild(importBtn);
+
+        updateExportButtonUi();
+      }
+
       // ── State ────────────────────────────────────────────────
       let comments = [];          // all comments for current branch
       let commentMode = false;    // is comment-mode active?
@@ -8872,6 +9252,7 @@
 
       // ── Token + auth helpers ─────────────────────────────────
       function getToken() {
+        if (IS_LOCAL) return 'local'; // local mode: writes are always allowed
         try { return localStorage.getItem(LS_TOKEN) || ''; }
         catch (_) { return ''; }
       }
@@ -8887,6 +9268,7 @@
       // broken with no feedback.
       let __authModalPromise = null;
       function promptForToken() {
+        if (IS_LOCAL) return Promise.resolve('local'); // no auth in local mode
         if (__authModalPromise) return __authModalPromise;
         __authModalPromise = new Promise((resolve) => {
           const existing = getToken();
@@ -8946,6 +9328,7 @@
 
       // ── API client ───────────────────────────────────────────
       async function apiLoad() {
+        if (IS_LOCAL) return localApiLoad();
         try {
           const res = await fetch(API_URL, { method: 'GET' });
           if (!res.ok) throw new Error('GET ' + res.status);
@@ -8959,6 +9342,7 @@
         }
       }
       async function apiCreate(payload) {
+        if (IS_LOCAL) return localApiCreate(payload);
         const res = await fetch(API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', ...authHeaders() },
@@ -8973,6 +9357,7 @@
         return data.comment || data;
       }
       async function apiUpdate(id, patch) {
+        if (IS_LOCAL) return localApiUpdate(id, patch);
         const res = await fetch(API_URL + '?id=' + encodeURIComponent(id), {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json', ...authHeaders() },
@@ -8987,6 +9372,7 @@
         return data.comment || data;
       }
       async function apiDelete(id) {
+        if (IS_LOCAL) return localApiDelete(id);
         const res = await fetch(API_URL + '?id=' + encodeURIComponent(id), {
           method: 'DELETE',
           headers: { ...authHeaders() },
@@ -9100,6 +9486,7 @@
           dot.className = 'comments-dot';
           dot.dataset.id = c.id;
           dot.dataset.status = c.status || 'open';
+          dot.dataset.source = c.source || 'owner';
           const pageX = r.left + sx + (c.xPct || 0) * r.width;
           const pageY = r.top  + sy + (c.yPct || 0) * r.height;
           dot.style.left = pageX + 'px';
@@ -9697,12 +10084,15 @@
       async function init() {
         try {
           injectToggleButton();
+          injectLocalToolbar();
           installObservers();
+          if (IS_LOCAL) installBeforeUnloadGuard();
           await apiLoad();
           // Mode always starts off after a reload — force-clear any stale
           // persisted flag from older builds so the toggle behaves predictably.
           try { localStorage.removeItem(LS_MODE); } catch (_) {}
           renderDots();
+          updateExportButtonUi();
         } catch (err) {
           console.warn('[comments] init failed:', err);
         }
@@ -9716,11 +10106,26 @@
 
       // Expose tiny debug API for the owner (no writes, just visibility)
       window.__comments = {
+        mode: MODE,
+        branch: BRANCH_NAME,
+        sourceHash: SOURCE_HASH,
         list: () => comments.slice(),
         reload: async () => { await apiLoad(); renderDots(); },
         enter: enterMode,
         exit: exitMode,
         clearToken,
+        // Local-mode helpers (no-ops on api mode UI, but safe to call)
+        export: exportComments,
+        import: pickImportFile,
+        reviewer: getReviewer,
+        setReviewer,
+        clearAll: () => {
+          if (!IS_LOCAL) { console.warn('[comments] clearAll only works in local mode'); return; }
+          writeLocalData([]);
+          comments = [];
+          renderDots();
+          markSaved();
+        },
       };
     })();
 
