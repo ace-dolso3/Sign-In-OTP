@@ -36,7 +36,10 @@ const BRANCHES = [
   { name: 'main',                       gitRef: 'main' },
   { name: 'faceid-passkey',             gitRef: 'feature/faceid-passkey' },
   { name: 'wave-1-scaffolding',         gitRef: 'feature/wave-1-scaffolding' },
-  { name: 'heuristic-alignment-wave2',  gitRef: 'feature/heuristic-alignment-wave2' },
+  // Wave2 also emits a `-review.html` variant with the comment overlay
+  // kept and MODE forced to 'local' — shippable to colleagues for
+  // sidecar-JSON review (no backend needed). See STANDALONE-BUILD.md.
+  { name: 'heuristic-alignment-wave2',  gitRef: 'feature/heuristic-alignment-wave2', reviewVariant: true },
 ];
 
 // ── Load source HTML ──────────────────────────────────────────────
@@ -192,6 +195,59 @@ function assertClean(html, branchName) {
   }
 }
 
+// ── Review variant ─────────────────────────────────────────
+// Emit a copy of the branch's sign-in.html with the comment overlay KEPT
+// (no strip) and window.__COMMENTS_MODE__='local' injected so the IIFE runs
+// in reviewer mode against localStorage. Fonts are still inlined so it works
+// offline. Colleague opens the file, comments, clicks Export → gets a
+// sidecar JSON sent back to the owner for Import.
+function injectCommentsMode(html, { mode, sourceHash, branch }) {
+  const globalsScript =
+    `<script>window.__COMMENTS_MODE__=${JSON.stringify(mode)};` +
+    `window.__COMMENTS_SOURCE_HASH__=${JSON.stringify(sourceHash)};` +
+    `window.__COMMENTS_BRANCH__=${JSON.stringify(branch)};</script>`;
+  // Insert immediately after <head> so the constants are set before any
+  // downstream <script> (including the IIFE) evaluates.
+  const headOpenIdx = html.indexOf('<head>');
+  if (headOpenIdx === -1) throw new Error('missing <head> tag');
+  const insertAt = headOpenIdx + '<head>'.length;
+  return html.slice(0, insertAt) + '\n  ' + globalsScript + html.slice(insertAt);
+}
+
+async function buildReviewVariant(branch, fontBlock, rawHtml) {
+  // Inline fonts (same as the stripped standalone) but keep comment overlay.
+  let html = replaceFontLinks(rawHtml, fontBlock.block);
+
+  // Hash the *font-inlined* HTML — that's what actually ships to the
+  // reviewer, so the owner's Import can detect drift against exactly what
+  // was reviewed.
+  const sourceHash = 'sha256:' + createHash('sha256').update(html).digest('hex').slice(0, 16);
+
+  html = injectCommentsMode(html, {
+    mode: 'local',
+    sourceHash,
+    branch: branch.gitRef,
+  });
+
+  // Sanity: comments code MUST still be present in the review variant.
+  const iifePresent = html.includes('(function commentsOverlay()');
+  const modeInjected = html.includes("window.__COMMENTS_MODE__=\"local\"");
+  if (!iifePresent || !modeInjected) {
+    throw new Error(
+      `review variant integrity check failed for ${branch.name} ` +
+      `(iife=${iifePresent}, mode=${modeInjected})`
+    );
+  }
+
+  const outFile = join(OUT_DIR, `sign-in-${branch.name}-review.html`);
+  writeFileSync(outFile, html);
+  const kb = (Buffer.byteLength(html) / 1024).toFixed(1);
+  console.log(
+    `  ✓ standalone/sign-in-${branch.name}-review.html  ` +
+      `(${kb} KB, MODE=local, hash=${sourceHash.slice(7)}…)`
+  );
+}
+
 async function buildOne(branch, fontBlock) {
   const { html: rawHtml, source } = loadSource(branch);
   let html = rawHtml;
@@ -218,6 +274,11 @@ async function buildOne(branch, fontBlock) {
       `comments-js: ${jsResult.stripped ? 'stripped' : 'not-found'}, ` +
       `fonts: ${beforeFonts}→0)`
   );
+
+  // Emit the paired -review.html variant when this branch opts in.
+  if (branch.reviewVariant) {
+    await buildReviewVariant(branch, fontBlock, rawHtml);
+  }
 }
 
 async function main() {
