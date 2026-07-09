@@ -37,8 +37,8 @@ const SOURCE_FILE = 'sign-in.html';
 const BRANCHES = [
   { name: 'main',                       gitRef: 'main' },
   { name: 'faceid-passkey',             gitRef: 'feature/faceid-passkey' },
-  { name: 'wave-1-scaffolding',         gitRef: 'feature/wave-1-scaffolding' },
   { name: 'heuristic-alignment-wave2',  gitRef: 'feature/heuristic-alignment-wave2' },
+  { name: 'ux-best-practices',          gitRef: 'sign-in-ux-best-practices' },
 ];
 
 // ── Load source HTML ──────────────────────────────────────────────
