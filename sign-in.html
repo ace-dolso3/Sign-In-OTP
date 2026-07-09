@@ -1147,36 +1147,30 @@
 
     /* Tab-scoped chrome content. Wrapper spans use display:contents
        so their children flow directly into .device-chrome--top /
-       --bottom and honor its layout (flex row/column, gap, etc). */
-    .chrome-desktop,
+       --bottom and honor its layout (flex row/column, gap, etc).
+       W3.7 · .chrome-desktop was removed alongside the desktop
+       traffic-light frame — Desktop tab now hides the chrome slots
+       entirely (see body[data-device-tab="desktop"] rules below). */
     .chrome-mobile-web,
     .chrome-app { display: none; }
-    body[data-device-tab="desktop"]    .chrome-desktop    { display: contents; }
     body[data-device-tab="mobile-web"] .chrome-mobile-web { display: contents; }
     body[data-device-tab="app"]        .chrome-app        { display: contents; }
 
-    /* ── Desktop tab: subtle window chrome ── */
+    /* ── Desktop tab: no chrome (W3.7 · removed) ──
+       Desktop tab renders the card at its natural size on the page,
+       framed only by the existing outer .header at the top of the
+       document. The device-chrome slots stay in the DOM but are
+       display:none-hidden on this tab so nothing renders around the
+       card. The traffic-light window frame from Slice A was removed
+       per team feedback — it added no value for reviewers assessing
+       the actual sign-in surface. */
     body[data-device-tab="desktop"] .device-frame {
       border: 1px solid #d1d1d1;
-      border-radius: 12px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      border-radius: 8px;
+      box-shadow: none;
       overflow: hidden;
     }
-    body[data-device-tab="desktop"] .device-chrome--top {
-      height: 28px;
-      padding: 0 12px;
-      gap: 6px;
-      border-bottom: 1px solid #e5e7eb;
-    }
-    /* Three faux traffic-light dots. No colors — kept neutral so the
-       frame reads as "generic desktop window", not macOS-specific. */
-    body[data-device-tab="desktop"] .device-chrome--top .traffic-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: #d1d5db;
-      flex-shrink: 0;
-    }
+    body[data-device-tab="desktop"] .device-chrome--top,
     body[data-device-tab="desktop"] .device-chrome--bottom { display: none; }
     body[data-device-tab="desktop"] .device-frame .card {
       border: none;
@@ -1185,10 +1179,19 @@
     }
 
     /* ── Mobile Web tab: rounded phone silhouette + browser chrome ── */
+    /* W3.7 · Frame width matched to desktop card visual footprint
+       (346 content + 48 padding + 2 border = 396). Fixed 728px height
+       so app + mobile-web frames share a consistent standardized
+       display size across all screens. Card inside flexes to fill
+       the remaining vertical space between chromes + device-header,
+       and scrolls internally (thin overlay scrollbar) when the
+       screen content exceeds the available area. */
     body[data-device-tab="mobile-web"] .device-frame,
     body[data-device-tab="app"]        .device-frame {
-      width: 390px;
-      max-width: 390px;
+      width: 396px;
+      max-width: 396px;
+      height: 728px;
+      box-sizing: border-box;
       border: 1px solid #c4c4c4;
       border-radius: 32px;
       box-shadow: 0 4px 16px rgba(0,0,0,0.06);
@@ -1275,16 +1278,110 @@
       border-radius: 3px;
     }
 
-    /* Card behavior inside Mobile Web / App frames — stretch to fill,
-       drop redundant chrome that the frame already provides. */
+    /* Card behavior inside Mobile Web / App frames.
+       W3.7 · Card now fills the frame's vertical space between the
+       top chrome, device-header, and bottom chrome (flex: 1). Padding
+       matches the desktop card (24px) so the CONTENT area comes out
+       to exactly 346px wide — same as desktop. Internal overflow
+       scrolls with a thin iOS-style overlay scrollbar so tall
+       screens (settings, activity log) behave like a real mobile
+       viewport. box-sizing: border-box so padding subtracts from the
+       100% width, not adds to it. */
     body[data-device-tab="mobile-web"] .device-frame .card,
     body[data-device-tab="app"]        .device-frame .card {
       border: none;
       border-radius: 0;
       box-shadow: none;
       width: 100%;
-      padding: 20px 16px;
+      padding: 24px;
+      box-sizing: border-box;
       align-self: stretch;
+      flex: 1;
+      overflow-y: auto;
+      min-height: 0;              /* flex quirk: allow shrink below content size */
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0,0,0,0.2) transparent;
+    }
+    /* Thin overlay scrollbar (WebKit) — matches iOS/Android feel. */
+    body[data-device-tab="mobile-web"] .device-frame .card::-webkit-scrollbar,
+    body[data-device-tab="app"]        .device-frame .card::-webkit-scrollbar {
+      width: 4px;
+    }
+    body[data-device-tab="mobile-web"] .device-frame .card::-webkit-scrollbar-thumb,
+    body[data-device-tab="app"]        .device-frame .card::-webkit-scrollbar-thumb {
+      background: rgba(0,0,0,0.2);
+      border-radius: 2px;
+    }
+    body[data-device-tab="mobile-web"] .device-frame .card::-webkit-scrollbar-track,
+    body[data-device-tab="app"]        .device-frame .card::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    /* ═════════════════════════════════════════════════════════════
+       W3.7 · Header relocation
+       ──────────────────────────────────────────────────────────
+       Desktop tab keeps the outer page-top <header class="header">.
+       Mobile Web + App tabs hide it via visibility:hidden (space
+       preserved so page content does NOT shift up) and reveal a
+       .device-header INSIDE the frame instead — a scaled-down
+       clone of the outer header. Both back buttons share the
+       .back-btn class so a single click handler wires both (see
+       the .back-btn handler refactor at the bottom of the file).
+       ═════════════════════════════════════════════════════════════ */
+
+    /* Outer page-top header — invisible on non-desktop tabs, but
+       still takes 72px of vertical space so nothing else shifts. */
+    body[data-device-tab="mobile-web"] .header,
+    body[data-device-tab="app"]        .header {
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    /* In-frame header (Mobile Web + App only). Renders between the
+       top OS chrome and the card. Scaled-down clone of the outer
+       header — icon-only back button, smaller centered Ace logo. */
+    .device-header {
+      display: none;
+      align-items: center;
+      justify-content: flex-start;
+      height: 56px;
+      padding: 0 12px;
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      position: relative;
+      flex-shrink: 0;
+    }
+    body[data-device-tab="mobile-web"] .device-header,
+    body[data-device-tab="app"]        .device-header {
+      display: flex;
+    }
+    .device-header .back-btn {
+      display: flex;
+      align-items: center;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 4px;
+      color: #121212;
+      text-decoration: none;
+    }
+    .device-header .back-btn:hover {
+      background: rgba(18, 18, 18, 0.06);
+    }
+    .device-header .ace-logo {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      height: 28px;
+      width: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .device-header .ace-logo img {
+      height: 28px;
+      width: auto;
     }
 
     /* ─── Device tab bar (sits below the frame) ─── */
@@ -4894,13 +4991,9 @@
       <div class="device-frame">
         <div class="device-chrome device-chrome--top" aria-hidden="true">
           <!-- Chrome content is populated by CSS pseudo-elements + these
-               tab-scoped spans. Desktop shows traffic-light dots (CSS).
+               tab-scoped spans. Desktop tab hides the chrome slot
+               entirely (W3.7 · traffic-light window frame removed).
                Mobile Web + App show time / status / URL row here. -->
-          <span class="chrome-desktop" data-tab-scope="desktop">
-            <span class="traffic-dot"></span>
-            <span class="traffic-dot"></span>
-            <span class="traffic-dot"></span>
-          </span>
           <div class="chrome-mobile-web" data-tab-scope="mobile-web">
             <div class="status-bar">
               <span class="status-bar-time">9:41</span>
@@ -4919,6 +5012,21 @@
             </span>
           </div>
         </div>
+
+        <!-- W3.7 · In-frame header (Mobile Web + App tabs). Scaled-
+             down clone of the outer <header class="header"> at the top
+             of the document. Only visible when tab=mobile-web or app
+             (CSS above). Ace logo is populated at boot by cloning the
+             outer .ace-logo <img> into this container — keeps the
+             base64 asset in a single source of truth.
+             Shares the .back-btn class with the outer link so a single
+             querySelectorAll click handler wires both. -->
+        <header class="device-header" aria-label="App header">
+          <a href="#" class="back-btn" aria-label="Go back">
+            <svg width="20" height="20" viewBox="0 -960 960 960" fill="#121212" aria-hidden="true"><path d="m274-450 248 248-42 42-320-320 320-320 42 42-248 248h526v60H274Z"/></svg>
+          </a>
+          <div class="ace-logo" data-clone-from=".header .ace-logo img"></div>
+        </header>
 
         <div class="card" role="main">
       <div id="screens-container">
@@ -7665,6 +7773,17 @@
       const buttons = document.querySelectorAll('.device-tab-btn');
       if (!buttons.length) return;
 
+      // W3.7 · Populate any [data-clone-from="<selector>"] element by
+      // cloning the referenced source node's outerHTML. Used by the
+      // in-frame .device-header to mirror the outer .ace-logo <img>
+      // without duplicating its ~5KB base64 payload in the source.
+      // Runs once at boot; if the source is missing, the target
+      // stays empty (no error).
+      document.querySelectorAll('[data-clone-from]').forEach(target => {
+        const source = document.querySelector(target.dataset.cloneFrom);
+        if (source) target.innerHTML = source.outerHTML;
+      });
+
       function readStored() {
         try {
           const v = localStorage.getItem(STORAGE_KEY);
@@ -8912,7 +9031,13 @@
     });
 
     // ── Back button: unified handler for all screen states ──────
-    backBtn.addEventListener('click', (e) => {
+    // W3.7 · Handler extracted so it can be attached to BOTH the
+    // outer page-top back link (#back-btn / .back-btn) AND the new
+    // in-frame .device-header .back-btn used by the Mobile Web + App
+    // device tabs. Selection is class-based (.back-btn) — safe
+    // because no other back button in the file uses this class
+    // (recovery-back-btn, sign-in-another-way-btn, etc. are distinct).
+    function handleBackClick(e) {
       e.preventDefault();
       if (currentScreen === screenEnroll) {
         // Enrollment → back to prompt state (or chooser / settings depending on origin)
@@ -8997,6 +9122,10 @@
         currentScreen = screenOtp;
       }
       // On chooser or unknown, do nothing (href="#" already prevents navigation)
+    }
+    // Wire the handler on every .back-btn — outer + in-frame device header.
+    document.querySelectorAll('.back-btn').forEach(btn => {
+      btn.addEventListener('click', handleBackClick);
     });
 
     // ── Prototype Navigator ──────────────────────────────────
