@@ -2,10 +2,12 @@
 /**
  * build-standalone.mjs
  * --------------------
- * Produce fully self-contained, colleague-shareable HTML files for each
- * tracked branch's sign-in.html. Each output file:
+ * Produce fully self-contained, shareable HTML files for each tracked
+ * branch's sign-in.html. Each output file:
  *   • inlines Google Fonts (Roboto 400/500/700) as base64 WOFF2 @font-face
- *   • strips the /api/comments overlay (CSS + JS + toggle button)
+ *   • keeps the click-to-comment overlay intact (localStorage-only)
+ *   • stamps window.__COMMENTS_SOURCE_HASH__ + __COMMENTS_BRANCH__ so
+ *     exported comment sidecar JSONs can be traced back to this build
  *   • preserves everything else verbatim
  *
  * Sources per branch:
@@ -36,10 +38,7 @@ const BRANCHES = [
   { name: 'main',                       gitRef: 'main' },
   { name: 'faceid-passkey',             gitRef: 'feature/faceid-passkey' },
   { name: 'wave-1-scaffolding',         gitRef: 'feature/wave-1-scaffolding' },
-  // Wave2 also emits a `-review.html` variant with the comment overlay
-  // kept and MODE forced to 'local' — shippable to colleagues for
-  // sidecar-JSON review (no backend needed). See STANDALONE-BUILD.md.
-  { name: 'heuristic-alignment-wave2',  gitRef: 'feature/heuristic-alignment-wave2', reviewVariant: true },
+  { name: 'heuristic-alignment-wave2',  gitRef: 'feature/heuristic-alignment-wave2' },
 ];
 
 // ── Load source HTML ──────────────────────────────────────────────
@@ -126,85 +125,13 @@ function replaceFontLinks(html, inlineBlock) {
     .replace(linkStylesheet, `  ${inlineBlock}`);
 }
 
-// ── Comment overlay stripping ─────────────────────────────────────
-// The CSS block starts at a `/* ─── Comments overlay ... ─── */` sentinel
-// inside <style>...</style> and ends just before </style>.
-function stripCommentsCss(html) {
-  const startRe = /\n[ \t]*\/\* ─── Comments overlay/;
-  const startMatch = html.match(startRe);
-  if (!startMatch) return { html, stripped: false };
-  const startIdx = startMatch.index + 1; // keep the newline; start at the indent
-  const styleClose = html.indexOf('</style>', startIdx);
-  if (styleClose === -1) return { html, stripped: false };
-  // Preserve indent + newline immediately before </style>
-  const styleLineStart = html.lastIndexOf('\n', styleClose);
-  return {
-    html: html.slice(0, startIdx) + html.slice(styleLineStart + 1),
-    stripped: true,
-  };
-}
-
-// The JS block is a preamble comment `/* ─── Comments overlay ... */` followed
-// by `(function commentsOverlay() { ... })();` — it is always the LAST IIFE
-// in the script (immediately before `</script>`). We locate the last `})();`
-// before `</script>` and slice back to the preamble comment.
-function stripCommentsJs(html) {
-  const iifeStart = html.indexOf('(function commentsOverlay()');
-  if (iifeStart === -1) return { html, stripped: false };
-  const preSentinelIdx = html.lastIndexOf('/* ─── Comments overlay', iifeStart);
-  if (preSentinelIdx === -1) return { html, stripped: false };
-  const blockStart = html.lastIndexOf('\n', preSentinelIdx - 1) + 1;
-
-  // Find the last `})();` that appears before </script>
-  const scriptClose = html.indexOf('</script>', iifeStart);
-  if (scriptClose === -1) return { html, stripped: false };
-  const iifeCloseIdx = html.lastIndexOf('})();', scriptClose);
-  if (iifeCloseIdx === -1 || iifeCloseIdx < iifeStart) {
-    return { html, stripped: false };
-  }
-  const afterIife = iifeCloseIdx + '})();'.length;
-
-  // Preserve indent + newline immediately before </script>
-  const scriptLineStart = html.lastIndexOf('\n', scriptClose);
-  return {
-    html: html.slice(0, blockStart) + html.slice(scriptLineStart + 1),
-    stripped: true,
-    // afterIife is not used in the slice — we just anchor to </script>'s line —
-    // but we validate the IIFE terminator was actually found so we don't
-    // silently slice across a malformed file.
-    _guard: afterIife,
-  };
-}
-
-// ── Pipeline ──────────────────────────────────────────────────────
-function assertClean(html, branchName) {
-  const checks = {
-    '/api/comments': /\/api\/comments/g,
-    commentsOverlay: /commentsOverlay/g,
-    'comments-toast': /comments-toast/g,
-    'fonts.googleapis.com': /fonts\.googleapis\.com/g,
-    'fonts.gstatic.com': /fonts\.gstatic\.com/g,
-  };
-  const failures = [];
-  for (const [label, re] of Object.entries(checks)) {
-    const n = (html.match(re) || []).length;
-    if (n > 0) failures.push(`${label}: ${n}`);
-  }
-  if (failures.length) {
-    throw new Error(`leftover references in ${branchName} → ${failures.join(', ')}`);
-  }
-}
-
-// ── Review variant ─────────────────────────────────────────
-// Emit a copy of the branch's sign-in.html with the comment overlay KEPT
-// (no strip) and window.__COMMENTS_MODE__='local' injected so the IIFE runs
-// in reviewer mode against localStorage. Fonts are still inlined so it works
-// offline. Colleague opens the file, comments, clicks Export → gets a
-// sidecar JSON sent back to the owner for Import.
-function injectCommentsMode(html, { mode, sourceHash, branch }) {
+// ── Metadata injection ─────────────────────────────────────────────
+// Stamp __COMMENTS_SOURCE_HASH__ + __COMMENTS_BRANCH__ into the file so
+// an exported sidecar JSON can be traced back to the exact build a
+// reviewer commented on. Read by the comment IIFE in sign-in.html.
+function injectStandaloneMetadata(html, { sourceHash, branch }) {
   const globalsScript =
-    `<script>window.__COMMENTS_MODE__=${JSON.stringify(mode)};` +
-    `window.__COMMENTS_SOURCE_HASH__=${JSON.stringify(sourceHash)};` +
+    `<script>window.__COMMENTS_SOURCE_HASH__=${JSON.stringify(sourceHash)};` +
     `window.__COMMENTS_BRANCH__=${JSON.stringify(branch)};</script>`;
   // Insert immediately after <head> so the constants are set before any
   // downstream <script> (including the IIFE) evaluates.
@@ -214,52 +141,39 @@ function injectCommentsMode(html, { mode, sourceHash, branch }) {
   return html.slice(0, insertAt) + '\n  ' + globalsScript + html.slice(insertAt);
 }
 
-async function buildReviewVariant(branch, fontBlock, rawHtml) {
-  // Inline fonts (same as the stripped standalone) but keep comment overlay.
-  let html = replaceFontLinks(rawHtml, fontBlock.block);
-
-  // Hash the *font-inlined* HTML — that's what actually ships to the
-  // reviewer, so the owner's Import can detect drift against exactly what
-  // was reviewed.
-  const sourceHash = 'sha256:' + createHash('sha256').update(html).digest('hex').slice(0, 16);
-
-  html = injectCommentsMode(html, {
-    mode: 'local',
-    sourceHash,
-    branch: branch.gitRef,
-  });
-
-  // Sanity: comments code MUST still be present in the review variant.
+// ── Pipeline ──────────────────────────────────────────────────────
+// Post-build assertions. The comment overlay MUST be present (this is
+// what makes standalones commentable). Font URLs MUST be gone (they
+// should all be inlined as data: URIs).
+function assertClean(html, branchName) {
+  const failures = [];
   const iifePresent = html.includes('(function commentsOverlay()');
-  const modeInjected = html.includes("window.__COMMENTS_MODE__=\"local\"");
-  if (!iifePresent || !modeInjected) {
-    throw new Error(
-      `review variant integrity check failed for ${branch.name} ` +
-      `(iife=${iifePresent}, mode=${modeInjected})`
-    );
+  if (!iifePresent) failures.push('comment overlay IIFE missing');
+  const externalFontCount =
+    (html.match(/fonts\.googleapis\.com/g) || []).length +
+    (html.match(/fonts\.gstatic\.com/g) || []).length;
+  if (externalFontCount > 0) {
+    failures.push(`external font URLs: ${externalFontCount}`);
   }
-
-  const outFile = join(OUT_DIR, `sign-in-${branch.name}-review.html`);
-  writeFileSync(outFile, html);
-  const kb = (Buffer.byteLength(html) / 1024).toFixed(1);
-  console.log(
-    `  ✓ standalone/sign-in-${branch.name}-review.html  ` +
-      `(${kb} KB, MODE=local, hash=${sourceHash.slice(7)}…)`
-  );
+  if (failures.length) {
+    throw new Error(`${branchName} → ${failures.join(', ')}`);
+  }
 }
 
 async function buildOne(branch, fontBlock) {
   const { html: rawHtml, source } = loadSource(branch);
-  let html = rawHtml;
 
-  const beforeFonts = (html.match(/fonts\.googleapis\.com/g) || []).length;
-  html = replaceFontLinks(html, fontBlock.block);
+  const beforeFonts = (rawHtml.match(/fonts\.googleapis\.com/g) || []).length;
+  let html = replaceFontLinks(rawHtml, fontBlock.block);
 
-  const cssResult = stripCommentsCss(html);
-  html = cssResult.html;
+  // Hash the font-inlined HTML — that's what actually ships, so exports
+  // can detect drift against exactly the build a reviewer used.
+  const sourceHash = 'sha256:' + createHash('sha256').update(html).digest('hex').slice(0, 16);
 
-  const jsResult = stripCommentsJs(html);
-  html = jsResult.html;
+  html = injectStandaloneMetadata(html, {
+    sourceHash,
+    branch: branch.gitRef,
+  });
 
   assertClean(html, branch.name);
 
@@ -269,16 +183,9 @@ async function buildOne(branch, fontBlock) {
   const kb = (Buffer.byteLength(html) / 1024).toFixed(1);
   console.log(
     `  ✓ standalone/sign-in-${branch.name}.html  ` +
-      `(${kb} KB, source: ${source}, ` +
-      `comments-css: ${cssResult.stripped ? 'stripped' : 'not-found'}, ` +
-      `comments-js: ${jsResult.stripped ? 'stripped' : 'not-found'}, ` +
-      `fonts: ${beforeFonts}→0)`
+      `(${kb} KB, source: ${source}, fonts: ${beforeFonts}→0, ` +
+      `hash=${sourceHash.slice(7, 15)}…)`
   );
-
-  // Emit the paired -review.html variant when this branch opts in.
-  if (branch.reviewVariant) {
-    await buildReviewVariant(branch, fontBlock, rawHtml);
-  }
 }
 
 async function main() {
