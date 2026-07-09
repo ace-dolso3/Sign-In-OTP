@@ -860,6 +860,53 @@
     #screen-otp[data-otp-substate="cooldown"] .resend-btn,
     #screen-otp[data-otp-substate="locked"]   .resend-btn { pointer-events: none; opacity: 0.38; }
 
+    /* ─── OTP registered-user delivery mode ────────────────────
+       When #screen-otp has data-otp-mode="registered", the free-form
+       email / phone <input> is replaced by a read-only card showing
+       the destination masked to just the last few chars. Users don't
+       have to type. A "Use a different email/phone" button below the
+       card removes the attribute and returns the input UI.
+       Article citation: LogRocket 2FA UX §'SMS OTP · Common UX Pain
+       Points': 'Display the last two digits of the phone number.' */
+    .otp-registered-view { display: none; }
+    .otp-registered-card {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid rgba(18,18,18,0.14);
+      border-radius: 6px;
+      background: rgba(18,18,18,0.03);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      color: #1f1f1f;
+    }
+    .otp-registered-card svg { flex-shrink: 0; color: rgba(18,18,18,0.7); }
+    .otp-registered-card strong { font-weight: 600; letter-spacing: 0.4px; }
+    .otp-use-different-btn {
+      align-self: flex-start;
+      background: none;
+      border: none;
+      padding: 6px 0;
+      cursor: pointer;
+      color: #121212;
+      font: inherit;
+      font-size: 13px;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .otp-use-different-btn:hover { opacity: 0.7; }
+    #screen-otp[data-otp-mode="registered"] #otp-screen-field-email .text-field,
+    #screen-otp[data-otp-mode="registered"] #otp-screen-field-email .otp-delivery-helper,
+    #screen-otp[data-otp-mode="registered"] #otp-screen-field-phone .text-field,
+    #screen-otp[data-otp-mode="registered"] #otp-screen-field-phone .otp-delivery-helper { display: none; }
+    #screen-otp[data-otp-mode="registered"] #otp-screen-field-email .otp-registered-view,
+    #screen-otp[data-otp-mode="registered"] #otp-screen-field-phone .otp-registered-view {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
     /* W2.2 · Merged OTP screen — panel swap
        NOTE: Avoid `display: contents` here. In some browsers (notably Safari/WebKit)
        descendants of a `display:contents` box can still render — including pseudo-element
@@ -5487,6 +5534,15 @@
                 </button>
               </div>
               <p class="otp-delivery-helper">We'll send a 6-digit code to your email</p>
+              <!-- Registered-user view: shown when data-otp-mode="registered".
+                   Read-only card + "Use a different email" toggle. -->
+              <div class="otp-registered-view">
+                <div class="otp-registered-card">
+                  <svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M140-160q-24 0-42-18t-18-42v-520q0-24 18-42t42-18h680q24 0 42 18t18 42v520q0 24-18 42t-42 18H140Zm340-302L140-685v465h680v-465L480-462Zm0-60 336-218H145l335 218ZM140-685v-55 520-465Z"/></svg>
+                  <span>Send code to <strong id="otp-registered-email-mask">shop···@example.com</strong></span>
+                </div>
+                <button type="button" class="otp-use-different-btn" data-otp-use-different aria-label="Send to a different email">Use a different email</button>
+              </div>
             </div>
 
             <!-- Phone destination field -->
@@ -5500,6 +5556,14 @@
                 </button>
               </div>
               <p class="otp-delivery-helper">We'll text a 6-digit code to your phone</p>
+              <!-- Registered-user view: shown when data-otp-mode="registered". -->
+              <div class="otp-registered-view">
+                <div class="otp-registered-card">
+                  <svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M260-40q-24.75 0-42.37-17.63Q200-75.25 200-100v-760q0-24 18-42t42-18h438q24.75 0 42.38 17.62Q758-884.75 758-860v760q0 24.75-17.62 42.37Q722.75-40 698-40H260Zm0-60h438v-760H260v760Zm0 0v-760 760Zm240-629q9-9 9-21t-9-21q-9-9-21-9t-21 9q-9 9-9 21t9 21q9 9 21 9t21-9Z"/></svg>
+                  <span>Text code to phone ending in <strong id="otp-registered-phone-mask">···42</strong></span>
+                </div>
+                <button type="button" class="otp-use-different-btn" data-otp-use-different aria-label="Send to a different phone number">Use a different phone</button>
+              </div>
             </div>
 
             <button class="sign-in-btn" id="otp-send-btn" type="button">Send code</button>
@@ -5818,6 +5882,12 @@
         <button class="proto-nav-item" data-nav-target="screen-otp" data-nav-state="request">
           <span class="proto-nav-dot" aria-hidden="true"></span>
           OTP request
+        </button>
+      </li>
+      <li>
+        <button class="proto-nav-item" data-nav-target="screen-otp" data-nav-state="request" data-nav-otp-mode="registered">
+          <span class="proto-nav-dot" aria-hidden="true"></span>
+          OTP request — registered user (masked)
         </button>
       </li>
       <li>
@@ -6298,6 +6368,7 @@
       'screen-reset-success':                 'Confirms the password was updated successfully. The user is directed to sign in with their new credentials.',
       'screen-otp':                           'One-time code sign-in. The screen toggles between two panels: a delivery picker (email or phone) and the 6-digit code entry. The transition is in-place so the surface feels like one screen with two modes.',
       'screen-otp:request':                   'Default state. The user picks a delivery channel (email or phone) and requests a code.',
+      'screen-otp:request-registered':        'Registered-user variant of the delivery picker. The free-form email / phone input is replaced by a read-only card showing the destination masked to just the last few chars — no typing required. A "Use a different email/phone" link falls back to the free-form input. Triggered by data-otp-mode="registered" on #screen-otp.',
       'screen-otp:default':                   'Code-entry state after a code is sent. The user types the 6-digit code; a live countdown shows when it expires.',
       'screen-otp:cooldown':                  'Code-entry state while the resend cooldown is active. The Resend button is disabled until the timer reaches zero.',
       'screen-otp:expired':                   'Code-entry state when the code\'s time window has passed. The user must request a new code to continue.',
@@ -7178,17 +7249,45 @@
     });
 
     document.getElementById('otp-send-btn').addEventListener('click', () => {
-      // Update the destination text using this screen's inputs
+      // Update the destination text using this screen's inputs.
+      // In registered mode, use the masked demo destination instead of
+      // reading the (hidden, empty) inputs. LogRocket 2FA UX guide
+      // recommends surfacing the last few digits of the destination
+      // so the user recognizes where the code is going without typing.
       const destEl = document.getElementById('verify-destination-text');
+      const registered = screenOtp.getAttribute('data-otp-mode') === 'registered';
       if (destEl) {
-        const dest = document.getElementById('otp-screen-phone') &&
-          !document.getElementById('otp-screen-field-phone').hasAttribute('hidden')
+        const phoneVisible = !document.getElementById('otp-screen-field-phone').hasAttribute('hidden');
+        let dest;
+        if (registered) {
+          dest = phoneVisible
+            ? document.getElementById('otp-registered-phone-mask').textContent
+            : document.getElementById('otp-registered-email-mask').textContent;
+        } else {
+          dest = phoneVisible
             ? (document.getElementById('otp-screen-phone').value.trim() || 'your phone')
             : (document.getElementById('otp-screen-email').value.trim() || 'your email');
+        }
         destEl.innerHTML = `Please enter the one-time code we sent to <strong>${dest}</strong> to verify your identity.`;
       }
       // In-place panel swap to the code-entry view (also starts expiry timer)
       setVerifyState('default');
+    });
+
+    // "Use a different email/phone" — toggles the OTP screen out of
+    // registered mode so the free-form input reappears. Once toggled
+    // off, the mode is not re-armed automatically; users have to
+    // navigate back via the Screens panel or the FLOWS entry to see
+    // it again.
+    document.querySelectorAll('[data-otp-use-different]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        screenOtp.removeAttribute('data-otp-mode');
+        const phoneVisible = !document.getElementById('otp-screen-field-phone').hasAttribute('hidden');
+        const activeInput = phoneVisible
+          ? document.getElementById('otp-screen-phone')
+          : document.getElementById('otp-screen-email');
+        if (activeInput) activeInput.focus();
+      });
     });
 
     // ── OS modal helpers ───────────────────────────────────────
@@ -8126,6 +8225,26 @@
           ],
         },
         {
+          // Registered-user delivery: the destination is prefilled and
+          // masked (last 4 of phone / obfuscated email local-part) so the
+          // user doesn't have to type. A "Use a different email/phone"
+          // link toggles back to the free-form input path if they need
+          // to. Article citation: LogRocket 2FA UX guide § 'SMS OTP ·
+          // Common UX Pain Points': 'Display the last two digits of the
+          // phone number... [users] may misplace the phone or forget the
+          // phone number used for 2FA, so the app can ask for confirmation
+          // before sending OTP and display the last [few] digits.'
+          id: 'otp-happy-registered', group: 'One-Time Code (OTP) Sign-In',
+          label: 'Happy Path — Registered-User Masked Delivery',
+          figmaUrl: FIGMA + '660-492',
+          steps: [
+            { screen: 'screen-chooser',        state: 'default',  label: 'Chooser — no passkey' },
+            { screen: 'screen-otp',            state: 'request', otpMode: 'registered', label: 'OTP — registered delivery (masked destination, no typing)' },
+            { screen: 'screen-otp',            state: 'default', label: 'OTP — code entry (identified via masked destination)' },
+            { screen: 'screen-passkey-enroll', state: 'prompt',   label: 'Signed in — passkey enrollment offer (terminal step)' },
+          ],
+        },
+        {
           id: 'otp-wrong-code', group: 'One-Time Code (OTP) Sign-In',
           label: 'Wrong Code',
           figmaUrl: FIGMA + '660-525',
@@ -8446,6 +8565,10 @@
         if (target === screenOtp) {
           if (state === 'request') setOtpRequestState();
           else                     setVerifyState(state || 'default');
+          // Optional otpMode toggles the read-only registered delivery
+          // variant (parallel to step.banner for the chooser).
+          if (step.otpMode) screenOtp.setAttribute('data-otp-mode', step.otpMode);
+          else              screenOtp.removeAttribute('data-otp-mode');
         }
         if (target === screenPasskey)  setPasskeyState(state   || 'idle');
         if (target === screenEnroll)   setEnrollState(state    || 'prompt');
@@ -8609,6 +8732,13 @@
           if (target === screenOtp) {
             if (navState === 'request' || !navState) setOtpRequestState();
             else                                     setVerifyState(navState);
+            // Optional data-nav-otp-mode toggles the read-only registered
+            // delivery variant. Cleared for the default request state.
+            if (btn.dataset.navOtpMode) {
+              screenOtp.setAttribute('data-otp-mode', btn.dataset.navOtpMode);
+            } else {
+              screenOtp.removeAttribute('data-otp-mode');
+            }
           }
           if (target === screenPasskey)  setPasskeyState(navState   || 'idle');
           if (target === screenEnroll)   setEnrollState(navState    || 'prompt');
