@@ -1554,7 +1554,7 @@
     /* All new elements default hidden — variants turn them on. */
     .chooser-identity-chip,
     .chooser-not-you-link,
-    .chooser-multi-identity,
+    .chooser-inline-pw-form,
     .cta-label-identity { display: none; }
 
     /* ── Identity chip (shown in returning-passkey) ── */
@@ -1598,74 +1598,56 @@
     }
     .chooser-not-you-link:hover { opacity: 0.8; }
 
-    /* ── Multi-identity chip list (shown in multi-identity) ── */
-    .chooser-multi-identity {
-      width: 100%;
-      align-self: stretch;
+    /* ── Inline password form (W3.7.2)
+       Shown in App state 'returning-email-known' — user's identity is
+       known and the fastest path is a direct password entry, not a
+       4-tile chooser with a highlighted "recommended" tile (which we
+       used to do and which David correctly flagged as weak mobile UX).
+       The form mirrors the standalone screen-password field styling
+       so the visual weight matches; layout stretches to card width
+       like the other primary inputs. */
+    .chooser-inline-pw-form {
+      /* display:none by default (see above with .chooser-identity-chip
+         et al); revealed by [data-chooser-variant="returning-email-known"] */
       flex-direction: column;
       gap: 12px;
+      margin: 0;
+      width: 100%;
+      align-self: stretch;
     }
-    .identity-tile {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 14px 16px;
-      background: #fff;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
+    .chooser-inline-pw-form .text-field-toggle-pw {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      padding: 6px;
+      border-radius: 4px;
       cursor: pointer;
-      text-align: left;
-      font-family: 'Roboto', sans-serif;
-      transition: border-color 120ms ease, background 120ms ease;
-    }
-    .identity-tile:hover {
-      border-color: #111;
-      background: #fafafa;
-    }
-    .identity-tile .identity-avatar {
-      width: 40px;
-      height: 40px;
-      flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #f3f4f6;
-      border-radius: 50%;
-      color: #6b7280;
     }
-    .identity-tile .identity-info {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      flex: 1;
-      min-width: 0;
+    .chooser-inline-pw-form .text-field-toggle-pw:hover {
+      background: rgba(18, 18, 18, 0.06);
     }
-    .identity-tile .identity-email {
-      font-size: 14px;
-      font-weight: 600;
-      color: #111;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .identity-tile .identity-method {
-      font-size: 12px;
-      color: #6b7280;
-    }
-    .identity-tile .identity-icon {
-      flex-shrink: 0;
-      color: #6b7280;
-    }
-    .identity-other {
-      align-self: center;
-      margin-top: 4px;
+    /* Forgot password? — small text link between the field and CTA. */
+    .chooser-forgot-pw-link {
+      align-self: flex-start;
+      background: none;
+      border: none;
+      padding: 0;
+      margin-top: -4px;
+      font-family: 'Roboto', sans-serif;
       font-size: 13px;
       font-weight: 500;
       color: #d40029;
+      cursor: pointer;
       text-decoration: underline;
       text-underline-offset: 2px;
     }
-    .identity-other:hover { opacity: 0.8; }
+    .chooser-forgot-pw-link:hover { opacity: 0.8; }
 
     /* ── Per-variant chooser rules ── */
 
@@ -1699,49 +1681,44 @@
       display: none;
     }
 
-    /* Returning · saved password: email pre-filled, "Not you?" link
-       shown. Tiles remain visible so the user can escape to another
-       method if autofill fails.
-       W3.6 · Slice C · 'returning-identity' (Mobile Web / Desktop)
-       piggybacks on the same visual — a pre-filled email with a
-       Not you? escape is state-agnostic. Semantics differ (App
-       promises autofill; Mobile Web only hints identity — the browser
-       can't guarantee autofill will fire) but the chooser layout is
-       identical, so we share the selector rather than duplicating.
-       W3.7 · The former 'cross-device-emphasis' variant was removed
-       when cross-device sign-in was temporarily hidden — see the
-       CROSS-DEVICE TEMPORARILY HIDDEN block below. */
-    #screen-chooser[data-chooser-variant="returning-password-saved"] .chooser-not-you-link,
-    #screen-chooser[data-chooser-variant="returning-identity"]       .chooser-not-you-link {
+    /* Returning · identity (Mobile Web / Desktop): email pre-filled,
+       "Not you?" link shown. Tiles remain visible so the user can
+       escape to another method if autofill fails. */
+    #screen-chooser[data-chooser-variant="returning-identity"] .chooser-not-you-link {
       display: inline-block;
     }
 
-    /* Returning · no credentials: email pre-filled, "Not you?" link
-       shown, Face ID tile hidden (nothing to unlock), password tile
-       promoted to position 1 via flex order. Requires the tiles
-       parent to be flex — .method-tiles already renders as a flex
-       column via existing tile styling; ordering just re-arranges
-       children.
-       W3.7 · Cross-device was previously the promoted fallback here.
-       When cross-device was temporarily hidden (see CROSS-DEVICE
-       TEMPORARILY HIDDEN block below), password took over as the
-       fastest remaining path for a returning user with no local
-       credentials. */
-    #screen-chooser[data-chooser-variant="returning-no-credentials"] .chooser-not-you-link {
-      display: inline-block;
-    }
-    #screen-chooser[data-chooser-variant="returning-no-credentials"] #tile-passkey {
+    /* Returning · email known (W3.7.2 · App-tab only):
+       We know the identity — greet the user by chip AND show the
+       password form inline instead of a chooser. Alternate methods
+       (Face ID, OTP) remain visible below the divider as tiles;
+       the password tile is hidden because it's redundant with the
+       inline form above. Subtitle switches to a "Welcome back"
+       greeting. Default identifier form is hidden — the user shouldn't
+       have to re-type an email we already know. */
+    #screen-chooser[data-chooser-variant="returning-email-known"] .chooser-id-form {
       display: none;
     }
-    #screen-chooser[data-chooser-variant="returning-no-credentials"] #tile-password-chooser  { order: 1; }
-    #screen-chooser[data-chooser-variant="returning-no-credentials"] #tile-cd-chooser        { order: 2; }
-    #screen-chooser[data-chooser-variant="returning-no-credentials"] #tile-otp-chooser       { order: 3; }
-    /* Emphasis ring on the promoted tile signals it as the recommended
-       path without needing a copy change inside the tile itself. */
-    #screen-chooser[data-chooser-variant="returning-no-credentials"] #tile-password-chooser {
-      border-color: #121212;
-      border-width: 2px;
-      box-shadow: 0 0 0 3px rgba(18, 18, 18, 0.06);
+    #screen-chooser[data-chooser-variant="returning-email-known"] .chooser-identity-chip {
+      display: inline-flex;
+    }
+    #screen-chooser[data-chooser-variant="returning-email-known"] .chooser-inline-pw-form {
+      display: flex;
+    }
+    #screen-chooser[data-chooser-variant="returning-email-known"] #tile-password-chooser {
+      display: none;
+    }
+    #screen-chooser[data-chooser-variant="returning-email-known"] .chooser-subtitle-default {
+      display: none;
+    }
+    #screen-chooser[data-chooser-variant="returning-email-known"] .chooser-subtitle-email-known {
+      display: block;
+    }
+
+    /* Email-known subtitle (default hidden; shown by variant above). */
+    .chooser-subtitle-email-known {
+      display: none;
+      margin: 0;
     }
 
     /* ═════════════════════════════════════════════════════════════
@@ -1765,30 +1742,6 @@
     #passkey-cd-btn,
     .proto-nav-group-cross-device {
       display: none !important;
-    }
-
-    /* Multi-identity: replace form, divider, and tiles with the
-       identity chip list. Create Account footer stays as escape route. */
-    #screen-chooser[data-chooser-variant="multi-identity"] .chooser-id-form,
-    #screen-chooser[data-chooser-variant="multi-identity"] .chooser-divider,
-    #screen-chooser[data-chooser-variant="multi-identity"] .method-tiles {
-      display: none;
-    }
-    #screen-chooser[data-chooser-variant="multi-identity"] .chooser-multi-identity {
-      display: flex;
-    }
-    /* Multi-identity uses its own subtitle: prompt to pick */
-    #screen-chooser[data-chooser-variant="multi-identity"] .chooser-subtitle-default {
-      display: none;
-    }
-    #screen-chooser[data-chooser-variant="multi-identity"] .chooser-subtitle-multi-identity {
-      display: block;
-    }
-
-    /* Multi-identity subtitle (new element, default hidden) */
-    .chooser-subtitle-multi-identity {
-      display: none;
-      margin: 0;
     }
 
     /* ─── W3.6 · Slice D · Panel state-context indicator ─── */
@@ -4941,9 +4894,22 @@
            initStatePills() near the bottom of the file. -->
       <div class="rail-label">Simulate state</div>
 
-      <!-- App-tab pills (Slice B). Default state on App = returning-passkey
-           because that's the state that most clearly shows the payoff
-           of doing this exercise (one-tap Face ID, no email typing). -->
+      <!-- App-tab pills (Slice B, revised W3.7.2). Default state on App =
+           returning-passkey because that's the state that most clearly
+           shows the payoff of doing this exercise (one-tap Face ID, no
+           email typing).
+           W3.7.2 · Reduced from 5 pills to 3. Dropped:
+             • returning-password-saved  } indistinguishable from
+             • returning-no-credentials  } each other on the landing
+                                          screen → merged into the
+                                          single 'returning-email-known'
+                                          state below, which shows the
+                                          password form INLINE instead
+                                          of a 4-tile chooser (no more
+                                          highlighting-a-tile pattern).
+             • multi-identity            → uncommon for a single-account
+                                           retail app; dropped per
+                                           team feedback. -->
       <button type="button" class="state-pill" data-tab-scope="app" data-state-value="fresh-install" aria-pressed="false">
         <span class="pill-title">Fresh install</span>
         <span class="pill-sub">First-time user, no saved credentials</span>
@@ -4952,17 +4918,9 @@
         <span class="pill-title">Returning · passkey</span>
         <span class="pill-sub">Device recognized — one-tap Face ID</span>
       </button>
-      <button type="button" class="state-pill" data-tab-scope="app" data-state-value="returning-password-saved" aria-pressed="false">
-        <span class="pill-title">Returning · saved password</span>
-        <span class="pill-sub">Autofill available on sign-in</span>
-      </button>
-      <button type="button" class="state-pill" data-tab-scope="app" data-state-value="returning-no-credentials" aria-pressed="false">
-        <span class="pill-title">Returning · no credentials</span>
-        <span class="pill-sub">Signed out — password fallback</span>
-      </button>
-      <button type="button" class="state-pill" data-tab-scope="app" data-state-value="multi-identity" aria-pressed="false">
-        <span class="pill-title">Multi-identity</span>
-        <span class="pill-sub">Shared device — pick account</span>
+      <button type="button" class="state-pill" data-tab-scope="app" data-state-value="returning-email-known" aria-pressed="false">
+        <span class="pill-title">Returning · email known</span>
+        <span class="pill-sub">Password shown inline — skip the chooser</span>
       </button>
 
       <!-- Mobile Web-tab pills (Slice C). Browser can't reliably poll
@@ -5063,10 +5021,9 @@
             <h1>Sign in</h1>
             <p class="chooser-subtitle-default">Enter your email to get started</p>
             <p class="chooser-subtitle-passkey-first">We recognize this device. Use Face ID for the fastest sign-in — it stays on this device.</p>
-            <!-- W3.6 · Subtitle for App state 'multi-identity' — prompt
-                 the user to pick which of the previously-signed-in
-                 accounts to continue with. -->
-            <p class="chooser-subtitle-multi-identity">Pick an account to continue</p>
+            <!-- W3.7.2 · Subtitle for App state 'returning-email-known' —
+                 identity is known, so greet accordingly. -->
+            <p class="chooser-subtitle-email-known">Welcome back — enter your password to continue.</p>
           </div>
 
           <!-- ── W2.1 · Identifier-first form ─────────────────────── -->
@@ -5113,6 +5070,28 @@
             <span class="cta-label-default">Sign in with Face ID</span>
             <span class="cta-label-identity">Sign in as shopper@ace.com</span>
           </button>
+
+          <!-- W3.7.2 · Inline password form for App state
+               'returning-email-known'. When the app knows the identity
+               but doesn't have a biometric-unlockable credential on
+               device, the fastest path is a direct password entry —
+               NOT a 4-tile chooser. This form is display:none-hidden
+               by default and revealed only when
+               [data-chooser-variant="returning-email-known"].
+               The identity chip (below the ID form above) surfaces
+               too so the user sees who they're signing in as. -->
+          <form class="chooser-inline-pw-form" id="chooser-inline-pw-form" novalidate>
+            <div class="text-field">
+              <input type="password" id="chooser-inline-pw-input" name="chooser-inline-pw" placeholder=" "
+                autocomplete="current-password" aria-label="Password" />
+              <label class="text-field-label" for="chooser-inline-pw-input">Password</label>
+              <button class="text-field-toggle-pw" type="button" aria-label="Show password" aria-pressed="false" tabindex="-1">
+                <svg width="18" height="18" viewBox="0 -960 960 960" fill="#1f1f1f" aria-hidden="true"><path d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Z"/></svg>
+              </button>
+            </div>
+            <button type="button" class="chooser-forgot-pw-link" id="chooser-inline-forgot-btn">Forgot password?</button>
+            <button class="sign-in-btn" id="chooser-inline-signin-btn" type="submit">Sign in</button>
+          </form>
 
           <!-- "or" divider -->
           <div class="chooser-divider" role="separator" aria-label="Other sign-in methods">
@@ -5186,38 +5165,15 @@
 
           </div><!-- /method-tiles -->
 
-          <!-- W3.6 · Multi-identity chip list — visible in App state
-               'multi-identity'. Simulates a shared / family device
-               where two accounts have signed in previously. Each chip
-               shows the credential type available for that account
-               (Face ID vs saved password). -->
-          <div class="chooser-multi-identity" role="list" aria-label="Recent accounts">
-            <button type="button" class="identity-tile" role="listitem" data-identity-method="passkey">
-              <span class="identity-avatar" aria-hidden="true">
-                <svg width="24" height="24" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M234-276q51-39 114-61.5T480-360q69 0 132 22.5T726-276q35-41 54.5-93T800-480q0-133-93.5-226.5T480-800q-133 0-226.5 93.5T160-480q0 59 19.5 111t54.5 93Zm246-164q-59 0-99.5-40.5T340-580q0-59 40.5-99.5T480-720q59 0 99.5 40.5T620-580q0 59-40.5 99.5T480-440Zm0 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q54 0 104-17.5t92-50.5q-42-33-92-50.5T480-296q-54 0-104 17.5T284-228q42 33 92 50.5T480-160Zm0-360q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm0-60Zm0 360Z"/></svg>
-              </span>
-              <span class="identity-info">
-                <span class="identity-email">shopper@ace.com</span>
-                <span class="identity-method">Use Face ID</span>
-              </span>
-              <span class="identity-icon" aria-hidden="true">
-                <svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M40-731v-129q0-24.75 17.63-42.38Q75.25-920 100-920h129v60H100v129H40ZM229-40H100q-24.75 0-42.37-17.63Q40-75.25 40-100v-129h60v129h129v60Zm502-4v-60h129v-130h60v130q0 24.75-17.62 42.37Q884.75-44 860-44H731Zm129-687v-129H731v-60h129q24.75 0 42.38 17.62Q920-884.75 920-860v129h-60ZM349-536q11 11 28 11t28-11q11-11 11-28t-11-28q-11-11-28-11t-28 11q-11 11-11 28t11 28Zm206 0q11 11 28 11t28-11q11-11 11-28t-11-28q-11-11-28-11t-28 11q-11 11-11 28t11 28Zm-75 172q47 0 85-26t57-70H338q18 44 56.5 70t85.5 26Z"/></svg>
-              </span>
-            </button>
-            <button type="button" class="identity-tile" role="listitem" data-identity-method="password">
-              <span class="identity-avatar" aria-hidden="true">
-                <svg width="24" height="24" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M234-276q51-39 114-61.5T480-360q69 0 132 22.5T726-276q35-41 54.5-93T800-480q0-133-93.5-226.5T480-800q-133 0-226.5 93.5T160-480q0 59 19.5 111t54.5 93Zm246-164q-59 0-99.5-40.5T340-580q0-59 40.5-99.5T480-720q59 0 99.5 40.5T620-580q0 59-40.5 99.5T480-440Zm0 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q54 0 104-17.5t92-50.5q-42-33-92-50.5T480-296q-54 0-104 17.5T284-228q42 33 92 50.5T480-160Zm0-360q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm0-60Zm0 360Z"/></svg>
-              </span>
-              <span class="identity-info">
-                <span class="identity-email">d.olson@example.com</span>
-                <span class="identity-method">Use password</span>
-              </span>
-              <span class="identity-icon" aria-hidden="true">
-                <svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M220-80q-24 0-42-18t-18-42v-436q0-24 18-42t42-18h70v-90q0-79 55.5-134.5T480-915q79 0 134.5 55.5T670-725v90h70q24 0 42 18t18 42v436q0 24-18 42t-42 18H220Zm0-60h520v-436H220v436Zm260-130q29 0 49.5-20.5T550-340q0-29-20.5-49.5T480-410q-29 0-49.5 20.5T410-340q0 29 20.5 49.5T480-270ZM350-635h260v-90q0-54.17-37.88-92.08-37.88-37.92-92-37.92T388-817.08q-38 37.91-38 92.08v90ZM220-140v-436 436Z"/></svg>
-              </span>
-            </button>
-            <a href="#" class="identity-other" id="identity-use-different">Use a different account</a>
-          </div><!-- /chooser-multi-identity -->
+          <!-- W3.7.2 · The .chooser-multi-identity chip list (2 accounts +
+               "Use a different account") was removed alongside the
+               multi-identity App-tab pill. Reason: shared/family-device
+               sign-in is uncommon for a single-account retail app and
+               didn't earn its slot in the state matrix. To revive: add
+               back the .chooser-multi-identity list, the
+               .chooser-subtitle-multi-identity subtitle, the app-tab
+               pill, and the [data-chooser-variant="multi-identity"]
+               CSS rules. -->
 
           <!-- Create account footer.
 
@@ -7287,9 +7243,16 @@
 
     // ── Screen description blurbs ──────────────────────────────
     const SCREEN_BLURBS = {
-      'screen-chooser:default':               'Identifier-first sign-in entry. Users enter their email up top; downstream screens reuse it. Method tiles below offer Face ID / passkey, cross-device passkey, password, or one-time code.',
-      'screen-chooser:passkey-first':         'Identifier-first sign-in entry when we recognize a passkey on this device. The email field and Continue button are replaced by a single primary “Sign in with Face ID” CTA so the fastest path is unmistakable. Fallback tiles below the divider stay available: cross-device passkey, password, or one-time code.',
+      'screen-chooser:default':               'Identifier-first sign-in entry. Users enter their email up top; downstream screens reuse it. Method tiles below offer Face ID / passkey, password, or one-time code.',
+      'screen-chooser:passkey-first':         'Identifier-first sign-in entry when we recognize a passkey on this device. The email field and Continue button are replaced by a single primary “Sign in with Face ID” CTA so the fastest path is unmistakable. Fallback tiles below the divider stay available: password or one-time code.',
       'screen-chooser:default+unknown-email':  'Chooser default state with a banner indicating the submitted email has no account on file. Points at two remediations: try a different email, or use the Create an Account link at the bottom of the chooser. Triggered by submitting the demo sentinel "unknown@example.com".',
+      // W3.7.2 · Per-App-tab-pill blurbs. Keyed on data-chooser-variant
+      // via the updateBlurb() extension. Each describes the state's
+      // intended user situation + the layout it produces.
+      'screen-chooser:fresh-install':          'App state: fresh install / first-time user. No saved credentials means no method tiles can complete — showing them would be dead-ends. Landing surface collapses to email + Continue only. The Create an Account link at the bottom stays visible; this IS the state it exists for.',
+      'screen-chooser:returning-passkey':      'App state: returning user with a passkey on this device. The fastest path is one-tap Face ID, so the chooser collapses to a single hero: identity chip (shopper@ace.com) above a "Sign in as shopper@ace.com" primary CTA. No method tiles — a chooser here would be noise when we know the answer.',
+      'screen-chooser:returning-email-known':  'App state: returning user whose identity is known but who has no biometric-unlockable credential on this device. Skipping the chooser: the password field is shown INLINE with a Sign in button and a Forgot password? escape. Face ID and one-time code tiles remain below as alternates if the user wants to switch methods; the password tile is hidden (redundant with the inline form).',
+      'screen-chooser:returning-identity':     'Mobile Web / Desktop state: browser hints identity via cookie/session but can\'t confirm what credentials will autofill. Email pre-filled, Not you? link inline, and all method tiles remain visible — no unearned certainty about which path will succeed.',
       'screen-passkey:idle':                  'Shown when the passkey ceremony begins. The user taps “Use Face ID” to authenticate with a saved local passkey. (W3.7 — the “Use a passkey from another device” cross-device option is temporarily hidden; see CROSS-DEVICE TEMPORARILY HIDDEN in the stylesheet.)',
       'screen-passkey:idle-cross-device':       'The same passkey idle screen, shown as the second step of the cross-device happy path. The \u201cUse a passkey from another device\u201d button is the interactive trigger that advances to the QR screen.',
       'screen-passkey:failed':                'Shown when Face ID fails or is canceled by the OS. Offers a retry or a fallback to another sign-in method.',
@@ -7358,7 +7321,17 @@
       if (id === 'screen-passkey')           state = document.getElementById('screen-passkey').getAttribute('data-passkey-state') || 'idle';
       if (id === 'screen-passkey-enroll')    state = screenEnroll.getAttribute('data-enroll-state') || 'prompt';
       if (id === 'screen-settings-passkeys') state = screenSettings.getAttribute('data-settings-state') || 'list';
-      if (id === 'screen-chooser')           state = screenChooser.getAttribute('data-chooser-state') || 'default';
+      if (id === 'screen-chooser') {
+        // W3.7.2 · Prefer data-chooser-variant when set — App-tab pill
+        // states (fresh-install, returning-passkey, returning-email-known)
+        // reshape the chooser in ways the base data-chooser-state
+        // (default | passkey-first) can't distinguish. When no variant
+        // is active (Screens-nav-only navigation, Desktop tab default,
+        // etc.), fall back to chooser-state.
+        const variant = screenChooser.getAttribute('data-chooser-variant') || '';
+        const chooserState = screenChooser.getAttribute('data-chooser-state') || 'default';
+        state = (variant && variant !== 'default') ? variant : chooserState;
+      }
       if (id === 'screen-reenroll')          state = screenReenroll.getAttribute('data-reenroll-state') || 'prompt';
       if (id === 'screen-recovery')          state = screenRecovery.getAttribute('data-recovery-state') || null;
       if (id === 'screen-new-password')      state = screenNewPw.getAttribute('data-newpw-state') || null;
@@ -7868,15 +7841,17 @@
       // add themselves.
       const PASSKEY_FIRST_VARIANTS = new Set(['returning-passkey']);
       // Variants that pre-fill the identifier field with a demo email.
-      // W3.6 · Slice C · Mobile Web's 'returning-identity' simulates
-      // a returning user whose email is already known to the site
-      // (via cookie/session).
-      // W3.7 · 'cross-device-emphasis' removed when cross-device
-      // sign-in was temporarily hidden.
+      // W3.7.2 · Simplified after the App-tab redesign:
+      //   • App 'returning-email-known' fills the email field via the
+      //     identity chip (form itself is hidden by variant CSS; chip
+      //     shows shopper@ace.com).
+      //   • Mobile Web / Desktop 'returning-identity' fills the
+      //     visible identifier form.
+      // (Removed: returning-password-saved, returning-no-credentials,
+      // multi-identity — see rail pill removals in Slice B markup.)
       const PREFILL_VARIANTS = new Set([
-        'returning-password-saved',
-        'returning-no-credentials',
         'returning-identity',
+        'returning-email-known',
       ]);
       const PREFILL_EMAIL = 'shopper@example.com';
 
@@ -7959,6 +7934,14 @@
             : state;
           contextValue.textContent = tabLabel + ' · ' + stateLabel;
           contextChip.hidden = false;
+        }
+
+        // W3.7.2 · Refresh the screen blurb since chooser-variant
+        // participates in the blurb key (see updateBlurb). Only
+        // matters when the chooser is the current screen — on other
+        // screens the variant is irrelevant.
+        if (currentScreen === screenChooser && typeof updateBlurb === 'function') {
+          updateBlurb();
         }
       }
 
@@ -8446,6 +8429,49 @@
       switchScreen(screenPassword, screenEnroll, 'forward');
       currentScreen = screenEnroll;
     });
+
+    // ── W3.7.2 · Inline chooser password form (App state
+    //             'returning-email-known') ──────────────────
+    // On the App tab's returning-email-known variant, the chooser
+    // shows the password form inline instead of a 4-tile chooser.
+    // Sign in on that inline form terminates in the same post-login
+    // passkey enrollment offer as the standalone password screen —
+    // consistent behavior across both entry points. Forgot password?
+    // takes the user to the standard forgot-password screen (identity
+    // is already known, so no email prompt needed on the next step).
+    const inlineSigninBtn = document.getElementById('chooser-inline-signin-btn');
+    const inlineForgotBtn = document.getElementById('chooser-inline-forgot-btn');
+    if (inlineSigninBtn) {
+      inlineSigninBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        // No real validation — this is a demo state. Straight to the
+        // post-login enrollment offer, matching the password-happy
+        // terminal step.
+        enrollOrigin = 'post-login';
+        setEnrollState('prompt');
+        switchScreen(screenChooser, screenEnroll, 'forward');
+        currentScreen = screenEnroll;
+      });
+    }
+    if (inlineForgotBtn) {
+      inlineForgotBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        switchScreen(screenChooser, screenForgotPw, 'forward');
+        currentScreen = screenForgotPw;
+      });
+    }
+    // Password-field show/hide toggle for the inline form. Mirrors the
+    // existing #pw-password toggle; kept simple since it's a demo.
+    const inlinePwToggle = document.querySelector('.chooser-inline-pw-form .text-field-toggle-pw');
+    const inlinePwInput  = document.getElementById('chooser-inline-pw-input');
+    if (inlinePwToggle && inlinePwInput) {
+      inlinePwToggle.addEventListener('click', () => {
+        const showing = inlinePwInput.type === 'text';
+        inlinePwInput.type = showing ? 'password' : 'text';
+        inlinePwToggle.setAttribute('aria-pressed', showing ? 'false' : 'true');
+        inlinePwToggle.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+      });
+    }
 
     // ── Chooser → OTP (legacy tab screen, OTP tab) ────────────
     document.getElementById('tile-otp-chooser').addEventListener('click', () => {

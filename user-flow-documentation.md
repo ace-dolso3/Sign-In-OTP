@@ -88,15 +88,15 @@ Left of the card, a **state pill rail** hosts scenario pills scoped per device t
 
 > The former **Cross-device emphasis** Mobile Web pill was removed alongside the cross-device sign-in hide (W3.7). Its rationale was to promote the `Use another device` (QR) tile for users with a passkey on a different device; with the cross-device tile hidden, the pill had no purpose.
 
-### App tab (5 states)
+### App tab (3 states)
 
 | Pill | Chooser behavior |
 |------|------------------|
 | **Fresh install** | Email + Continue only. No `OR SIGN IN ANOTHER WAY` divider, no method tiles — nothing else can complete for a first-time user. `Create Account` footer preserved. |
 | **Returning · passkey** | Layers on `passkey-first` base. Identity chip (`shopper@ace.com`) above the CTA. CTA copy swaps to `Sign in as shopper@ace.com`. Divider + tiles hidden — this variant is the "one clear path" case. **App default state.** |
-| **Returning · saved password** | Email pre-filled with `shopper@example.com`. `Not you?` link. All tiles remain as fallback if autofill fails. |
-| **Returning · no credentials** | Email pre-filled. `Not you?` link. Face ID tile **hidden** (no passkey on this device — showing it would be a dead-end). **Password tile promoted to position 1** with an emphasis ring — fastest remaining path for a returning user with no local credentials. (Pre-W3.7 this state promoted the cross-device tile; when cross-device was temporarily hidden, password took over.) |
-| **Multi-identity** | Replaces form + tiles with 2 identity chips (`shopper@ace.com` w/ Face ID glyph, `d.olson@example.com` w/ lock glyph) + `Use a different account` link. Simulates a family/shared device. |
+| **Returning · email known** | Identity known, no biometric-unlockable credential on device. Skips the chooser entirely: identity chip + **inline password field** + `Sign in` button + `Forgot password?` link. Face ID and one-time code tiles remain below the divider as alternate methods; the password tile is hidden (redundant with the inline form). Terminates at the post-login passkey enrollment offer, matching the standalone password screen's happy path. |
+
+> Design note (W3.7.2): the previous 5-pill App matrix included `Returning · saved password`, `Returning · no credentials`, and `Multi-identity`. The first two were indistinguishable on the landing screen (both = "email known, no strong credential") and were collapsed into the single `Returning · email known` state above, which replaces the old "chooser with a highlighted-tile" pattern with an inline password form — a stronger native-mobile pattern. `Multi-identity` was dropped as an uncommon scenario for a single-account retail app.
 
 ### Panel context indicator
 
