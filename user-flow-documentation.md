@@ -3,7 +3,7 @@
 > **Source of truth:** The `FLOWS` array and `SCREEN_DESCRIPTIONS` object in `sign-in.html`. This document is derived directly from those definitions and reflects the prototype's current wired state as of the last update.
 >
 > **Figma file key:** `IDuYbd4aYwGsFgo6c3ThVX` · Flows page: "Prototype Flows"
-> **Prototype:** `sign-in.html` (local + Vercel — `feature/faceid-passkey` branch)
+> **Prototype:** `sign-in.html` (local file — `feature/faceid-passkey` branch)
 
 ---
 

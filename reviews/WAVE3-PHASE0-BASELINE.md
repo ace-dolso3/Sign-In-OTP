@@ -6,8 +6,7 @@ Source of truth: live prototype flow registry in sign-in.html.
 Comparison target: Figma page 198:31 (Prototype Flows), Wave-3 groups.
 
 ## Environment Status
-- Preview server started with `vercel dev --listen 4173`.
-- Server reported ready at `http://localhost:4173`.
+- Prototype opened directly from `sign-in.html` (file:// — no server required).
 
 ## Prototype Flow Registry Snapshot
 Extracted from `const FLOWS` in sign-in.html.

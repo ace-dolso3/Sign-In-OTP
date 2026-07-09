@@ -8,7 +8,7 @@ This document captures design decisions, open questions, and implementation guid
 2. OTP delivery via email or phone, with full state coverage (cooldown, expiry, lockout, success)
 3. A planned passkey system to be added on top of the existing flow
 
-The live prototype at the time of this session: https://sign-in-otp.vercel.app/
+The prototype runs locally from `sign-in.html` (no server required).
 
 ---
 
@@ -79,7 +79,7 @@ Four states were mocked up matching the Ace Hardware visual language:
 
 ---
 
-## Prototype feedback (from live review of sign-in-otp.vercel.app)
+## Prototype feedback (from live review of the local sign-in prototype)
 
 ### Issues to fix
 
