@@ -201,10 +201,16 @@
     .ace-logo svg { width: 90px; height: 40px; }
 
     /* ─── Card ────────────────────────────────────────────── */
+    /* W3.6 · card-wrapper is now a 3-column grid so the device-state
+       pill rail (col 1) never shifts the centered card (col 2). The
+       right column (col 3) is empty and mirrors the rail's width so
+       the card lands on the true page center regardless of rail
+       visibility. See DEVICE FRAME SYSTEM block below. */
     .card-wrapper {
       padding: 36px 0;
-      display: flex;
-      justify-content: center;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: start;
       width: 100%;
     }
 
@@ -1075,6 +1081,260 @@
         background: transparent;
       }
     }
+
+    /* ═════════════════════════════════════════════════════════════
+       DEVICE FRAME SYSTEM (W3.6 · Slice A — tab shell + frames)
+       ──────────────────────────────────────────────────────────
+       Wraps the sign-in card in a lightweight stylized device
+       chrome — Desktop window / Mobile Web browser / native App —
+       so reviewers can preview the flow in the surface they're
+       designing for. Selection lives on
+         body[data-device-tab="desktop|mobile-web|app"]
+       and persists to localStorage under 'proto:device-tab'.
+
+       Layout: .card-wrapper is a 3-col grid
+         col 1  → .device-state-rail (pill rail, populated in later slices)
+         col 2  → .device-viewport (frame + tab bar), fixed-width, TRUE CENTER
+         col 3  → empty spacer (mirrors col 1) so centering is exact
+
+       Card itself is unchanged — the frame constrains outer width
+       and adds chrome. On viewports < 640px the frame concept
+       collapses back to the plain card (display: contents).
+       ═════════════════════════════════════════════════════════════ */
+
+    .device-viewport {
+      grid-column: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    /* ─── Device state pill rail (Slice A: scaffold, empty) ─── */
+    .device-state-rail {
+      grid-column: 1;
+      justify-self: end;
+      margin-right: 32px;
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 180px;
+    }
+    /* Rail only relevant to the chooser landing. On every other
+       screen we use visibility (not display) so the grid column
+       preserves layout — card doesn't shift when rail hides. */
+    body:not([data-current-screen="screen-chooser"]) .device-state-rail {
+      visibility: hidden;
+    }
+
+    /* ─── Device frame chrome (shared base) ─── */
+    .device-frame {
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      transition: max-width 200ms ease, border-radius 200ms ease;
+    }
+    .device-chrome {
+      background: #f5f5f5;
+      color: #6b7280;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    /* Tab-scoped chrome content. Wrapper spans use display:contents
+       so their children flow directly into .device-chrome--top /
+       --bottom and honor its layout (flex row/column, gap, etc). */
+    .chrome-desktop,
+    .chrome-mobile-web,
+    .chrome-app { display: none; }
+    body[data-device-tab="desktop"]    .chrome-desktop    { display: contents; }
+    body[data-device-tab="mobile-web"] .chrome-mobile-web { display: contents; }
+    body[data-device-tab="app"]        .chrome-app        { display: contents; }
+
+    /* ── Desktop tab: subtle window chrome ── */
+    body[data-device-tab="desktop"] .device-frame {
+      border: 1px solid #d1d1d1;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      overflow: hidden;
+    }
+    body[data-device-tab="desktop"] .device-chrome--top {
+      height: 28px;
+      padding: 0 12px;
+      gap: 6px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    /* Three faux traffic-light dots. No colors — kept neutral so the
+       frame reads as "generic desktop window", not macOS-specific. */
+    body[data-device-tab="desktop"] .device-chrome--top .traffic-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #d1d5db;
+      flex-shrink: 0;
+    }
+    body[data-device-tab="desktop"] .device-chrome--bottom { display: none; }
+    body[data-device-tab="desktop"] .device-frame .card {
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    /* ── Mobile Web tab: rounded phone silhouette + browser chrome ── */
+    body[data-device-tab="mobile-web"] .device-frame,
+    body[data-device-tab="app"]        .device-frame {
+      width: 390px;
+      max-width: 390px;
+      border: 1px solid #c4c4c4;
+      border-radius: 32px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+
+    /* Mobile Web top chrome: iOS-style status bar + neutral URL row */
+    body[data-device-tab="mobile-web"] .device-chrome--top {
+      flex-direction: column;
+      padding: 0;
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    body[data-device-tab="mobile-web"] .device-chrome--top .status-bar {
+      width: 100%;
+      height: 28px;
+      padding: 4px 24px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: #111;
+    }
+    body[data-device-tab="mobile-web"] .device-chrome--top .url-bar {
+      align-self: stretch;
+      margin: 4px 12px 8px;
+      height: 32px;
+      padding: 0 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ececec;
+      border-radius: 8px;
+      color: #6b7280;
+      font-size: 12px;
+    }
+    body[data-device-tab="mobile-web"] .device-chrome--bottom {
+      height: 40px;
+      padding: 0 32px;
+      justify-content: space-between;
+      color: #9ca3af;
+      background: #fff;
+      border-top: 1px solid #e5e7eb;
+    }
+    body[data-device-tab="mobile-web"] .device-chrome--bottom .browser-glyph {
+      width: 18px;
+      height: 18px;
+      opacity: 0.6;
+    }
+
+    /* App tab: iOS-style status bar only, NO URL row (that's the point),
+       plus a home-indicator bar at the bottom. */
+    body[data-device-tab="app"] .device-chrome--top {
+      height: 44px;
+      padding: 0 24px;
+      justify-content: space-between;
+      color: #111;
+      font-weight: 600;
+      background: #fff;
+      font-size: 15px;
+    }
+    body[data-device-tab="app"] .device-chrome--top .status-bar-indicators {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+    }
+    body[data-device-tab="app"] .device-chrome--top .status-bar-indicators svg {
+      display: block;
+    }
+    body[data-device-tab="app"] .device-chrome--bottom {
+      height: 34px;
+      background: #fff;
+      justify-content: center;
+      align-items: flex-end;
+      padding-bottom: 8px;
+    }
+    body[data-device-tab="app"] .device-chrome--bottom::before {
+      content: "";
+      display: block;
+      width: 140px;
+      height: 5px;
+      background: #111;
+      border-radius: 3px;
+    }
+
+    /* Card behavior inside Mobile Web / App frames — stretch to fill,
+       drop redundant chrome that the frame already provides. */
+    body[data-device-tab="mobile-web"] .device-frame .card,
+    body[data-device-tab="app"]        .device-frame .card {
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+      width: 100%;
+      padding: 20px 16px;
+      align-self: stretch;
+    }
+
+    /* ─── Device tab bar (sits below the frame) ─── */
+    .device-tab-bar {
+      display: flex;
+      gap: 4px;
+      background: #f3f4f6;
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid #e5e7eb;
+    }
+    .device-tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      font-family: 'Roboto', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: #6b7280;
+      cursor: pointer;
+      transition: background 150ms ease, color 150ms ease;
+    }
+    .device-tab-btn svg { flex-shrink: 0; }
+    .device-tab-btn:hover { color: #111; }
+    .device-tab-btn[aria-pressed="true"] {
+      background: #fff;
+      color: #111;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+    }
+
+    /* ─── Small-viewport fallback ─── */
+    /* Under 640px the frame concept adds no value — you're already
+       looking at a phone-sized viewport. Collapse everything back to
+       the plain card via display:contents so .card renders as before. */
+    @media (max-width: 640px) {
+      .card-wrapper {
+        display: block;
+        padding: 24px 0;
+      }
+      .device-viewport,
+      .device-frame { display: contents; }
+      .device-chrome,
+      .device-tab-bar,
+      .device-state-rail { display: none; }
+    }
+
     @keyframes panelOutLeft {
       from { transform: translateX(0);    opacity: 1; }
       to   { transform: translateX(-48px); opacity: 0; }
@@ -4181,8 +4441,50 @@
   </header>
 
   <!-- ─── Main Content ─────────────────────────────────────── -->
+  <!-- W3.6 · Device frame system. The sign-in card lives inside a
+       .device-frame that renders lightweight desktop/mobile/app
+       chrome around it, chosen via the .device-tab-bar below the
+       card. Left of the card, .device-state-rail hosts per-device
+       state pills (populated in later slices, empty for Slice A).
+       See DEVICE FRAME SYSTEM CSS block for layout details. -->
   <main class="card-wrapper">
-    <div class="card" role="main">
+    <aside class="device-state-rail" aria-label="Device state variants">
+      <!-- Populated in Slice B onward. Visibility toggled by
+           body[data-current-screen] selector — only visible on
+           screen-chooser. -->
+    </aside>
+
+    <div class="device-viewport">
+      <div class="device-frame">
+        <div class="device-chrome device-chrome--top" aria-hidden="true">
+          <!-- Chrome content is populated by CSS pseudo-elements + these
+               tab-scoped spans. Desktop shows traffic-light dots (CSS).
+               Mobile Web + App show time / status / URL row here. -->
+          <span class="chrome-desktop" data-tab-scope="desktop">
+            <span class="traffic-dot"></span>
+            <span class="traffic-dot"></span>
+            <span class="traffic-dot"></span>
+          </span>
+          <div class="chrome-mobile-web" data-tab-scope="mobile-web">
+            <div class="status-bar">
+              <span class="status-bar-time">9:41</span>
+              <span class="status-bar-indicators" aria-hidden="true">
+                <!-- signal · wifi · battery, monochrome -->
+                <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="0.5"/><rect x="4" y="6" width="3" height="6" rx="0.5"/><rect x="8" y="3" width="3" height="9" rx="0.5"/><rect x="12" y="0" width="3" height="12" rx="0.5"/></svg>
+              </span>
+            </div>
+            <div class="url-bar">acehardware.com</div>
+          </div>
+          <div class="chrome-app" data-tab-scope="app">
+            <span class="status-bar-time">9:41</span>
+            <span class="status-bar-indicators" aria-hidden="true">
+              <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="0.5"/><rect x="4" y="6" width="3" height="6" rx="0.5"/><rect x="8" y="3" width="3" height="9" rx="0.5"/><rect x="12" y="0" width="3" height="12" rx="0.5"/></svg>
+              <svg width="22" height="12" viewBox="0 0 22 12" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true"><rect x="0.5" y="1" width="18" height="10" rx="2"/><rect x="2" y="2.5" width="15" height="7" rx="1" fill="currentColor"/><rect x="19.5" y="4" width="1.5" height="4" rx="0.5" fill="currentColor"/></svg>
+            </span>
+          </div>
+        </div>
+
+        <div class="card" role="main">
       <div id="screens-container">
 
 
@@ -5654,6 +5956,41 @@
 
       </div><!-- /screens-container -->
     </div><!-- /card -->
+
+        <div class="device-chrome device-chrome--bottom" aria-hidden="true">
+          <!-- Chrome content is populated by CSS pseudo-elements + these
+               tab-scoped spans. Desktop hides this row entirely.
+               Mobile Web shows browser back/forward glyphs. App shows
+               a home-indicator bar (via ::before). -->
+          <div class="chrome-mobile-web" data-tab-scope="mobile-web">
+            <svg class="browser-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+            <svg class="browser-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+            <svg class="browser-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+            <svg class="browser-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+            <svg class="browser-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+          </div>
+          <!-- App tab: home indicator bar is drawn as ::before on
+               .device-chrome--bottom (see CSS). No content needed here. -->
+        </div>
+      </div><!-- /device-frame -->
+
+      <nav class="device-tab-bar" aria-label="Device preview">
+        <!-- Persisted to localStorage 'proto:device-tab'.
+             Wired by IIFE initDeviceTabs() near the bottom of the file. -->
+        <button type="button" class="device-tab-btn" data-device-tab="desktop" aria-pressed="true">
+          <svg width="16" height="16" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M40-120v-80h240v-80H160q-33 0-56.5-23.5T80-360v-400q0-33 23.5-56.5T160-840h640q33 0 56.5 23.5T880-760v400q0 33-23.5 56.5T800-280H680v80h240v80H40Zm120-240h640v-400H160v400Zm0 0v-400 400Z"/></svg>
+          <span>Desktop</span>
+        </button>
+        <button type="button" class="device-tab-btn" data-device-tab="mobile-web" aria-pressed="false">
+          <svg width="16" height="16" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-82q26-36 45-75t31-83H404q12 44 31 83t45 75Zm-104-16q-18-33-31.5-68.5T322-320H188q29 50 72.5 87t115.5 55Zm208 0q72-18 115.5-55t72.5-87H638q-9 38-22.5 73.5T584-178ZM160-400h151q-3-20-4.5-39.5T305-480q0-21 1.5-40.5T311-560H160q-5 20-7.5 39.5T150-480q0 21 2.5 40.5T160-400Zm231 0h178q3-20 4.5-39.5T575-480q0-21-1.5-40.5T569-560H391q-3 20-4.5 39.5T385-480q0 21 1.5 40.5T391-400Zm258 0h151q5-20 7.5-39.5T810-480q0-21-2.5-40.5T800-560H649q3 20 4.5 39.5T655-480q0 21-1.5 40.5T649-400ZM584-782q18 33 31.5 68.5T638-640h134q-29-50-72.5-87T584-782Zm-208 0q-72 18-115.5 55T188-640h134q9-38 22.5-73.5T376-782Zm28 142h152q-12-44-31-83t-45-75q-26 36-45 75t-31 83Z"/></svg>
+          <span>Mobile Web</span>
+        </button>
+        <button type="button" class="device-tab-btn" data-device-tab="app" aria-pressed="false">
+          <svg width="16" height="16" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M280-40q-33 0-56.5-23.5T200-120v-720q0-33 23.5-56.5T280-920h400q33 0 56.5 23.5T760-840v720q0 33-23.5 56.5T680-40H280Zm0-120v40h400v-40H280Zm0-80h400v-480H280v480Zm0-560h400v-40H280v40Zm0 0v-40 40Zm0 640v40-40Z"/></svg>
+          <span>App</span>
+        </button>
+      </nav>
+    </div><!-- /device-viewport -->
   </main>
 
   <!-- ─── Screen description blurb ────────────────────────── -->
@@ -6800,6 +7137,65 @@
     screenChooser.removeAttribute('hidden');
     let currentScreen = screenChooser;
     updateBlurb();
+
+    // ── W3.6 · Device tab state (Slice A) ─────────────────────
+    // Persists the selected device preview tab (Desktop / Mobile Web
+    // / App) to localStorage under 'proto:device-tab'. Applied via
+    //   document.body.dataset.deviceTab
+    // which drives the CSS-only device frame chrome (see
+    // DEVICE FRAME SYSTEM block in the <style>). Also mirrors the
+    // current screen id into
+    //   document.body.dataset.currentScreen
+    // so the pill rail (populated in Slice B) can hide itself on
+    // non-chooser screens via a pure-CSS selector — no JS toggling
+    // required per screen swap.
+    (function initDeviceTabs() {
+      const STORAGE_KEY = 'proto:device-tab';
+      const VALID = new Set(['desktop', 'mobile-web', 'app']);
+      const buttons = document.querySelectorAll('.device-tab-btn');
+      if (!buttons.length) return;
+
+      function readStored() {
+        try {
+          const v = localStorage.getItem(STORAGE_KEY);
+          return VALID.has(v) ? v : 'desktop';
+        } catch { return 'desktop'; }
+      }
+
+      function apply(tab) {
+        document.body.dataset.deviceTab = tab;
+        buttons.forEach(b => {
+          const isActive = b.dataset.deviceTab === tab;
+          b.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        });
+      }
+
+      // Initial boot: restore last tab + seed current-screen attr.
+      // (screenchange observer below will keep current-screen in sync
+      // for every subsequent transition.)
+      apply(readStored());
+      document.body.dataset.currentScreen = 'screen-chooser';
+
+      // Wire tab clicks. Persist to localStorage so the choice
+      // survives reload. localStorage failures (Safari private mode,
+      // quota, etc.) are silently swallowed — the UI still works
+      // for the current session.
+      buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tab = btn.dataset.deviceTab;
+          if (!VALID.has(tab)) return;
+          apply(tab);
+          try { localStorage.setItem(STORAGE_KEY, tab); } catch {}
+        });
+      });
+
+      // Track current screen for pill-rail visibility.
+      document.addEventListener('screenchange', (e) => {
+        if (e && e.detail && e.detail.screen) {
+          document.body.dataset.currentScreen = e.detail.screen;
+        }
+      });
+    })();
 
     // ── W3.5 · Screen-change observer ─────────────────────────
     // Emits a `screenchange` CustomEvent on `document` whenever the
