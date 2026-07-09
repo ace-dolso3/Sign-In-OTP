@@ -49,7 +49,7 @@ The article treats copy as a first-class UX surface. Grading our current strings
 
 Ordered by expected impact / cost. Each item lists the article citation, current state, proposed change, and a rough size.
 
-### 3.1 · Add privacy assurance to the returning-user passkey surfaces **[HIGH · SMALL]**
+### 3.1 · Add privacy assurance to the returning-user passkey surfaces **[HIGH · SMALL]** ✅ SHIPPED (`18894a4`)
 
 - **Article rule:** G — "Privacy information should appear at the moment users are deciding, not hidden in settings or policies."
 - **Current state:** Assurance only lives on the enrollment prompt. Returning users see speed/process copy on `chooser-subtitle-passkey-first` and `#biometric-status-sub`.
@@ -78,7 +78,7 @@ Ordered by expected impact / cost. Each item lists the article citation, current
   Runtime: extend `setPasskeyState` with a `hardware-unavailable` case that hides `#passkey-try-btn` and surfaces fallback tiles + `Use another device` immediately.
 - **Cost:** New state + banner + one flow entry + one figma frame. ~40 LOC.
 
-### 3.3 · Cap `enroll-declined-fork` "Maybe Later" re-prompts **[MEDIUM · SMALL]**
+### 3.3 · Cap `enroll-declined-fork` "Maybe Later" re-prompts **[MEDIUM · SMALL]** ✅ SHIPPED (`bee64bd`)
 
 - **Article rule:** B — "make it just as easy to turn off as it was to turn on" implies not badgering the user forever.
 - **Current state:** `Maybe Later` snoozes to next sign-in, `Don't ask again` permanently suppresses. No middle ground.
@@ -93,14 +93,14 @@ Ordered by expected impact / cost. Each item lists the article citation, current
 - **Files:** [sign-in.html:4167](sign-in.html#L4167).
 - **Cost:** 1 attribute.
 
-### 3.5 · Document the OS-sheet swap boundary in `FLOWS[]` **[MEDIUM · SMALL]**
+### 3.5 · Document the OS-sheet swap boundary in `FLOWS[]` **[MEDIUM · SMALL]** ✅ SHIPPED (`1df8005`)
 
 - **Article rule:** I — "Apps that attempt to replace the system prompt risk App Store rejection."
 - **Current state:** `passkey-os-sheet-*` variants demonstrate the native sheet visually but there's no comment in the Passkey Sign-In group header explaining that `showOsModal()` is prototype-only stand-in and production must delegate to `navigator.credentials.get()` (WebAuthn) or the platform biometric API.
 - **Proposal:** Add a group-level comment block above the Passkey Sign-In section in `FLOWS[]` (around [sign-in.html:7481](sign-in.html#L7481)) noting the boundary, so downstream implementers don't try to skin `.os-modal`.
 - **Cost:** ~10 lines of comment.
 
-### 3.6 · Add a `passkey-biometric-retry-then-fallback` flow **[LOW · SMALL]**
+### 3.6 · Add a `passkey-biometric-retry-then-fallback` flow **[LOW · SMALL]** ✅ SHIPPED (`b85e9aa`)
 
 - **Article rule:** F — "Let users retry once or twice, but don't trap them in a loop."
 - **Current state:** `passkey-biometric-failed` shows exactly one failure and then fallback tiles. Technically compliant but doesn't demonstrate the recommended cap-and-move-on rhythm to stakeholders reviewing the flow deck.
@@ -115,7 +115,7 @@ Ordered by expected impact / cost. Each item lists the article citation, current
 - **Cost:** Reasonable if reusing `showOsModal()`. ~50 LOC + a new flow entry.
 - **Note:** This is an *addition* the article recommends, not a remediation of a violation. May be out of scope for wave 2.
 
-### 3.8 · Testing checklist artifact **[LOW · SMALL]**
+### 3.8 · Testing checklist artifact **[LOW · SMALL]** ✅ SHIPPED (`b85e9aa`)
 
 - **Article rule:** Entire "How to test biometric authentication UX" section.
 - **Current state:** Group review docs (`group-1-passkey.md` etc.) don't have a biometric-specific test matrix.
@@ -127,7 +127,7 @@ Ordered by expected impact / cost. Each item lists the article citation, current
   - Recovery after error — does the user pause?
 - **Cost:** ~30 lines of markdown per group doc.
 
-### 3.9 · Explicit `signup-safe` guardrail **[LOW · TRIVIAL]**
+### 3.9 · Explicit `signup-safe` guardrail **[LOW · TRIVIAL]** ✅ SHIPPED (`1df8005`)
 
 - **Article rule:** A — "Prompting during signup before trust is established consistently produces lower opt-in rates and higher abandonment."
 - **Current state:** No signup flow exists. Create Account link is `href="#"` ([sign-in.html:4149](sign-in.html#L4149)).
@@ -162,4 +162,5 @@ Documenting things the article prescribes that we already do well, so future rev
 | Date | Note |
 |---|---|
 | 2026-07-09 | Doc created after read of Orbix guide. Ten scoreboard rules, copy audit, 10 backlog items graded. No code changes yet — this is a proposal doc. |
+| 2026-07-09 | Sprint C shipped on branch `sign-in-ux-best-practices`: §3.1 privacy assurance (`18894a4`), §3.3 Maybe Later cap (`bee64bd`), §3.5 OS-sheet swap comment (`1df8005`), §3.6 retry-then-fallback flow (`b85e9aa`), §3.8 test checklists (`b85e9aa`), §3.9 signup-safe guardrail (`1df8005`). Remaining: §3.2 (hardware-unavailable, still open), §3.7 (sensitive-action re-auth — deferred, touches settings), §3.10 (deferred). |
 | 2026-07-09 | §3.4 (`aria-live` on biometric status region) shipped in `05fee87` on branch `sign-in-ux-best-practices`. |

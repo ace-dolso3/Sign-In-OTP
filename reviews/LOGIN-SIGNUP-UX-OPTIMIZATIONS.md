@@ -243,14 +243,14 @@ Ordered by impact / cost. Distinct from the biometric backlog — no overlap.
 - **Files:** OTP delivery picker markup around [sign-in.html:5305](sign-in.html#L5305).
 - **Cost:** ~50 LOC + one new flow variant.
 
-### 3.9 · Cap OTP resends **[LOW · SMALL]**
+### 3.9 · Cap OTP resends **[LOW · SMALL]** ✅ SHIPPED (`c1190e6`)
 
 - **Article rule:** LogRocket FAQ — *"2 resends is safest."*
 - **Current state:** Resend cooldown enforced between attempts, but no total cap.
 - **Proposal:** After 2 resends, replace the Resend button with *"Still no code? **Sign in another way.**"* + route to `otp-no-access` for method-switch. Track count in a `otpResendCount` module-scoped var.
 - **Cost:** ~15 LOC + one new state (`data-otp-substate="resend-exhausted"`).
 
-### 3.10 · Add "learn more" affordance to enrollment privacy line **[LOW · TRIVIAL]**
+### 3.10 · Add "learn more" affordance to enrollment privacy line **[LOW · TRIVIAL]** ✅ SHIPPED (`18894a4`)
 
 - **Article rule:** LogRocket §"Biometric · Security concerns" — *"Educate users with learn more links."*
 - **Current state:** Enrollment subtext has the plain-language assurance but no link for skeptical users who want details.
@@ -314,4 +314,5 @@ If you want to knock these out in batches:
 | Date | Note |
 |---|---|
 | 2026-07-09 | Doc created after reading Authgear (login/signup) + LogRocket (2FA) guides. 11 backlog items graded; sprint plan proposed. No code changes yet — this is a proposal doc, companion to `BIOMETRIC-UX-OPTIMIZATIONS.md`. |
+| 2026-07-09 | Sprint C shipped on branch `sign-in-ux-best-practices`: §3.9 OTP resend cap (`c1190e6`), §3.10 learn-more link on enrollment (`18894a4`). Also fixed the post-commit standalone rebuild (`a345fa8`) which was silently mis-reporting failures and not producing an artifact for this branch. Remaining: §3.3, §3.7, §3.8; §3.11 deferred. |
 | 2026-07-09 | Sprint A + B shipped on branch `sign-in-ux-best-practices`: §3.5 focus outlines (`bfa22b8`), §3.6 aria-describedby (`b3dc8ba`), §3.2 lockout duration (`3473931`), §3.1 show/hide password toggle (`667cb2e`), §3.4 drop confirm-password (`89fc3c5`). Remaining backlog: §3.3, §3.7–3.11 plus the settings/security/activity/devices audit gap. |
