@@ -6403,8 +6403,25 @@
     }
 
     // ── Screen transition ──────────────────────────────────────
+    // Callers pattern is `switchScreen(currentScreen, target, 'forward'); currentScreen = target;`
+    // — they update currentScreen unconditionally after the call. Previously,
+    // this function bailed with `if (animating) return;` when an animation was
+    // already in flight, but the caller still updated currentScreen. Result:
+    // both fromScreen (never got hidden) and toScreen (never got shown) ended
+    // up in an inconsistent state, and the next nav interaction would leave
+    // two screens stacked in the flex column. Fix: finish any in-flight
+    // animation synchronously before starting the new one so DOM state stays
+    // aligned with the caller's mental model.
+    let pendingSwitchCleanup = null;
     function switchScreen(fromScreen, toScreen, direction) {
-      if (animating) return;
+      // If we're interrupting a previous animation, run its cleanup NOW so
+      // the outgoing screen gets hidden and styles are cleared before the
+      // next swap starts. Guarded so we never re-enter cleanup twice.
+      if (pendingSwitchCleanup) {
+        const cleanup = pendingSwitchCleanup;
+        pendingSwitchCleanup = null;
+        cleanup();
+      }
       animating = true;
 
       // W3.4 · Reduced-motion fast path. When the OS-level setting is
@@ -6442,13 +6459,24 @@
         container.style.height = newH + 'px';
       });
 
-      setTimeout(() => {
+      // Capture the cleanup so a subsequent switchScreen call can force it
+      // to run early. Nulling pendingSwitchCleanup inside guards against
+      // double-cleanup if the setTimeout fires after an interrupt already
+      // ran it.
+      const cleanupThisSwitch = () => {
         fromScreen.setAttribute('hidden', '');
         fromScreen.style.cssText = '';
         toScreen.style.cssText   = '';
         container.style.cssText  = '';
         animating = false;
         updateBlurb();
+      };
+      pendingSwitchCleanup = cleanupThisSwitch;
+      setTimeout(() => {
+        if (pendingSwitchCleanup === cleanupThisSwitch) {
+          pendingSwitchCleanup = null;
+          cleanupThisSwitch();
+        }
       }, ANIM_DUR + 40);
     }
 
@@ -8663,11 +8691,13 @@
         const otpEffective  = (otpTopState === 'request')
           ? 'request'
           : (screenOtp.getAttribute('data-otp-substate') || 'default');
+        const otpMode       = screenOtp.getAttribute('data-otp-mode') || null;
         const passkeyState  = document.getElementById('screen-passkey').getAttribute('data-passkey-state') || 'idle';
         const enrollState   = screenEnroll.getAttribute('data-enroll-state') || 'prompt';
         const settingsState = screenSettings.getAttribute('data-settings-state') || 'list';
         const recoveryEmailState = screenRecoveryEmail.getAttribute('data-recovery-email-state') || 'request';
         const chooserState  = screenChooser.getAttribute('data-chooser-state') || 'default';
+        const chooserBanner = screenChooser.getAttribute('data-chooser-banner') || null;
         const recoveryState = screenRecovery.getAttribute('data-recovery-state') || null;
         const newPwState    = screenNewPw.getAttribute('data-newpw-state') || null;
         const forgotPwState = screenForgotPw.getAttribute('data-forgotpw-state') || null;
@@ -8686,7 +8716,24 @@
             if (activeId === 'screen-new-password')      matchesState = btnState === newPwState;
             if (activeId === 'screen-forgot-password')   matchesState = btnState === forgotPwState;
           }
-          btn.classList.toggle('nav-active', matchesScreen && matchesState);
+          // Additional selector-scoped attributes (banner / otp mode) let
+          // Screens nav items distinguish sub-variants that share the same
+          // {screen, state}. When the nav item declares the attribute we
+          // require an exact match; when it doesn't declare it we require
+          // the current DOM state NOT to be in that variant either, so a
+          // single "default" nav item stays highlighted only for the
+          // plain state.
+          let matchesModifiers = true;
+          if (matchesScreen && matchesState) {
+            if (activeId === 'screen-chooser') {
+              const btnBanner = btn.dataset.navBanner || null;
+              matchesModifiers = btnBanner === chooserBanner;
+            } else if (activeId === 'screen-otp') {
+              const btnOtpMode = btn.dataset.navOtpMode || null;
+              matchesModifiers = btnOtpMode === otpMode;
+            }
+          }
+          btn.classList.toggle('nav-active', matchesScreen && matchesState && matchesModifiers);
         });
       }
 
