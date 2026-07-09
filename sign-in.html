@@ -9218,8 +9218,12 @@
 
       function updateExportButtonUi() {
         if (!exportBtnRef) return;
-        exportBtnRef.classList.toggle('has-unsaved', unsavedSinceExport > 0);
         const n = readLocalData().length;
+        // Show the "unsaved changes" dot only when there is actually
+        // something to export. Deleting the last comment increments the
+        // change counter, but if the store is empty there's nothing to
+        // Export — showing the dot would be misleading.
+        exportBtnRef.classList.toggle('has-unsaved', unsavedSinceExport > 0 && n > 0);
         exportBtnRef.setAttribute('data-count', String(n));
       }
 
