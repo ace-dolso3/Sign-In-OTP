@@ -1179,22 +1179,33 @@
     }
 
     /* ── Mobile Web tab: rounded phone silhouette + browser chrome ── */
-    /* W3.7 · Frame width matched to desktop card visual footprint
-       (346 content + 48 padding + 2 border = 396). Fixed 728px height
-       so app + mobile-web frames share a consistent standardized
-       display size across all screens. Card inside flexes to fill
-       the remaining vertical space between chromes + device-header,
-       and scrolls internally (thin overlay scrollbar) when the
-       screen content exceeds the available area. */
+    /* W3.7.1 · Frame outer width matches the desktop card outer
+       (346px — the global box-sizing:border-box means the card's
+       width IS its total visible width). Hi-fi phone bezel: 6px
+       solid black border with a 44px outer radius gives a natural
+       iOS/Android hardware silhouette. overflow:hidden + the
+       border clips the inner content to a 38px effective radius,
+       selling the "screen inside phone body" look. Heavier drop
+       shadow reinforces the physical-device impression.
+
+       Card content area inside the frame comes out to 322px
+       (346 outer − 12 bezel − 12 chrome bleed) which is close to,
+       but slightly narrower than, the desktop card's 296px
+       content — an acceptable tradeoff to make the outer footprints
+       match across all three tabs. */
     body[data-device-tab="mobile-web"] .device-frame,
     body[data-device-tab="app"]        .device-frame {
-      width: 396px;
-      max-width: 396px;
+      width: 346px;
+      max-width: 346px;
       height: 728px;
       box-sizing: border-box;
-      border: 1px solid #c4c4c4;
-      border-radius: 32px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+      border: 6px solid #111;
+      border-radius: 44px;
+      background: #111;                 /* bezel-color base showing through inner radius */
+      box-shadow:
+        0 10px 28px rgba(0, 0, 0, 0.18),
+        0 3px 6px rgba(0, 0, 0, 0.10),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.06);   /* hairline highlight inside bezel */
       overflow: hidden;
     }
 
