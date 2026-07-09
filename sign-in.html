@@ -1335,6 +1335,309 @@
       .device-state-rail { display: none; }
     }
 
+    /* ═════════════════════════════════════════════════════════════
+       DEVICE STATE PILLS (W3.6 · Slice B — App-tab states)
+       ──────────────────────────────────────────────────────────
+       Left-of-card rail hosting scenario pills scoped per device
+       tab. Selection persists to localStorage under
+         proto:device-state:<tab>
+       and applies both to
+         body[data-device-state]           (for tab-agnostic hooks)
+         #screen-chooser[data-chooser-variant] (chooser layout switch)
+
+       Slice B adds the 5 App-tab pills. Mobile Web (Slice C) and
+       Desktop (Slice D) pills land in later commits. Pills for tabs
+       other than the active one are display:none-hidden so the rail
+       auto-populates on tab switch.
+
+       Wired by initStatePills() near the bottom of the file.
+       ═════════════════════════════════════════════════════════════ */
+
+    .rail-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #9ca3af;
+      padding: 0 12px 6px;
+    }
+
+    .state-pill {
+      display: none;                 /* shown per active tab via body[data-device-tab] */
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 3px;
+      padding: 10px 12px;
+      border: 1px solid transparent;
+      background: transparent;
+      border-radius: 8px;
+      text-align: left;
+      font-family: 'Roboto', sans-serif;
+      cursor: pointer;
+      color: #6b7280;
+      transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+    }
+    .state-pill:hover {
+      background: #f3f4f6;
+      color: #111;
+    }
+    .state-pill[aria-pressed="true"] {
+      background: #fff;
+      border-color: #d1d5db;
+      color: #111;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      border-left: 3px solid #d40029;   /* Ace red accent — signals "this is the active scenario" */
+      padding-left: 10px;                /* compensate for 3px border to keep text position steady */
+    }
+    .state-pill .pill-title {
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    .state-pill .pill-sub {
+      font-size: 11px;
+      font-weight: 400;
+      line-height: 1.3;
+      color: #9ca3af;
+    }
+    .state-pill[aria-pressed="true"] .pill-sub { color: #6b7280; }
+
+    /* Tab-scoped visibility. .state-pill defaults to display:none;
+       only pills matching the active tab surface. Using display:flex
+       (matches the pill's own column layout). */
+    body[data-device-tab="desktop"]    .state-pill[data-tab-scope="desktop"],
+    body[data-device-tab="mobile-web"] .state-pill[data-tab-scope="mobile-web"],
+    body[data-device-tab="app"]        .state-pill[data-tab-scope="app"] {
+      display: flex;
+    }
+
+    /* Also hide the rail entirely if no pills apply to the current
+       tab (e.g. Desktop and Mobile Web in Slice B before their pills
+       land). Simplest way: hide the rail-label unless SOMETHING in the
+       rail is visible for this tab. Using :has(). */
+    .device-state-rail:not(:has(.state-pill[aria-pressed])) .rail-label {
+      display: none;
+    }
+    /* Hide label when no visible pill exists for the current tab.
+       :has() with attribute selector at the tab level. */
+    body[data-device-tab="desktop"]:not(:has(.state-pill[data-tab-scope="desktop"])) .rail-label,
+    body[data-device-tab="mobile-web"]:not(:has(.state-pill[data-tab-scope="mobile-web"])) .rail-label,
+    body[data-device-tab="app"]:not(:has(.state-pill[data-tab-scope="app"])) .rail-label {
+      display: none;
+    }
+
+    /* ═════════════════════════════════════════════════════════════
+       CHOOSER VARIANT MODIFIERS (W3.6 · Slice B — App-tab states)
+       ──────────────────────────────────────────────────────────
+       Each pill sets #screen-chooser[data-chooser-variant] and the
+       rules below reshape the chooser to match. The 'returning-passkey'
+       variant also sets data-chooser-state="passkey-first" (via JS)
+       so it inherits the existing passkey-first layout (form hidden,
+       passkey CTA visible) — we only ADD the identity chip and
+       swap the CTA copy on top.
+
+       New elements introduced here (all default: display:none):
+         .chooser-identity-chip     — single identity above passkey CTA
+         .chooser-not-you-link      — clears the pre-filled email
+         .chooser-multi-identity    — 2-account chip list + fallback link
+         .cta-label-identity        — alternate copy for passkey CTA
+       ═════════════════════════════════════════════════════════════ */
+
+    /* All new elements default hidden — variants turn them on. */
+    .chooser-identity-chip,
+    .chooser-not-you-link,
+    .chooser-multi-identity,
+    .cta-label-identity { display: none; }
+
+    /* ── Identity chip (shown in returning-passkey) ── */
+    .chooser-identity-chip {
+      align-self: center;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      border-radius: 999px;
+      font-size: 13px;
+      color: #111;
+    }
+    .chooser-identity-chip .identity-avatar {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6b7280;
+    }
+    .chooser-identity-chip .identity-email {
+      font-weight: 500;
+    }
+
+    /* ── "Not you?" link (shown in returning-password-saved, returning-no-credentials) ── */
+    .chooser-not-you-link {
+      align-self: flex-start;
+      background: none;
+      border: none;
+      padding: 0;
+      margin-top: -4px;
+      font-family: 'Roboto', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: #d40029;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .chooser-not-you-link:hover { opacity: 0.8; }
+
+    /* ── Multi-identity chip list (shown in multi-identity) ── */
+    .chooser-multi-identity {
+      width: 100%;
+      align-self: stretch;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .identity-tile {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: #fff;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: left;
+      font-family: 'Roboto', sans-serif;
+      transition: border-color 120ms ease, background 120ms ease;
+    }
+    .identity-tile:hover {
+      border-color: #111;
+      background: #fafafa;
+    }
+    .identity-tile .identity-avatar {
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f3f4f6;
+      border-radius: 50%;
+      color: #6b7280;
+    }
+    .identity-tile .identity-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex: 1;
+      min-width: 0;
+    }
+    .identity-tile .identity-email {
+      font-size: 14px;
+      font-weight: 600;
+      color: #111;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .identity-tile .identity-method {
+      font-size: 12px;
+      color: #6b7280;
+    }
+    .identity-tile .identity-icon {
+      flex-shrink: 0;
+      color: #6b7280;
+    }
+    .identity-other {
+      align-self: center;
+      margin-top: 4px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #d40029;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .identity-other:hover { opacity: 0.8; }
+
+    /* ── Per-variant chooser rules ── */
+
+    /* Fresh install: email + Continue only. No divider, no tiles.
+       Create Account footer stays — it's specifically FOR fresh users. */
+    #screen-chooser[data-chooser-variant="fresh-install"] .chooser-divider,
+    #screen-chooser[data-chooser-variant="fresh-install"] .method-tiles {
+      display: none;
+    }
+
+    /* Returning · passkey: reuses passkey-first base layout (data-chooser-state=
+       passkey-first, set by JS) — form hidden, passkey CTA visible. On top of
+       that, show the identity chip and swap the CTA to identity-specific copy.
+       Also hide tiles below (this variant is the "one clear path" case). */
+    #screen-chooser[data-chooser-variant="returning-passkey"] .chooser-identity-chip {
+      display: inline-flex;
+    }
+    #screen-chooser[data-chooser-variant="returning-passkey"] .cta-label-default {
+      display: none;
+    }
+    #screen-chooser[data-chooser-variant="returning-passkey"] .cta-label-identity {
+      display: inline;
+    }
+    #screen-chooser[data-chooser-variant="returning-passkey"] .chooser-divider,
+    #screen-chooser[data-chooser-variant="returning-passkey"] .method-tiles {
+      display: none;
+    }
+    /* Identity chip pairs visually with the CTA; also collapse the
+       passkey-first subtitle to reduce vertical noise. */
+    #screen-chooser[data-chooser-variant="returning-passkey"] .chooser-subtitle-passkey-first {
+      display: none;
+    }
+
+    /* Returning · saved password: email pre-filled, "Not you?" link
+       shown. Tiles remain visible so the user can escape to another
+       method if autofill fails. */
+    #screen-chooser[data-chooser-variant="returning-password-saved"] .chooser-not-you-link {
+      display: inline-block;
+    }
+
+    /* Returning · no credentials: email pre-filled, "Not you?" link
+       shown, Face ID tile hidden (nothing to unlock), cross-device
+       tile promoted to position 1 via flex order. Requires the
+       tiles parent to be flex — .method-tiles already renders as
+       a flex column via existing tile styling; ordering just re-
+       arranges children. */
+    #screen-chooser[data-chooser-variant="returning-no-credentials"] .chooser-not-you-link {
+      display: inline-block;
+    }
+    #screen-chooser[data-chooser-variant="returning-no-credentials"] #tile-passkey {
+      display: none;
+    }
+    #screen-chooser[data-chooser-variant="returning-no-credentials"] #tile-cd-chooser        { order: 1; }
+    #screen-chooser[data-chooser-variant="returning-no-credentials"] #tile-password-chooser  { order: 2; }
+    #screen-chooser[data-chooser-variant="returning-no-credentials"] #tile-otp-chooser       { order: 3; }
+
+    /* Multi-identity: replace form, divider, and tiles with the
+       identity chip list. Create Account footer stays as escape route. */
+    #screen-chooser[data-chooser-variant="multi-identity"] .chooser-id-form,
+    #screen-chooser[data-chooser-variant="multi-identity"] .chooser-divider,
+    #screen-chooser[data-chooser-variant="multi-identity"] .method-tiles {
+      display: none;
+    }
+    #screen-chooser[data-chooser-variant="multi-identity"] .chooser-multi-identity {
+      display: flex;
+    }
+    /* Multi-identity uses its own subtitle: prompt to pick */
+    #screen-chooser[data-chooser-variant="multi-identity"] .chooser-subtitle-default {
+      display: none;
+    }
+    #screen-chooser[data-chooser-variant="multi-identity"] .chooser-subtitle-multi-identity {
+      display: block;
+    }
+
+    /* Multi-identity subtitle (new element, default hidden) */
+    .chooser-subtitle-multi-identity {
+      display: none;
+      margin: 0;
+    }
+
     @keyframes panelOutLeft {
       from { transform: translateX(0);    opacity: 1; }
       to   { transform: translateX(-48px); opacity: 0; }
@@ -4449,9 +4752,37 @@
        See DEVICE FRAME SYSTEM CSS block for layout details. -->
   <main class="card-wrapper">
     <aside class="device-state-rail" aria-label="Device state variants">
-      <!-- Populated in Slice B onward. Visibility toggled by
-           body[data-current-screen] selector — only visible on
-           screen-chooser. -->
+      <!-- W3.6 · Per-device state pills. Each pill is scoped to a
+           single device tab via data-tab-scope; CSS hides pills that
+           don't match the active tab, so the rail auto-populates as
+           the user switches tabs. Pill state persists per tab in
+           localStorage under 'proto:device-state:<tab>'. Wired by
+           initStatePills() near the bottom of the file. -->
+      <div class="rail-label">Simulate state</div>
+
+      <!-- App-tab pills (Slice B). Default state on App = returning-passkey
+           because that's the state that most clearly shows the payoff
+           of doing this exercise (one-tap Face ID, no email typing). -->
+      <button type="button" class="state-pill" data-tab-scope="app" data-state-value="fresh-install" aria-pressed="false">
+        <span class="pill-title">Fresh install</span>
+        <span class="pill-sub">First-time user, no saved credentials</span>
+      </button>
+      <button type="button" class="state-pill" data-tab-scope="app" data-state-value="returning-passkey" aria-pressed="true">
+        <span class="pill-title">Returning · passkey</span>
+        <span class="pill-sub">Device recognized — one-tap Face ID</span>
+      </button>
+      <button type="button" class="state-pill" data-tab-scope="app" data-state-value="returning-password-saved" aria-pressed="false">
+        <span class="pill-title">Returning · saved password</span>
+        <span class="pill-sub">Autofill available on sign-in</span>
+      </button>
+      <button type="button" class="state-pill" data-tab-scope="app" data-state-value="returning-no-credentials" aria-pressed="false">
+        <span class="pill-title">Returning · no credentials</span>
+        <span class="pill-sub">Signed out — cross-device promoted</span>
+      </button>
+      <button type="button" class="state-pill" data-tab-scope="app" data-state-value="multi-identity" aria-pressed="false">
+        <span class="pill-title">Multi-identity</span>
+        <span class="pill-sub">Shared device — pick account</span>
+      </button>
     </aside>
 
     <div class="device-viewport">
@@ -4508,6 +4839,10 @@
             <h1>Sign in</h1>
             <p class="chooser-subtitle-default">Enter your email to get started</p>
             <p class="chooser-subtitle-passkey-first">We recognize this device. Use Face ID for the fastest sign-in — it stays on this device.</p>
+            <!-- W3.6 · Subtitle for App state 'multi-identity' — prompt
+                 the user to pick which of the previously-signed-in
+                 accounts to continue with. -->
+            <p class="chooser-subtitle-multi-identity">Pick an account to continue</p>
           </div>
 
           <!-- ── W2.1 · Identifier-first form ─────────────────────── -->
@@ -4523,14 +4858,36 @@
                 <svg width="18" height="18" viewBox="0 -960 960 960" fill="#1f1f1f" aria-hidden="true"><path d="m249-207-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z"/></svg>
               </button>
             </div>
+            <!-- W3.6 · "Not you?" link — visible in returning-* variants
+                 where the email is pre-filled from a prior session.
+                 Wired to clear the field and reset the chooser variant
+                 (see initStatePills). -->
+            <button type="button" class="chooser-not-you-link" id="chooser-not-you-link">
+              Not you?
+            </button>
             <button class="sign-in-btn" id="chooser-continue-btn" type="submit">Continue</button>
           </form>
 
+          <!-- W3.6 · Identity chip for App state 'returning-passkey'.
+               Shows the recognized account above the Face ID CTA so
+               the user sees "Sign in as you" not just "Sign in". -->
+          <div class="chooser-identity-chip" aria-hidden="true">
+            <span class="identity-avatar" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M234-276q51-39 114-61.5T480-360q69 0 132 22.5T726-276q35-41 54.5-93T800-480q0-133-93.5-226.5T480-800q-133 0-226.5 93.5T160-480q0 59 19.5 111t54.5 93Zm246-164q-59 0-99.5-40.5T340-580q0-59 40.5-99.5T480-720q59 0 99.5 40.5T620-580q0 59-40.5 99.5T480-440Zm0 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q54 0 104-17.5t92-50.5q-42-33-92-50.5T480-296q-54 0-104 17.5T284-228q42 33 92 50.5T480-160Zm0-360q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm0-60Zm0 360Z"/></svg>
+            </span>
+            <span class="identity-email">shopper@ace.com</span>
+          </div>
+
           <!-- Passkey-first primary CTA · replaces the email form when the
                device is recognized. Triggers the same passkey ceremony as
-               #tile-passkey (which is hidden in this state). -->
+               #tile-passkey (which is hidden in this state).
+               W3.6 · Two label spans so the variant 'returning-passkey'
+               (App tab) can address the user by identity rather than
+               the generic default copy. CSS toggles the visible span
+               via [data-chooser-variant]. -->
           <button class="sign-in-btn chooser-passkey-cta" id="chooser-passkey-cta" type="button">
-            Sign in with Face ID
+            <span class="cta-label-default">Sign in with Face ID</span>
+            <span class="cta-label-identity">Sign in as shopper@ace.com</span>
           </button>
 
           <!-- "or" divider -->
@@ -4604,6 +4961,39 @@
             </button>
 
           </div><!-- /method-tiles -->
+
+          <!-- W3.6 · Multi-identity chip list — visible in App state
+               'multi-identity'. Simulates a shared / family device
+               where two accounts have signed in previously. Each chip
+               shows the credential type available for that account
+               (Face ID vs saved password). -->
+          <div class="chooser-multi-identity" role="list" aria-label="Recent accounts">
+            <button type="button" class="identity-tile" role="listitem" data-identity-method="passkey">
+              <span class="identity-avatar" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M234-276q51-39 114-61.5T480-360q69 0 132 22.5T726-276q35-41 54.5-93T800-480q0-133-93.5-226.5T480-800q-133 0-226.5 93.5T160-480q0 59 19.5 111t54.5 93Zm246-164q-59 0-99.5-40.5T340-580q0-59 40.5-99.5T480-720q59 0 99.5 40.5T620-580q0 59-40.5 99.5T480-440Zm0 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q54 0 104-17.5t92-50.5q-42-33-92-50.5T480-296q-54 0-104 17.5T284-228q42 33 92 50.5T480-160Zm0-360q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm0-60Zm0 360Z"/></svg>
+              </span>
+              <span class="identity-info">
+                <span class="identity-email">shopper@ace.com</span>
+                <span class="identity-method">Use Face ID</span>
+              </span>
+              <span class="identity-icon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M40-731v-129q0-24.75 17.63-42.38Q75.25-920 100-920h129v60H100v129H40ZM229-40H100q-24.75 0-42.37-17.63Q40-75.25 40-100v-129h60v129h129v60Zm502-4v-60h129v-130h60v130q0 24.75-17.62 42.37Q884.75-44 860-44H731Zm129-687v-129H731v-60h129q24.75 0 42.38 17.62Q920-884.75 920-860v129h-60ZM349-536q11 11 28 11t28-11q11-11 11-28t-11-28q-11-11-28-11t-28 11q-11 11-11 28t11 28Zm206 0q11 11 28 11t28-11q11-11 11-28t-11-28q-11-11-28-11t-28 11q-11 11-11 28t11 28Zm-75 172q47 0 85-26t57-70H338q18 44 56.5 70t85.5 26Z"/></svg>
+              </span>
+            </button>
+            <button type="button" class="identity-tile" role="listitem" data-identity-method="password">
+              <span class="identity-avatar" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M234-276q51-39 114-61.5T480-360q69 0 132 22.5T726-276q35-41 54.5-93T800-480q0-133-93.5-226.5T480-800q-133 0-226.5 93.5T160-480q0 59 19.5 111t54.5 93Zm246-164q-59 0-99.5-40.5T340-580q0-59 40.5-99.5T480-720q59 0 99.5 40.5T620-580q0 59-40.5 99.5T480-440Zm0 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q54 0 104-17.5t92-50.5q-42-33-92-50.5T480-296q-54 0-104 17.5T284-228q42 33 92 50.5T480-160Zm0-360q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm0-60Zm0 360Z"/></svg>
+              </span>
+              <span class="identity-info">
+                <span class="identity-email">d.olson@example.com</span>
+                <span class="identity-method">Use password</span>
+              </span>
+              <span class="identity-icon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M220-80q-24 0-42-18t-18-42v-436q0-24 18-42t42-18h70v-90q0-79 55.5-134.5T480-915q79 0 134.5 55.5T670-725v90h70q24 0 42 18t18 42v436q0 24-18 42t-42 18H220Zm0-60h520v-436H220v436Zm260-130q29 0 49.5-20.5T550-340q0-29-20.5-49.5T480-410q-29 0-49.5 20.5T410-340q0 29 20.5 49.5T480-270ZM350-635h260v-90q0-54.17-37.88-92.08-37.88-37.92-92-37.92T388-817.08q-38 37.91-38 92.08v90ZM220-140v-436 436Z"/></svg>
+              </span>
+            </button>
+            <a href="#" class="identity-other" id="identity-use-different">Use a different account</a>
+          </div><!-- /chooser-multi-identity -->
 
           <!-- Create account footer.
 
@@ -7195,6 +7585,152 @@
           document.body.dataset.currentScreen = e.detail.screen;
         }
       });
+    })();
+
+    // ── W3.6 · Device state pills (Slice B) ───────────────────
+    // Per-tab scenario selection persisted to localStorage under
+    //   proto:device-state:<tab>   e.g. proto:device-state:app
+    // Selection applies both to
+    //   document.body.dataset.deviceState         (tab-agnostic hooks)
+    //   #screen-chooser[data-chooser-variant]     (chooser layout)
+    // and, for variants that reuse the passkey-first base layout,
+    //   #screen-chooser[data-chooser-state="passkey-first"]
+    //
+    // On tab switch, the per-tab stored state is re-applied so each
+    // tab remembers its own last scenario independently.
+    //
+    // Slice B: App-tab pills only. Mobile Web / Desktop pills land
+    // in Slices C / D — until then, those tabs render with the
+    // 'default' variant (which is a no-op — chooser stays as-is).
+    (function initStatePills() {
+      const STORAGE_PREFIX = 'proto:device-state:';
+      // Default state per tab. App defaults to returning-passkey
+      // because that's the state that most clearly demonstrates the
+      // reason for building the whole device-frame system.
+      const DEFAULTS = {
+        desktop:     'default',
+        'mobile-web':'default',
+        app:         'returning-passkey',
+      };
+      // Variants that render on top of the existing passkey-first
+      // chooser layout. Setting this list here keeps the mapping in
+      // one place — future App variants that share the layout just
+      // add themselves.
+      const PASSKEY_FIRST_VARIANTS = new Set(['returning-passkey']);
+      // Variants that pre-fill the identifier field with a demo email.
+      const PREFILL_VARIANTS = new Set([
+        'returning-password-saved',
+        'returning-no-credentials',
+      ]);
+      const PREFILL_EMAIL = 'shopper@example.com';
+
+      const chooser    = document.getElementById('screen-chooser');
+      const emailInput = document.getElementById('chooser-email-input');
+      const notYouLink = document.getElementById('chooser-not-you-link');
+      const pills      = document.querySelectorAll('.state-pill');
+      const tabButtons = document.querySelectorAll('.device-tab-btn');
+      if (!chooser || !pills.length) return;
+
+      // Which pill values exist for this tab? Used to validate stored
+      // state (in case a stored value refers to a pill that has since
+      // been removed) and to skip apply() on tabs with no pills.
+      function pillsForTab(tab) {
+        return Array.from(pills)
+          .filter(p => p.dataset.tabScope === tab)
+          .map(p => p.dataset.stateValue);
+      }
+
+      function readStored(tab) {
+        const valid = pillsForTab(tab);
+        try {
+          const v = localStorage.getItem(STORAGE_PREFIX + tab);
+          if (v && valid.includes(v)) return v;
+        } catch {}
+        return DEFAULTS[tab] || 'default';
+      }
+
+      function applyState(tab, state) {
+        document.body.dataset.deviceState = state;
+
+        // Chooser variant drives all per-scenario CSS.
+        chooser.dataset.chooserVariant = state;
+
+        // Some variants reuse the existing passkey-first base layout.
+        // Others use the default. Anything variant-specific (banners,
+        // custom text) lives in CSS keyed on data-chooser-variant.
+        chooser.dataset.chooserState =
+          PASSKEY_FIRST_VARIANTS.has(state) ? 'passkey-first' : 'default';
+
+        // Clear any lingering demo banner from a prior variant.
+        chooser.removeAttribute('data-chooser-banner');
+
+        // Pre-fill or clear the identifier field per variant. We never
+        // touch a value the user has already typed except to clear it
+        // when swapping to a variant that hides the form (fresh install,
+        // returning-passkey, multi-identity) — otherwise a stale email
+        // hangs around behind the swap animation.
+        if (emailInput) {
+          if (PREFILL_VARIANTS.has(state)) {
+            emailInput.value = PREFILL_EMAIL;
+          } else {
+            emailInput.value = '';
+          }
+        }
+
+        // aria-pressed on the pills of the current tab only.
+        pills.forEach(p => {
+          if (p.dataset.tabScope !== tab) return;
+          p.setAttribute(
+            'aria-pressed',
+            p.dataset.stateValue === state ? 'true' : 'false'
+          );
+        });
+      }
+
+      // Public activator — called on init and on tab switch.
+      function activate(tab) {
+        const state = readStored(tab);
+        applyState(tab, state);
+      }
+
+      // Wire pill clicks. Persist per-tab so each tab remembers its
+      // own scenario independently.
+      pills.forEach(pill => {
+        pill.addEventListener('click', () => {
+          const tab   = pill.dataset.tabScope;
+          const state = pill.dataset.stateValue;
+          if (!tab || !state) return;
+          try { localStorage.setItem(STORAGE_PREFIX + tab, state); } catch {}
+          applyState(tab, state);
+        });
+      });
+
+      // Reapply state on tab switch. Runs AFTER initDeviceTabs'
+      // apply() (event listeners fire in registration order, and
+      // initDeviceTabs was registered first).
+      tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tab = btn.dataset.deviceTab;
+          if (tab) activate(tab);
+        });
+      });
+
+      // "Not you?" — clear the pre-filled email and drop back to the
+      // fresh-install variant (App tab) or default (elsewhere). This
+      // simulates the user rejecting the recognized identity.
+      if (notYouLink) {
+        notYouLink.addEventListener('click', () => {
+          const tab = document.body.dataset.deviceTab || 'desktop';
+          const target = tab === 'app' ? 'fresh-install' : 'default';
+          const valid = pillsForTab(tab);
+          const finalState = valid.includes(target) ? target : (DEFAULTS[tab] || 'default');
+          try { localStorage.setItem(STORAGE_PREFIX + tab, finalState); } catch {}
+          applyState(tab, finalState);
+        });
+      }
+
+      // Initial activation for whatever tab initDeviceTabs restored.
+      activate(document.body.dataset.deviceTab || 'desktop');
     })();
 
     // ── W3.5 · Screen-change observer ─────────────────────────
