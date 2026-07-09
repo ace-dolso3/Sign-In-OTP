@@ -4197,7 +4197,26 @@
 
           </div><!-- /method-tiles -->
 
-          <!-- Create account footer -->
+          <!-- Create account footer.
+
+               GUARDRAIL — when this link is wired to a real signup flow,
+               DO NOT trigger passkey enrollment inside it. Enrollment is
+               post-first-login only. See the terminal step of the
+               `password-happy` / `otp-happy` / `cross-device-happy` flows
+               below for the correct placement (screen-passkey-enroll,
+               state='prompt', origin='post-login').
+
+               Article citation: Orbix Studio 2026 biometric UX guide,
+               "How to ask users to turn on biometric login":
+                 "Asking too early doesn't work well. During sign-up,
+                  before login, or right after an error, users are still
+                  figuring things out. In those moments, a biometric
+                  request can feel confusing or pushy instead of helpful."
+
+               Also cited by Authgear's 2025 login/signup guide under
+               "Progressive Onboarding": collect only email + password at
+               signup, defer enrollment prompts (biometric, notifications,
+               profile fields) until after first successful login. -->
           <div class="divider" role="separator"></div>
           <p class="create-account">
             Don't have an account? <a href="#">Create an Account</a>
@@ -7566,6 +7585,28 @@
       const FLOWS = [
 
         // ── Passkey Sign-In ──────────────────────────────────────────────
+        //
+        // Design boundary (Orbix Studio 2026 biometric UX guide, iOS/Android
+        // platform section): apps CANNOT skin the OS biometric sheet. Apple's
+        // Face ID / Touch ID prompt and Android's BiometricPrompt are owned
+        // by the operating system. Custom biometric UI overlays risk App Store
+        // rejection and — more importantly — erode user trust, since users
+        // recognize the system prompt as "safe" across every app.
+        //
+        // What that means for this file: the `.os-modal` component and its
+        // `showOsModal()` / `hideOsModal()` handlers are a PROTOTYPE-ONLY
+        // stand-in used to demo the ceremony. In production this must be
+        // replaced by:
+        //   • navigator.credentials.get(...) for WebAuthn / passkey flows
+        //   • LocalAuthentication (iOS native) / BiometricPrompt (Android)
+        //     for embedded webviews that need a native fallback.
+        // The passkey-os-sheet-* variants below (198-63 / 198-68 / 198-73 /
+        // 198-78) exist so stakeholders can preview what the native sheet
+        // looks like at each stage — they are reference frames only, not
+        // an instruction to build a custom sheet.
+        //
+        // Your design job on this platform is the TIMING, FRAMING, and
+        // FALLBACK — NOT the prompt itself.
         {
           id: 'passkey-happy', group: 'Passkey Sign-In',
           label: 'Happy Path — Passkey / Face ID',
