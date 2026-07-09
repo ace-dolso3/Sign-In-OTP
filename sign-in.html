@@ -1593,8 +1593,17 @@
 
     /* Returning · saved password: email pre-filled, "Not you?" link
        shown. Tiles remain visible so the user can escape to another
-       method if autofill fails. */
-    #screen-chooser[data-chooser-variant="returning-password-saved"] .chooser-not-you-link {
+       method if autofill fails.
+       W3.6 · Slice C · 'returning-identity' (Mobile Web / Desktop)
+       and 'cross-device-emphasis' (Mobile Web) piggyback on the same
+       visual — a pre-filled email with a Not you? escape is state-
+       agnostic. Semantics differ (App promises autofill; Mobile Web
+       only hints identity — the browser can't guarantee autofill will
+       fire) but the chooser layout is identical, so we share the
+       selector rather than duplicating. */
+    #screen-chooser[data-chooser-variant="returning-password-saved"] .chooser-not-you-link,
+    #screen-chooser[data-chooser-variant="returning-identity"]       .chooser-not-you-link,
+    #screen-chooser[data-chooser-variant="cross-device-emphasis"]    .chooser-not-you-link {
       display: inline-block;
     }
 
@@ -1613,6 +1622,27 @@
     #screen-chooser[data-chooser-variant="returning-no-credentials"] #tile-cd-chooser        { order: 1; }
     #screen-chooser[data-chooser-variant="returning-no-credentials"] #tile-password-chooser  { order: 2; }
     #screen-chooser[data-chooser-variant="returning-no-credentials"] #tile-otp-chooser       { order: 3; }
+
+    /* Cross-device emphasis (Mobile Web · Slice C): user has enrolled
+       a passkey on another device (typically their phone) and is now
+       signing in on a browser. Face ID/passkey on THIS browser is
+       unlikely to work, but the cross-device (QR) ceremony brings
+       the phone's passkey to the desktop session — so promote that
+       tile to position 1. Everything else stays in place; we don't
+       hide any method because the browser can't be sure what's
+       available. */
+    #screen-chooser[data-chooser-variant="cross-device-emphasis"] #tile-cd-chooser        { order: 1; }
+    #screen-chooser[data-chooser-variant="cross-device-emphasis"] #tile-passkey            { order: 2; }
+    #screen-chooser[data-chooser-variant="cross-device-emphasis"] #tile-password-chooser   { order: 3; }
+    #screen-chooser[data-chooser-variant="cross-device-emphasis"] #tile-otp-chooser        { order: 4; }
+    /* Give the promoted tile a subtle emphasis ring so it reads as
+       the recommended path without needing a copy change inside
+       the tile itself. */
+    #screen-chooser[data-chooser-variant="cross-device-emphasis"] #tile-cd-chooser {
+      border-color: #121212;
+      border-width: 2px;
+      box-shadow: 0 0 0 3px rgba(18, 18, 18, 0.06);
+    }
 
     /* Multi-identity: replace form, divider, and tiles with the
        identity chip list. Create Account footer stays as escape route. */
@@ -4783,6 +4813,23 @@
         <span class="pill-title">Multi-identity</span>
         <span class="pill-sub">Shared device — pick account</span>
       </button>
+
+      <!-- Mobile Web-tab pills (Slice C). Browser can't reliably poll
+           credential inventory (privacy-scoped by the platform), so
+           states are coarser than App — we can hint identity via
+           cookie/session, but we can't promise autofill or one-tap. -->
+      <button type="button" class="state-pill" data-tab-scope="mobile-web" data-state-value="default" aria-pressed="true">
+        <span class="pill-title">Default</span>
+        <span class="pill-sub">Email empty · all methods offered</span>
+      </button>
+      <button type="button" class="state-pill" data-tab-scope="mobile-web" data-state-value="returning-identity" aria-pressed="false">
+        <span class="pill-title">Returning identity</span>
+        <span class="pill-sub">Email pre-filled from prior session</span>
+      </button>
+      <button type="button" class="state-pill" data-tab-scope="mobile-web" data-state-value="cross-device-emphasis" aria-pressed="false">
+        <span class="pill-title">Cross-device emphasis</span>
+        <span class="pill-sub">Passkey enrolled on another device</span>
+      </button>
     </aside>
 
     <div class="device-viewport">
@@ -7618,9 +7665,14 @@
       // add themselves.
       const PASSKEY_FIRST_VARIANTS = new Set(['returning-passkey']);
       // Variants that pre-fill the identifier field with a demo email.
+      // W3.6 · Slice C · adds Mobile Web's 'returning-identity' and
+      // 'cross-device-emphasis' — both simulate a returning user
+      // whose email is already known to the site (via cookie/session).
       const PREFILL_VARIANTS = new Set([
         'returning-password-saved',
         'returning-no-credentials',
+        'returning-identity',
+        'cross-device-emphasis',
       ]);
       const PREFILL_EMAIL = 'shopper@example.com';
 
