@@ -6420,6 +6420,13 @@
       otpFields.forEach(f => { f.value = ''; });
       if (verifyBtn) verifyBtn.disabled = true;
       wrongAttempts = 0;
+      // Requesting a fresh code from the delivery picker resets the
+      // per-session resend counter used by the 2-resend cap (see the
+      // resendBtn handler). This is the natural point to zero it out:
+      // the user has explicitly opted to start a new OTP sequence.
+      otpResendCount = 0;
+      const resendBtnEl = document.getElementById('resend-btn');
+      if (resendBtnEl) resendBtnEl.disabled = false;
     }
 
     function setVerifyState(state) {
@@ -6501,14 +6508,40 @@
       updateBlurb();
     }
 
-    // Resend button behavior
+    // Resend button behavior.
+    //
+    // LogRocket 2FA UX FAQ: '2 resends is safest and also convenient'.
+    // After MAX_OTP_RESENDS successful resends, keep the button disabled
+    // and route the user's next action toward the 'Sign in another way'
+    // escape (already present as #otp-other-btn just below). We surface
+    // an info toast so the user knows why the button is now inert.
+    // Counter is reset in setOtpRequestState() when they intentionally
+    // start a fresh delivery.
+    const MAX_OTP_RESENDS = 2;
+    let otpResendCount = 0;
     const resendBtn = document.getElementById('resend-btn');
     resendBtn.addEventListener('click', () => {
       const s = screenOtp.getAttribute('data-otp-substate') || 'default';
       if (s === 'cooldown' || s === 'locked') return;
+      if (otpResendCount >= MAX_OTP_RESENDS) {
+        showToast({
+          message: `That's the max resends. Sign in another way if the code still doesn't arrive.`,
+          kind: 'caution',
+        });
+        resendBtn.disabled = true;
+        return;
+      }
+      otpResendCount++;
       setVerifyState('resent');
-      // After resent auto-dismisses, enter cooldown
-      setTimeout(() => setVerifyState('cooldown'), 4100);
+      // After resent auto-dismisses, enter cooldown. If we've hit the
+      // cap, disable the button after cooldown so the caution toast
+      // survives the state transition.
+      setTimeout(() => {
+        setVerifyState('cooldown');
+        if (otpResendCount >= MAX_OTP_RESENDS) {
+          resendBtn.disabled = true;
+        }
+      }, 4100);
     });
 
     // ── Verify button click ─────────────────────────────────────────
