@@ -59,7 +59,7 @@ Ordered by expected impact / cost. Each item lists the article citation, current
 - **Files:** [sign-in.html:4048](sign-in.html#L4048), [sign-in.html:4167](sign-in.html#L4167), [sign-in.html:6626](sign-in.html#L6626) (default idle setter).
 - **Cost:** ~15 lines of markup/copy. No JS behavior change.
 
-### 3.2 · Add `passkey-hardware-unavailable` flow **[HIGH · MEDIUM]**
+### 3.2 · Add `passkey-hardware-unavailable` flow **[HIGH · MEDIUM]** ✅ SHIPPED (`0ef79af`)
 
 - **Article rule:** J — "Biometrics also don't work for everyone. Some people can't use fingerprints or face recognition reliably because of physical reasons."
 - **Current state:** No flow demonstrates "device reports no biometric hardware / biometrics disabled at OS level." A returning user in this state would tap `#chooser-passkey-cta`, hit `showOsModal()`, and… nothing article-correct happens (the sim always resolves). In production this is a real branch.
@@ -162,5 +162,6 @@ Documenting things the article prescribes that we already do well, so future rev
 | Date | Note |
 |---|---|
 | 2026-07-09 | Doc created after read of Orbix guide. Ten scoreboard rules, copy audit, 10 backlog items graded. No code changes yet — this is a proposal doc. |
+| 2026-07-09 | Sprint D shipped on branch `sign-in-ux-best-practices`: §3.2 hardware-unavailable state (`0ef79af`) — includes Screens + Flows nav entries + SCREEN_DESCRIPTIONS. Only §3.7 (sensitive-action re-auth) and §3.10 (retry counter) remain, both deferred. |
 | 2026-07-09 | Sprint C shipped on branch `sign-in-ux-best-practices`: §3.1 privacy assurance (`18894a4`), §3.3 Maybe Later cap (`bee64bd`), §3.5 OS-sheet swap comment (`1df8005`), §3.6 retry-then-fallback flow (`b85e9aa`), §3.8 test checklists (`b85e9aa`), §3.9 signup-safe guardrail (`1df8005`). Remaining: §3.2 (hardware-unavailable, still open), §3.7 (sensitive-action re-auth — deferred, touches settings), §3.10 (deferred). |
 | 2026-07-09 | §3.4 (`aria-live` on biometric status region) shipped in `05fee87` on branch `sign-in-ux-best-practices`. |

@@ -174,7 +174,7 @@ Ordered by impact / cost. Distinct from the biometric backlog — no overlap.
 - **Files:** [sign-in.html:5082](sign-in.html#L5082).
 - **Cost:** ~5 LOC + reuse `formatMinutesLabel(LOCKOUT_MS)`.
 
-### 3.3 · Unrecognized-email → offer signup path **[HIGH · MEDIUM]**
+### 3.3 · Unrecognized-email → offer signup path **[HIGH · MEDIUM]** ✅ SHIPPED (`22798b2`)
 
 - **Article rule:** Authgear error→recovery table — *"No account for this email — Sign up."*
 - **Current state:** Identifier-first form accepts any email and continues. No branching on "does an account exist for this email?" No signup destination.
@@ -224,7 +224,7 @@ Ordered by impact / cost. Distinct from the biometric backlog — no overlap.
 - **Files:** password form ~[sign-in.html:4996](sign-in.html#L4996); OTP wrong-attempt ~[sign-in.html:5386](sign-in.html#L5386).
 - **Cost:** ~15 LOC total across both flows.
 
-### 3.7 · Add network / server error handling to submit paths **[LOW · MEDIUM]**
+### 3.7 · Add network / server error handling to submit paths **[LOW · MEDIUM]** ✅ SHIPPED (`317fabd`)
 
 - **Article rule:** Authgear error→recovery table — *"Show non-blaming message ('We're having trouble connecting'). Provide Retry, graceful backoff … never clear user input."*
 - **Current state:** No simulated network-error state in `FLOWS[]`. Handlers assume in-page success.
@@ -232,7 +232,7 @@ Ordered by impact / cost. Distinct from the biometric backlog — no overlap.
 - **Cost:** ~30 LOC, or 1 new flow entry if we just want to demo the UI shell.
 - **Note:** Nice-to-have; only useful if the flow gallery needs error-state completeness.
 
-### 3.8 · Mask registered phone in OTP delivery picker (returning-user variant) **[MEDIUM · SMALL]**
+### 3.8 · Mask registered phone in OTP delivery picker (returning-user variant) **[MEDIUM · SMALL]** ✅ SHIPPED (`b0b5cc6`)
 
 - **Article rule:** LogRocket §"SMS OTP · Common UX Pain Points" — *"Display the last two digits of the phone number."*
 - **Current state:** Delivery picker asks the user to type their phone. That's correct for a first-time OTP request, but a returning user's registered phone should be masked (e.g., *"Text a code to phone ending in **42**"*).
@@ -314,5 +314,6 @@ If you want to knock these out in batches:
 | Date | Note |
 |---|---|
 | 2026-07-09 | Doc created after reading Authgear (login/signup) + LogRocket (2FA) guides. 11 backlog items graded; sprint plan proposed. No code changes yet — this is a proposal doc, companion to `BIOMETRIC-UX-OPTIMIZATIONS.md`. |
+| 2026-07-09 | Sprint D shipped on branch `sign-in-ux-best-practices`: §3.3 unknown-email banner (`22798b2`), §3.7 password network-error (`317fabd`), §3.8 masked OTP delivery (`b0b5cc6`). All non-deferred items closed; only §3.11 (backup codes) remains as a product-decision defer. Fixed post-commit standalone rebuild (`a345fa8`) so the branch produces its own artifact. |
 | 2026-07-09 | Sprint C shipped on branch `sign-in-ux-best-practices`: §3.9 OTP resend cap (`c1190e6`), §3.10 learn-more link on enrollment (`18894a4`). Also fixed the post-commit standalone rebuild (`a345fa8`) which was silently mis-reporting failures and not producing an artifact for this branch. Remaining: §3.3, §3.7, §3.8; §3.11 deferred. |
 | 2026-07-09 | Sprint A + B shipped on branch `sign-in-ux-best-practices`: §3.5 focus outlines (`bfa22b8`), §3.6 aria-describedby (`b3dc8ba`), §3.2 lockout duration (`3473931`), §3.1 show/hide password toggle (`667cb2e`), §3.4 drop confirm-password (`89fc3c5`). Remaining backlog: §3.3, §3.7–3.11 plus the settings/security/activity/devices audit gap. |
