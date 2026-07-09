@@ -58,6 +58,71 @@ Screen states are referenced as `screen-id:state` (e.g. `screen-password:error`)
 
 ---
 
+## Device views & state simulation (W3.6)
+
+The prototype wraps the sign-in card in a **device frame** selectable via a tab bar below the card: **Desktop**, **Mobile Web**, or **App**. Each frame is lightweight/stylized chrome (subtle window frame, phone silhouette + browser toolbar, phone silhouette + iOS-style status bar respectively). Every screen — chooser and downstream — renders inside the active frame. Frame selection persists in `localStorage` under `proto:device-tab`.
+
+Left of the card, a **state pill rail** hosts scenario pills scoped per device tab. Each pill re-shapes the chooser to simulate a specific device/session state. Pills are only relevant to the chooser landing, so the rail is invisible on downstream screens (via `visibility: hidden` — grid column preserves layout so the card never shifts). Selection persists per tab in `localStorage` under `proto:device-state:<tab>`.
+
+**Design principle:** the landing screen should show *the fastest correct path for what this device can actually do right now*, and hide options that can't complete. Detection assumptions differ by surface:
+
+| Surface | Credential detection | Consequence |
+|---------|---------------------|-------------|
+| **Desktop browser** | Weakest — browsers gate credential enumeration; identity is at best cookie-based. | Coarse states only. |
+| **Mobile Web** | Better than desktop, worse than native — WebAuthn conditional UI can hint autofill, but no synchronous "does a passkey exist?" answer. | Middle ground — can hint identity via cookie/session. |
+| **Native App** | Strongest — iOS `ASAuthorization` / Android Credential Manager can report platform-passkey availability, autofill capability, and last-signed-in identity. | Full state matrix — the state that couldn't exist on desktop lives here. |
+
+### Desktop tab (2 states)
+
+| Pill | Chooser behavior |
+|------|------------------|
+| **Default** | Current mock — email empty, all 4 method tiles offered. |
+| **Returning identity** | Email pre-filled from cookie. `Not you?` link to reset. All tiles remain visible. |
+
+### Mobile Web tab (3 states)
+
+| Pill | Chooser behavior |
+|------|------------------|
+| **Default** | Current mock in mobile browser frame. |
+| **Returning identity** | Email pre-filled from prior session. `Not you?` link. All tiles remain visible. |
+| **Cross-device emphasis** | Email pre-filled. `Not you?` link. `Use another device` tile promoted to position 1 with a subtle emphasis ring — for a user who enrolled a passkey on their phone but is signing in on their desktop browser. Face ID tile stays visible (browser can't confirm platform-passkey absence). |
+
+### App tab (5 states)
+
+| Pill | Chooser behavior |
+|------|------------------|
+| **Fresh install** | Email + Continue only. No `OR SIGN IN ANOTHER WAY` divider, no method tiles — nothing else can complete for a first-time user. `Create Account` footer preserved. |
+| **Returning · passkey** | Layers on `passkey-first` base. Identity chip (`shopper@ace.com`) above the CTA. CTA copy swaps to `Sign in as shopper@ace.com`. Divider + tiles hidden — this variant is the "one clear path" case. **App default state.** |
+| **Returning · saved password** | Email pre-filled with `shopper@example.com`. `Not you?` link. All tiles remain as fallback if autofill fails. |
+| **Returning · no credentials** | Email pre-filled. `Not you?` link. Face ID tile **hidden** (no passkey on this device — showing it would be a dead-end). Cross-device promoted to position 1. |
+| **Multi-identity** | Replaces form + tiles with 2 identity chips (`shopper@ace.com` w/ Face ID glyph, `d.olson@example.com` w/ lock glyph) + `Use a different account` link. Simulates a family/shared device. |
+
+### Panel context indicator
+
+The Demo panel (Screens/Flows) shows a live `Simulating` chip at the top identifying the current tab + state pill, so reviewers know what variant of the chooser the listed nav entries are landing in.
+
+### Small-viewport fallback
+
+On viewports below 640px, the entire device-frame system collapses back to the plain card presentation via `display: contents` — you're already on a phone-sized viewport, so the phone frame concept adds no value.
+
+### Where the state lives
+
+| Attribute | Set by | Read by |
+|-----------|--------|---------|
+| `body[data-device-tab]` | `initDeviceTabs()` | Frame chrome CSS, tab-scoped pill visibility, chrome content spans |
+| `body[data-device-state]` | `initStatePills()` | Tab-agnostic hooks (currently only the context chip) |
+| `body[data-current-screen]` | `screenchange` event listener | Pill rail visibility (only on chooser) |
+| `#screen-chooser[data-chooser-variant]` | `initStatePills()` | Per-variant chooser CSS rules |
+| `#screen-chooser[data-chooser-state]` | Existing chooser wiring + `initStatePills()` for `passkey-first` base | Existing passkey-first CSS rules |
+
+`localStorage` keys:
+- `proto:device-tab` — last selected tab
+- `proto:device-state:desktop` — last Desktop pill
+- `proto:device-state:mobile-web` — last Mobile Web pill
+- `proto:device-state:app` — last App pill (default: `returning-passkey`)
+
+---
+
 ## Group 1 · Passkey Sign-In
 
 ### 1a · Happy Path — Passkey / Face ID `78:31`

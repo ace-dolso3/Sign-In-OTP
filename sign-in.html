@@ -1668,6 +1668,34 @@
       margin: 0;
     }
 
+    /* ─── W3.6 · Slice D · Panel state-context indicator ─── */
+    /* Sits at the top of the Screens/Flows panel, right below the
+       tabs. Shows which device tab + state pill are currently
+       simulated so the reviewer knows what the listed nav entries
+       are landing in. */
+    .proto-nav-context {
+      padding: 10px 14px;
+      margin: 6px 14px 0;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+    }
+    .proto-nav-context-label {
+      margin: 0 0 2px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+    }
+    .proto-nav-context-value {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 500;
+      color: #fff;
+      line-height: 1.3;
+    }
+
     @keyframes panelOutLeft {
       from { transform: translateX(0);    opacity: 1; }
       to   { transform: translateX(-48px); opacity: 0; }
@@ -4830,6 +4858,20 @@
         <span class="pill-title">Cross-device emphasis</span>
         <span class="pill-sub">Passkey enrolled on another device</span>
       </button>
+
+      <!-- Desktop-tab pills (Slice D). Browser credential detection is
+           the weakest here — no reliable way to know whether a passkey
+           exists for this origin, and autofill semantics vary widely
+           by browser. So states stay coarse: current mock and a pre-
+           filled-identity variant. -->
+      <button type="button" class="state-pill" data-tab-scope="desktop" data-state-value="default" aria-pressed="true">
+        <span class="pill-title">Default</span>
+        <span class="pill-sub">Email empty · all methods offered</span>
+      </button>
+      <button type="button" class="state-pill" data-tab-scope="desktop" data-state-value="returning-identity" aria-pressed="false">
+        <span class="pill-title">Returning identity</span>
+        <span class="pill-sub">Email pre-filled from cookie</span>
+      </button>
     </aside>
 
     <div class="device-viewport">
@@ -6460,6 +6502,16 @@
         <button class="proto-tab tab-active" id="tab-screens">Screens</button>
         <button class="proto-tab" id="tab-flows">Flows</button>
       </div>
+      <!-- W3.6 · Slice D · Live indicator of the current device tab +
+           state pill selection. Updates when the reviewer flips tabs
+           or picks a state pill, so the panel makes clear WHICH
+           variant of the chooser the listed nav entries are landing
+           in. Populated by initStateContextChip() at the bottom of
+           the file. Hidden until initialization runs. -->
+      <div class="proto-nav-context" id="proto-nav-context" hidden>
+        <p class="proto-nav-context-label">Simulating</p>
+        <p class="proto-nav-context-value" id="proto-nav-context-value">Desktop · Default</p>
+      </div>
     </div>
 
     <ul class="proto-nav-list" role="list">
@@ -7681,6 +7733,9 @@
       const notYouLink = document.getElementById('chooser-not-you-link');
       const pills      = document.querySelectorAll('.state-pill');
       const tabButtons = document.querySelectorAll('.device-tab-btn');
+      // W3.6 · Slice D · Optional context chip in the Demo panel.
+      const contextChip  = document.getElementById('proto-nav-context');
+      const contextValue = document.getElementById('proto-nav-context-value');
       if (!chooser || !pills.length) return;
 
       // Which pill values exist for this tab? Used to validate stored
@@ -7737,6 +7792,22 @@
             p.dataset.stateValue === state ? 'true' : 'false'
           );
         });
+
+        // W3.6 · Slice D · Update the Screens/Flows panel context chip.
+        // Shows the reviewer which device tab + state pill is currently
+        // simulated. Uses the pill's own title text so wording stays
+        // consistent with the rail on the left.
+        if (contextChip && contextValue) {
+          const tabLabel = { desktop: 'Desktop', 'mobile-web': 'Mobile Web', app: 'App' }[tab] || tab;
+          const activePill = Array.from(pills).find(
+            p => p.dataset.tabScope === tab && p.dataset.stateValue === state
+          );
+          const stateLabel = activePill
+            ? activePill.querySelector('.pill-title')?.textContent?.trim() || state
+            : state;
+          contextValue.textContent = tabLabel + ' · ' + stateLabel;
+          contextChip.hidden = false;
+        }
       }
 
       // Public activator — called on init and on tab switch.
