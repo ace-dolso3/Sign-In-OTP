@@ -3024,7 +3024,8 @@
        (top of file). The .chooser-banner class is preserved as a no-style
        hook so the state-show selectors below keep working. F4-2. */
     #screen-chooser[data-chooser-banner="passkey-not-found"] .chooser-banner,
-    #screen-chooser[data-chooser-banner="already-tried"]    .chooser-banner { display: flex; }
+    #screen-chooser[data-chooser-banner="already-tried"]    .chooser-banner,
+    #screen-chooser[data-chooser-banner="unknown-email"]    .chooser-banner { display: flex; }
 
     /* ─────────────────────────────────────────────────────────────
        ACCOUNT RECOVERY SCREEN
@@ -5619,6 +5620,12 @@
         </button>
       </li>
       <li>
+        <button class="proto-nav-item" data-nav-target="screen-chooser" data-nav-state="default" data-nav-banner="unknown-email">
+          <span class="proto-nav-dot" aria-hidden="true"></span>
+          Chooser — no account for email
+        </button>
+      </li>
+      <li>
         <button class="proto-nav-item" data-nav-target="screen-password" data-nav-identifier="shopper@example.com">
           <span class="proto-nav-dot" aria-hidden="true"></span>
           Email entered → Password (pre-filled)
@@ -6219,6 +6226,7 @@
     const SCREEN_BLURBS = {
       'screen-chooser:default':               'Identifier-first sign-in entry. Users enter their email up top; downstream screens reuse it. Method tiles below offer Face ID / passkey, cross-device passkey, password, or one-time code.',
       'screen-chooser:passkey-first':         'Identifier-first sign-in entry when we recognize a passkey on this device. The email field and Continue button are replaced by a single primary “Sign in with Face ID” CTA so the fastest path is unmistakable. Fallback tiles below the divider stay available: cross-device passkey, password, or one-time code.',
+      'screen-chooser:default+unknown-email':  'Chooser default state with a banner indicating the submitted email has no account on file. Points at two remediations: try a different email, or use the Create an Account link at the bottom of the chooser. Triggered by submitting the demo sentinel "unknown@example.com".',
       'screen-passkey:idle':                  'Shown when the passkey ceremony begins. The user can tap “Use Face ID” to authenticate with a saved local passkey, or tap “Use a passkey from another device” to scan a QR code and authenticate via a nearby phone.',
       'screen-passkey:idle-cross-device':       'The same passkey idle screen, shown as the second step of the cross-device happy path. The \u201cUse a passkey from another device\u201d button is the interactive trigger that advances to the QR screen.',
       'screen-passkey:failed':                'Shown when Face ID fails or is canceled by the OS. Offers a retry or a fallback to another sign-in method.',
@@ -6919,6 +6927,12 @@
       // W2.4 · Set when user arrives from recovery hub → "Try a different
       // sign-in method", reminding them what failed already this session.
       'already-tried':     '<strong>Let&#8217;s try something different.</strong> Pick another sign-in method below — the ones you&#8217;ve tried this session won&#8217;t be the issue.',
+      // Set when the user submits an email that isn't on file. Points at
+      // both remediations: try a different email, or create an account
+      // (see the footer CTA at the bottom of the chooser). Article
+      // citation: Authgear 2025 login/signup guide error→recovery table
+      // (Unrecognized Email row): 'Gently suggest a path to sign up.'
+      'unknown-email':     '<strong>No account found for that email.</strong> Try a different email or <strong>Create an Account</strong> below.',
     };
     function setChooserBanner(reason) {
       const textEl = screenChooser.querySelector('.chooser-banner-text');
@@ -6961,6 +6975,13 @@
     // password screen's email field so the user doesn't re-type. The
     // passkey-first state routes to the passkey ceremony instead — the
     // device is recognized so we lead with the lower-friction option.
+    //
+    // Unknown-email demo: if the user types the sentinel email
+    // 'unknown@example.com' (case-insensitive), we surface the
+    // unknown-email banner instead of proceeding, so reviewers can see
+    // how the "no account for that email" state renders. In production
+    // the account-lookup check would be an API call.
+    const UNKNOWN_EMAIL_SENTINEL = 'unknown@example.com';
     document.getElementById('chooser-id-form').addEventListener('submit', (e) => {
       e.preventDefault();
       const input = document.getElementById('chooser-email-input');
@@ -6972,6 +6993,12 @@
         return;
       }
       input.removeAttribute('aria-invalid');
+      if (email.toLowerCase() === UNKNOWN_EMAIL_SENTINEL) {
+        setChooserBanner('unknown-email');
+        input.focus();
+        input.select();
+        return;
+      }
       setSignInIdentifier(email);
       clearChooserBanner();
       if (screenChooser.getAttribute('data-chooser-state') === 'passkey-first') {
@@ -7946,6 +7973,23 @@
 
         // ── Password Sign-In ─────────────────────────────────────────────
         {
+          // Reached when the user submits an email that isn't on file.
+          // Rather than proceeding to a password prompt for a non-existent
+          // account (or lying about it and letting them fail on password),
+          // the chooser surfaces a banner pointing at the two remediations:
+          // try a different email, or use the Create an Account link.
+          // Article citation: Authgear 2025 login/signup guide, error→recovery
+          // table (Unrecognized Email row): 'Gently suggest a path to sign up.'
+          // Demo trigger: type 'unknown@example.com' at the chooser.
+          id: 'chooser-unknown-email', group: 'Password Sign-In',
+          label: 'Unknown Email → Sign-Up Suggestion',
+          figmaUrl: FIGMA + '660-213',
+          steps: [
+            { screen: 'screen-chooser', state: 'default',                          label: 'Chooser — user enters an unknown email' },
+            { screen: 'screen-chooser', state: 'default', banner: 'unknown-email', label: 'Chooser — no-account banner points at Create an Account' },
+          ],
+        },
+        {
           id: 'password-happy', group: 'Password Sign-In',
           label: 'Happy Path — Password Sign-In',
           figmaUrl: FIGMA + '660-380',
@@ -8514,7 +8558,15 @@
           if (target === screenEnroll)   setEnrollState(navState    || 'prompt');
           if (target === screenSettings) setSettingsState(navState  || 'list');
           if (target === screenRecoveryEmail) setRecoveryEmailState(navState || 'request');
-          if (target === screenChooser)  setChooserState(navState   || 'default');
+          if (target === screenChooser)  {
+            setChooserState(navState   || 'default');
+            // Optional chooser banner demo. Nav items can carry a
+            // data-nav-banner attribute to preview banner variants
+            // (e.g. 'unknown-email' after an unrecognized identifier
+            // submission). Absent = clear existing banner.
+            if (btn.dataset.navBanner) setChooserBanner(btn.dataset.navBanner);
+            else                       clearChooserBanner();
+          }
           if (target === screenReenroll) setReenrollState(navState  || 'prompt');
           if (target === screenRecovery) {
             setRecoveryState(navState || 'default');
