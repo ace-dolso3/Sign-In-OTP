@@ -4182,8 +4182,18 @@
         <!-- ─── Screen: Biometric / Passkey ─────────────── -->
         <div id="screen-passkey" data-passkey-state="idle" hidden>
 
-          <!-- Biometric hero (state-driven, hidden in cross-device) -->
-          <div class="biometric-hero" id="passkey-biometric-hero">
+          <!-- Biometric hero (state-driven, hidden in cross-device).
+
+               aria-live="polite" + aria-atomic="true" so screen readers
+               announce the status transitions ("Use Face ID to sign in" →
+               "Scanning…" → "You're signed in" / "Face ID couldn't sign
+               you in") when setBiometricState() rewrites the child labels.
+               Without this, keyboard/AT users get no confirmation that
+               the biometric ceremony completed or failed — they'd have
+               to re-focus the status region to hear it. Aria-hidden on
+               the decorative SVG keeps the announcement text-only. -->
+          <div class="biometric-hero" id="passkey-biometric-hero"
+               aria-live="polite" aria-atomic="true">
             <div class="biometric-ring" id="biometric-ring" data-state="idle">
               <div class="biometric-icon" aria-hidden="true">
                 <!-- Material Symbols: ar_on_you -->
