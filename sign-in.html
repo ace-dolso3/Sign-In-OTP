@@ -2612,7 +2612,8 @@
        1000  #toast-host                    (product toasts — always topmost)
         510  .signout-modal, .os-modal      (modal foreground cards)
         500  .*-backdrop (signout, os-
-              biometric, comments-auth)     (modal / OS sheet backdrops)
+              biometric)                    (modal / OS sheet backdrops)
+        500  .comments-modal              (reviewer-name prompt)
         400  #flow-nav-bar + #flow-nav-
               title (child)                 (prototype control chrome)
         320  #proto-nav-panel               (demo drawer)
@@ -3745,9 +3746,9 @@
       margin: 6px 0 0;
     }
 
-    /* Auth modal (replaces window.prompt for token entry) */
+    /* Modal card — used by the reviewer-name prompt.                */
     /* z-index 500 → modal backdrop tier (above #flow-nav-bar 400). */
-    .comments-auth-modal {
+    .comments-modal {
       position: fixed;
       inset: 0;
       background: rgba(15, 23, 42, 0.55);
@@ -3759,7 +3760,7 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       color: #1F2937;
     }
-    .comments-auth-modal-card {
+    .comments-modal-card {
       background: #fff;
       border-radius: 8px;
       box-shadow: 0 24px 64px rgba(0,0,0,0.28);
@@ -3768,19 +3769,19 @@
       padding: 20px;
       box-sizing: border-box;
     }
-    .comments-auth-modal-card h3 {
+    .comments-modal-card h3 {
       margin: 0 0 8px;
       font-size: 16px;
       font-weight: 600;
       color: #111827;
     }
-    .comments-auth-modal-card p {
+    .comments-modal-card p {
       margin: 0 0 12px;
       font-size: 13px;
       line-height: 1.45;
       color: #4B5563;
     }
-    .comments-auth-modal-card input {
+    .comments-modal-card input {
       width: 100%;
       box-sizing: border-box;
       border: 1px solid #D1D5DB;
@@ -3791,19 +3792,19 @@
       color: #1F2937;
       outline: none;
     }
-    .comments-auth-modal-card input:focus { border-color: #d40029; }
-    .comments-auth-modal-error {
+    .comments-modal-card input:focus { border-color: #d40029; }
+    .comments-modal-error {
       font-size: 11px;
       color: #C62828;
       margin: 8px 0 0;
     }
-    .comments-auth-modal-actions {
+    .comments-modal-actions {
       display: flex;
       gap: 8px;
       justify-content: flex-end;
       margin-top: 14px;
     }
-    .comments-auth-modal-actions button {
+    .comments-modal-actions button {
       appearance: none;
       font-family: inherit;
       font-size: 12px;
@@ -3816,20 +3817,19 @@
       cursor: pointer;
       line-height: 1.2;
     }
-    .comments-auth-modal-actions button:hover { background: #F3F4F6; }
-    .comments-auth-modal-actions button.primary {
+    .comments-modal-actions button:hover { background: #F3F4F6; }
+    .comments-modal-actions button.primary {
       background: #d40029;
       color: #fff;
       border-color: #d40029;
     }
-    .comments-auth-modal-actions button.primary:hover { background: #b80022; }
-    .comments-auth-modal-actions button[disabled] {
+    .comments-modal-actions button.primary:hover { background: #b80022; }
+    .comments-modal-actions button[disabled] {
       opacity: 0.5;
       cursor: not-allowed;
     }
 
-    /* Local (review) mode: toolbar buttons alongside the round toggle.
-       Injected only when window.__COMMENTS_MODE__ === 'local'. */
+    /* Toolbar buttons (Export / Import) alongside the round toggle. */
     .comments-toolbar-btn {
       appearance: none;
       display: inline-flex;
@@ -3952,8 +3952,8 @@
       .comments-review-banner-dismiss { width: 26px; height: 26px; right: 6px; }
       .comments-toolbar-btn { height: 36px; padding: 0 10px; font-size: 12px; margin-left: 6px; }
     }
-    /* Distinct badge for imported reviewer comments (Phase 5 uses this on the
-       owner side; harmless in local mode where all dots share this color). */
+    /* Distinct badge for imported reviewer comments — dots created by
+       the owner render amber (default); imported reviewer JSONs render purple. */
     .comments-dot[data-source="review"] {
       background: #7C3AED;
       color: #fff;
@@ -8950,31 +8950,26 @@
     });
 
     /* ─── Comments overlay (prototype review tool) ─────────────────────
-       Owner-only writes via Bearer token (stored in localStorage).
-       Public reads — anyone viewing the preview URL sees the dots.
-       Backend: /api/comments  (api/comments.js + Vercel KV)
-       Storage isolation: by git branch (VERCEL_GIT_COMMIT_REF on server).
+       All comments live in this browser’s localStorage — no server,
+       no auth, no network. Reviewers Export a JSON sidecar and send it
+       back; the owner Imports it here to merge everyone’s feedback
+       into a single view.
        This block is fully self-contained — it does NOT modify
        switchScreen, goToFlowStep, FLOWS, or proto-nav listeners.
     ─────────────────────────────────────────────────────────────────── */
     (function commentsOverlay() {
       'use strict';
 
-      // ── Build-time mode ──────────────────────────────────────
-      // 'api'   → talks to /api/comments (owner-side, working prototype)
-      // 'local' → localStorage-only, no fetch, export-as-JSON (standalone
-      //           -review.html handed to a colleague). Injected at build
-      //           time by scripts/build-standalone.mjs via window globals.
-      const MODE = (typeof window !== 'undefined' && window.__COMMENTS_MODE__) || 'api';
+      // ── Configuration ────────────────────────────────────────
+      // These window globals are optionally injected by
+      // scripts/build-standalone.mjs so an exported sidecar JSON
+      // can be traced back to the exact build a reviewer used.
+      // Absent when opening the source sign-in.html directly.
       const SOURCE_HASH = (typeof window !== 'undefined' && window.__COMMENTS_SOURCE_HASH__) || 'dev';
       const BRANCH_NAME = (typeof window !== 'undefined' && window.__COMMENTS_BRANCH__) || 'local';
-      const IS_LOCAL = MODE === 'local';
 
-      const API_URL = '/api/comments';
-      const LS_TOKEN = 'comments.token';
-      const LS_MODE = 'comments.mode';
-      const LS_DATA = 'comments.data';       // local-mode: JSON blob of comments
-      const LS_REVIEWER = 'comments.reviewer'; // local-mode: { name }
+      const LS_DATA = 'comments.data';         // JSON blob of comments
+      const LS_REVIEWER = 'comments.reviewer'; // reviewer identity: { name }
       const SCREEN_SELECTOR = '#screens-container > div';
       const STAGE_SELECTOR = '#screens-container';
       const OVERLAY_CLASS = 'comments-overlay-layer';
@@ -8983,12 +8978,10 @@
       // Bumped only when the exported file format changes in a breaking way.
       const SCHEMA_VERSION = 1;
 
-      // ── Local mode: reviewer, storage, export/import ─────────
-      // When MODE === 'local', all persistence lives in this browser's
-      // localStorage; there is no /api/comments backend. Reviewer downloads
-      // a JSON sidecar via Export and sends it back to the owner, who
-      // Imports it into the working prototype. See scripts/build-standalone.mjs
-      // (Phase 4) for how this mode is baked into -review.html standalones.
+      // ── Reviewer identity, storage, export/import ────────────
+      // All persistence lives in this browser's localStorage. Reviewers
+      // Export a JSON sidecar and send it back; the owner Imports it
+      // here to merge everyone's feedback into a single view.
       let unsavedSinceExport = 0;      // local writes since last export
       let firstCommentToastShown = false;
       let exportBtnRef = null;          // populated by injectLocalToolbar
@@ -9043,17 +9036,17 @@
         const existing = getReviewer();
         __reviewerModalPromise = new Promise((resolve) => {
           const overlay = document.createElement('div');
-          overlay.className = 'comments-auth-modal comments-reviewer-modal';
+          overlay.className = 'comments-modal comments-reviewer-modal';
           overlay.setAttribute('role', 'dialog');
           overlay.setAttribute('aria-modal', 'true');
           overlay.setAttribute('aria-labelledby', 'comments-reviewer-title');
           overlay.innerHTML = ''
-            + '<div class="comments-auth-modal-card">'
+            + '<div class="comments-modal-card">'
             +   '<h3 id="comments-reviewer-title">Who\u2019s reviewing?</h3>'
             +   '<p>Your name goes on every comment so the owner can tell reviewers apart. You\u2019ll only be asked once on this device.</p>'
             +   '<input type="text" autocomplete="name" spellcheck="false" maxlength="80" placeholder="e.g. Jane Doe" aria-label="Your name" />'
-            +   '<p class="comments-auth-modal-error" style="display:none;"></p>'
-            +   '<div class="comments-auth-modal-actions">'
+            +   '<p class="comments-modal-error" style="display:none;"></p>'
+            +   '<div class="comments-modal-actions">'
             +     '<button type="button" data-action="cancel">Cancel</button>'
             +     '<button type="button" class="primary" data-action="save" disabled>Save</button>'
             +   '</div>'
@@ -9087,12 +9080,12 @@
         return promptForReviewer();
       }
 
-      // Local API implementations — same return shape as the network apiLoad/… .
-      function localApiLoad() {
+      // Storage API — all reads/writes go through localStorage.
+      function apiLoad() {
         comments = readLocalData();
         return comments;
       }
-      async function localApiCreate(payload) {
+      async function apiCreate(payload) {
         const reviewer = await ensureReviewer();
         if (!reviewer) throw new Error('reviewer name required');
         const now = Date.now();
@@ -9101,7 +9094,7 @@
           status: 'open',
           createdAt: now,
           updatedAt: now,
-          source: 'review',
+          source: 'owner',
           reviewer: { name: reviewer.name },
           sourceHash: SOURCE_HASH,
           branch: BRANCH_NAME,
@@ -9113,7 +9106,7 @@
         maybeShowFirstCommentToast();
         return record;
       }
-      function localApiUpdate(id, patch) {
+      function apiUpdate(id, patch) {
         const arr = readLocalData();
         const idx = arr.findIndex((c) => c.id === id);
         if (idx === -1) throw new Error('not found');
@@ -9122,7 +9115,7 @@
         markUnsaved();
         return arr[idx];
       }
-      function localApiDelete(id) {
+      function apiDelete(id) {
         const arr = readLocalData().filter((c) => c.id !== id);
         writeLocalData(arr);
         markUnsaved();
@@ -9230,9 +9223,8 @@
         exportBtnRef.setAttribute('data-count', String(n));
       }
 
-      // Extra toolbar (Export + Import) + banner shown only in local mode.
-      function injectLocalToolbar() {
-        if (!IS_LOCAL) return;
+      // Toolbar (Export + Import) + review banner.
+      function injectToolbar() {
         const wrap = document.getElementById('comments-toggle-wrap');
         if (!wrap) return;
 
@@ -9313,118 +9305,6 @@
         updateExportButtonUi();
       }
 
-      // Owner-side (api mode): import a reviewer's sidecar JSON and upsert
-      // every comment into the shared KV bucket. Reviewer identity is
-      // preserved via authorId='review:<slug>' + authorLabel=<name>, so
-      // the server needs no changes (id upsert is already supported).
-      function pickOwnerImportFile() {
-        const inp = document.createElement('input');
-        inp.type = 'file';
-        inp.accept = 'application/json,.json';
-        inp.style.display = 'none';
-        document.body.appendChild(inp);
-        inp.addEventListener('change', () => {
-          const f = inp.files && inp.files[0];
-          if (f) ownerImportFile(f);
-          document.body.removeChild(inp);
-        });
-        inp.click();
-      }
-      async function ownerImportFile(file) {
-        let parsed;
-        try {
-          const text = await file.text();
-          parsed = JSON.parse(text);
-        } catch (err) {
-          showToast('Import failed: could not read JSON (' + err.message + ')');
-          return;
-        }
-        if (!parsed || parsed.schema !== SCHEMA_VERSION || !Array.isArray(parsed.comments)) {
-          showToast('Import failed: not a valid comments sidecar.');
-          return;
-        }
-        const reviewerName = (parsed.reviewer && parsed.reviewer.name) || 'Reviewer';
-        const reviewerSlug = slugify(reviewerName);
-
-        // Detect orphaned screenIds (screen no longer exists in the current DOM).
-        const knownScreens = new Set(
-          Array.from(document.querySelectorAll(SCREEN_SELECTOR)).map((el) => el.id).filter(Boolean)
-        );
-        const orphans = [];
-        const importable = [];
-        for (const c of parsed.comments) {
-          if (!c || !c.id || !c.screenId) continue;
-          if (!knownScreens.has(c.screenId)) {
-            orphans.push(c.screenId);
-            // Import anyway — they'll simply not render until/unless the
-            // matching screen exists again. Owner still sees them via
-            // window.__comments.list() and can decide what to do.
-          }
-          importable.push(c);
-        }
-
-        // Auth: mirror the pre-flight check used everywhere else.
-        if (!getToken() && !(await promptForToken())) {
-          showToast('Import cancelled: sign-in required.');
-          return;
-        }
-
-        let ok = 0, failed = 0;
-        for (const c of importable) {
-          const payload = {
-            id: c.id,                     // preserve reviewer id for upsert
-            screenId: c.screenId,
-            stateAttrs: c.stateAttrs || {},
-            xPct: Number.isFinite(c.xPct) ? c.xPct : 0,
-            yPct: Number.isFinite(c.yPct) ? c.yPct : 0,
-            text: typeof c.text === 'string' ? c.text : '',
-            status: c.status === 'resolved' ? 'resolved' : 'open',
-            authorId: 'review:' + reviewerSlug,
-            authorLabel: reviewerName,
-          };
-          try {
-            await apiCreate(payload);
-            ok += 1;
-          } catch (err) {
-            console.warn('[comments] import POST failed for', c.id, err);
-            failed += 1;
-          }
-        }
-
-        await apiLoad();
-        renderDots();
-
-        let msg = 'Imported ' + ok + '/' + importable.length + ' from ' + reviewerName + '.';
-        if (failed) msg += ' ' + failed + ' failed.';
-        if (orphans.length) msg += ' ' + orphans.length + ' reference orphan screen(s): ' + [...new Set(orphans)].slice(0, 3).join(', ') + (orphans.length > 3 ? '\u2026' : '');
-        if (parsed.sourceHash && parsed.sourceHash !== SOURCE_HASH) {
-          msg += ' (source drift: reviewed a different build)';
-          console.warn('[comments] sourceHash mismatch — reviewer:', parsed.sourceHash, 'current:', SOURCE_HASH);
-        }
-        showToast(msg);
-      }
-
-      // Owner-side toolbar: adds an "Import review" button next to the
-      // toggle when NOT in local mode. Owner keeps existing auth flow.
-      function injectOwnerToolbar() {
-        if (IS_LOCAL) return;
-        const wrap = document.getElementById('comments-toggle-wrap');
-        if (!wrap) return;
-        const importBtn = document.createElement('button');
-        importBtn.type = 'button';
-        importBtn.className = 'comments-toolbar-btn comments-import-btn';
-        importBtn.id = 'comments-import-review-btn';
-        importBtn.title = 'Import a reviewer\u2019s exported JSON into this branch';
-        importBtn.innerHTML = ''
-          + '<svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true" width="14" height="14">'
-          + '<path d="M440-320v-326L336-542l-56-58 200-200 200 200-56 58-104-104v326h-80ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z"/>'
-          + '</svg><span>Import review</span>';
-        importBtn.addEventListener('click', (e) => {
-          e.preventDefault(); e.stopPropagation(); pickOwnerImportFile();
-        });
-        wrap.appendChild(importBtn);
-      }
-
       // ── State ────────────────────────────────────────────────
       let comments = [];          // all comments for current branch
       let commentMode = false;    // is comment-mode active?
@@ -9434,140 +9314,6 @@
       let toggleBtn = null;
       let countPill = null;
       let lastRenderedScreenId = null;
-
-      // ── Token + auth helpers ─────────────────────────────────
-      function getToken() {
-        if (IS_LOCAL) return 'local'; // local mode: writes are always allowed
-        try { return localStorage.getItem(LS_TOKEN) || ''; }
-        catch (_) { return ''; }
-      }
-      function setToken(t) {
-        try { localStorage.setItem(LS_TOKEN, t); } catch (_) {}
-      }
-      function clearToken() {
-        try { localStorage.removeItem(LS_TOKEN); } catch (_) {}
-      }
-      // Returns a Promise<string|null>. Uses an in-page modal instead of
-      // window.prompt() because Chrome can silently suppress native prompts
-      // (esp. after the user has dismissed one), which would make Save look
-      // broken with no feedback.
-      let __authModalPromise = null;
-      function promptForToken() {
-        if (IS_LOCAL) return Promise.resolve('local'); // no auth in local mode
-        if (__authModalPromise) return __authModalPromise;
-        __authModalPromise = new Promise((resolve) => {
-          const existing = getToken();
-          const overlay = document.createElement('div');
-          overlay.className = 'comments-auth-modal';
-          overlay.setAttribute('role', 'dialog');
-          overlay.setAttribute('aria-modal', 'true');
-          overlay.setAttribute('aria-labelledby', 'comments-auth-modal-title');
-          overlay.innerHTML = ''
-            + '<div class="comments-auth-modal-card">'
-            +   '<h3 id="comments-auth-modal-title">Sign in to save comments</h3>'
-            +   '<p>Paste your <strong>COMMENT_WRITE_TOKEN</strong> to save, edit, resolve, or delete comments. Anyone can view; only people with the token can write.</p>'
-            +   '<input type="text" autocomplete="off" spellcheck="false" placeholder="Paste token here\u2026" aria-label="Comment write token" />'
-            +   '<p class="comments-auth-modal-error" style="display:none;"></p>'
-            +   '<div class="comments-auth-modal-actions">'
-            +     '<button type="button" data-action="cancel">Cancel</button>'
-            +     '<button type="button" class="primary" data-action="save" disabled>Save token</button>'
-            +   '</div>'
-            + '</div>';
-          document.body.appendChild(overlay);
-          const input = overlay.querySelector('input');
-          const saveBtn = overlay.querySelector('[data-action="save"]');
-          const cancelBtn = overlay.querySelector('[data-action="cancel"]');
-          const errEl = overlay.querySelector('.comments-auth-modal-error');
-          if (existing) input.value = existing;
-          const sync = () => { saveBtn.disabled = !input.value.trim(); };
-          sync();
-          input.addEventListener('input', sync);
-          const finish = (value) => {
-            document.removeEventListener('keydown', onKey, true);
-            overlay.remove();
-            __authModalPromise = null;
-            resolve(value);
-          };
-          const onSave = () => {
-            const v = (input.value || '').trim();
-            if (!v) { input.focus(); return; }
-            setToken(v);
-            finish(v);
-          };
-          const onCancel = () => finish(null);
-          const onKey = (e) => {
-            if (e.key === 'Escape') { e.preventDefault(); onCancel(); }
-            else if (e.key === 'Enter' && document.activeElement === input) { e.preventDefault(); onSave(); }
-          };
-          saveBtn.addEventListener('click', onSave);
-          cancelBtn.addEventListener('click', onCancel);
-          document.addEventListener('keydown', onKey, true);
-          setTimeout(() => { input.focus(); input.select(); }, 0);
-        });
-        return __authModalPromise;
-      }
-      function authHeaders() {
-        const t = getToken();
-        return t ? { 'Authorization': 'Bearer ' + t } : {};
-      }
-
-      // ── API client ───────────────────────────────────────────
-      async function apiLoad() {
-        if (IS_LOCAL) return localApiLoad();
-        try {
-          const res = await fetch(API_URL, { method: 'GET' });
-          if (!res.ok) throw new Error('GET ' + res.status);
-          const data = await res.json();
-          comments = Array.isArray(data.comments) ? data.comments : [];
-          return comments;
-        } catch (err) {
-          console.warn('[comments] load failed:', err);
-          comments = [];
-          return comments;
-        }
-      }
-      async function apiCreate(payload) {
-        if (IS_LOCAL) return localApiCreate(payload);
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', ...authHeaders() },
-          body: JSON.stringify(payload),
-        });
-        if (res.status === 401) {
-          if (await promptForToken()) return apiCreate(payload);
-          throw new Error('unauthorized');
-        }
-        if (!res.ok) throw new Error('POST ' + res.status);
-        const data = await res.json();
-        return data.comment || data;
-      }
-      async function apiUpdate(id, patch) {
-        if (IS_LOCAL) return localApiUpdate(id, patch);
-        const res = await fetch(API_URL + '?id=' + encodeURIComponent(id), {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json', ...authHeaders() },
-          body: JSON.stringify(patch),
-        });
-        if (res.status === 401) {
-          if (await promptForToken()) return apiUpdate(id, patch);
-          throw new Error('unauthorized');
-        }
-        if (!res.ok) throw new Error('PATCH ' + res.status);
-        const data = await res.json();
-        return data.comment || data;
-      }
-      async function apiDelete(id) {
-        if (IS_LOCAL) return localApiDelete(id);
-        const res = await fetch(API_URL + '?id=' + encodeURIComponent(id), {
-          method: 'DELETE',
-          headers: { ...authHeaders() },
-        });
-        if (res.status === 401) {
-          if (await promptForToken()) return apiDelete(id);
-          throw new Error('unauthorized');
-        }
-        if (res.status !== 204 && !res.ok) throw new Error('DELETE ' + res.status);
-      }
 
       // ── Screen detection ─────────────────────────────────────
       function getActiveScreen() {
@@ -9899,7 +9645,6 @@
         pop.querySelector('[data-action="save"]').addEventListener('click', async () => {
           const text = (ta.value || '').trim();
           if (!text) { ta.focus(); return; }
-          if (!getToken() && !(await promptForToken())) return;
           try {
             const created = await apiCreate({
               screenId: screen.id,
@@ -9992,7 +9737,6 @@
           };
           cancelBtn.addEventListener('click', dismiss);
           confirmBtn.addEventListener('click', async () => {
-            if (!getToken() && !(await promptForToken())) { dismiss(); return; }
             confirmBtn.disabled = true;
             cancelBtn.disabled = true;
             try {
@@ -10011,7 +9755,6 @@
           cancelBtn.focus();
         });
         pop.querySelector('[data-action="toggle"]').addEventListener('click', async () => {
-          if (!getToken() && !(await promptForToken())) return;
           const prevStatus = comment.status;
           const newStatus = prevStatus === 'resolved' ? 'open' : 'resolved';
           try {
@@ -10055,7 +9798,6 @@
           actions.querySelector('[data-action="save-edit"]').addEventListener('click', async () => {
             const text = (ta.value || '').trim();
             if (!text) { ta.focus(); return; }
-            if (!getToken() && !(await promptForToken())) return;
             try {
               const updated = await apiUpdate(comment.id, { text });
               const idx = comments.findIndex((c) => c.id === comment.id);
@@ -10147,7 +9889,7 @@
         '.comments-popover',
         '.comments-dot',
         '.comments-toast',
-        '.comments-auth-modal',
+        '.comments-modal',
         '#proto-nav-toggle',
         '#proto-nav-panel',
         // W3.5 · #proto-nav-backdrop removed — kept here only as a no-op
@@ -10260,11 +10002,11 @@
           if (!activePopover) return;
           if (!e.target.closest) return;
           // Ignore clicks inside the popover, on any dot, on the toggle button,
-          // or inside the auth modal (which can overlay the popover).
+          // or inside the reviewer-name modal (which can overlay the popover).
           if (e.target.closest('.comments-popover')) return;
           if (e.target.closest('.comments-dot')) return;
           if (e.target.closest('.comments-toggle-wrap')) return;
-          if (e.target.closest('.comments-auth-modal')) return;
+          if (e.target.closest('.comments-modal')) return;
           closePopover();
         });
       }
@@ -10273,14 +10015,10 @@
       async function init() {
         try {
           injectToggleButton();
-          injectLocalToolbar();
-          injectOwnerToolbar();
+          injectToolbar();
           installObservers();
-          if (IS_LOCAL) installBeforeUnloadGuard();
+          installBeforeUnloadGuard();
           await apiLoad();
-          // Mode always starts off after a reload — force-clear any stale
-          // persisted flag from older builds so the toggle behaves predictably.
-          try { localStorage.removeItem(LS_MODE); } catch (_) {}
           renderDots();
           updateExportButtonUi();
         } catch (err) {
@@ -10296,21 +10034,17 @@
 
       // Expose tiny debug API for the owner (no writes, just visibility)
       window.__comments = {
-        mode: MODE,
         branch: BRANCH_NAME,
         sourceHash: SOURCE_HASH,
         list: () => comments.slice(),
         reload: async () => { await apiLoad(); renderDots(); },
         enter: enterMode,
         exit: exitMode,
-        clearToken,
-        // Local-mode helpers (no-ops on api mode UI, but safe to call)
         export: exportComments,
         import: pickImportFile,
         reviewer: getReviewer,
         setReviewer,
         clearAll: () => {
-          if (!IS_LOCAL) { console.warn('[comments] clearAll only works in local mode'); return; }
           writeLocalData([]);
           comments = [];
           renderDots();

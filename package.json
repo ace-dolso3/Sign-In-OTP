@@ -2,13 +2,10 @@
   "name": "sign-in-flow-prototype",
   "private": true,
   "version": "0.0.0",
-  "description": "Ace Hardware sign-in prototype with shared commenting backend.",
+  "description": "Ace Hardware sign-in prototype — local-only HTML with click-to-comment overlay backed by localStorage.",
   "type": "module",
   "scripts": {
     "standalone": "node scripts/build-standalone.mjs",
     "install-hooks": "bash scripts/install-hooks.sh"
-  },
-  "dependencies": {
-    "@vercel/kv": "^3.0.0"
   }
 }
