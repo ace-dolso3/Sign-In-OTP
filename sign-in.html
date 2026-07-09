@@ -7316,7 +7316,39 @@
 
     // Declined panel — "Continue" (acknowledges, leaves snooze on; we may ask again later)
     //                  "Don't ask again" (escalates to suppression)
-    document.getElementById('enroll-decline-later-btn').addEventListener('click', handleEnrollSkip);
+    //
+    // Article citation: Orbix Studio 2026 biometric UX guide, §"Always
+    // make biometric login optional" — 'make it just as easy to turn off
+    // as it was to turn on'. Interpreted here as: don't badger. After
+    // MAX_MAYBE_LATER Maybe-Later declines, auto-escalate to suppressed.
+    // The user still has "Don't ask again" available as an explicit
+    // override, but we stop asking on their behalf.
+    const MAYBE_LATER_KEY = 'ace.enroll.maybeLaterCount';
+    const MAX_MAYBE_LATER = 3;
+    function readMaybeLaterCount() {
+      try { return parseInt(localStorage.getItem(MAYBE_LATER_KEY) || '0', 10) || 0; }
+      catch (_) { return 0; }
+    }
+    function bumpMaybeLaterCount() {
+      const next = readMaybeLaterCount() + 1;
+      try { localStorage.setItem(MAYBE_LATER_KEY, String(next)); } catch (_) {}
+      return next;
+    }
+    document.getElementById('enroll-decline-later-btn').addEventListener('click', () => {
+      const count = bumpMaybeLaterCount();
+      if (count >= MAX_MAYBE_LATER) {
+        // Auto-escalate: show the same suppressed confirmation the user
+        // would see if they'd explicitly tapped "Don't ask again". Emit
+        // a toast so they understand *why* the behavior changed.
+        showToast({
+          message: `We'll stop asking. Set up Face ID from Account Settings any time.`,
+          kind: 'info',
+        });
+        setEnrollState('suppressed');
+        return;
+      }
+      handleEnrollSkip();
+    });
     document.getElementById('enroll-decline-never-btn').addEventListener('click', () => {
       setEnrollState('suppressed');
     });
