@@ -3234,6 +3234,17 @@
     #screen-password[data-pw-state="error"] .pw-error-alert { display: flex; }
     #screen-password[data-pw-state="error"] #pw-password-field { border-color: #c62828; }
 
+    /* ─── Password network-error state ─────────────────────────── */
+    /* Distinct from wrong-password ("error"): the credentials weren't
+       validated because we couldn't reach the server. Uses .alert--caution
+       (amber) rather than error red — the user did nothing wrong, and
+       colour-blaming them here would be misleading. Inputs stay filled
+       so Retry doesn't force re-typing. Article citation: Authgear
+       error→recovery table, 'Network / Server Error on Submit': 'Show
+       non-blaming message. Provide Retry, graceful backoff... Never
+       clear user input.' */
+    #screen-password[data-pw-state="network-error"] .pw-network-alert { display: flex; }
+
     /* Forgot-password: rate-limited state */
     #screen-forgot-password[data-forgotpw-state="rate-limited"] .forgotpw-form    { display: none; }
     #screen-forgot-password[data-forgotpw-state="rate-limited"] .forgotpw-hero    { display: none; }
@@ -5142,6 +5153,16 @@
             <span id="pw-error-text">Incorrect password. 2 attempts remaining.</span>
           </div>
 
+          <!-- Inline network-error alert (state-driven, caution color).
+               Separate from pw-error-alert so screen-readers announce the
+               distinct condition and so the alert's visual affordance
+               (amber vs. red) telegraphs "this isn't your fault, try
+               again" rather than a credential rejection. -->
+          <div class="alert alert--caution pw-network-alert" role="alert" aria-live="polite">
+            <svg width="16" height="16" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M480-40q-91 0-171-34.5T170-169q-59-60-94.5-140T40-480q0-91 34.5-171T169-791q60-59 140-94.5T480-920q91 0 171 34.5T791-791q59 60 94.5 140T920-480q0 91-34.5 171T791-169q-60 59-140 94.5T480-40Zm0-60q26 0 51-4t49-11L216-579q-7 24-11 49t-4 50q0 118 82 199t197 81Zm264-117q7-24 11.5-49t4.5-50q0-118-82-199t-198-81q-25 0-50 4t-49 11l363 364Z"/></svg>
+            <span>We&#8217;re having trouble connecting. Please try again.</span>
+          </div>
+
           <div class="fields">
             <div class="text-field">
               <input type="email" id="pw-email" name="pw-email" placeholder=" "
@@ -5740,6 +5761,12 @@
         </button>
       </li>
       <li>
+        <button class="proto-nav-item" data-nav-target="screen-password" data-nav-state="network-error">
+          <span class="proto-nav-dot" aria-hidden="true"></span>
+          Network error
+        </button>
+      </li>
+      <li>
         <button class="proto-nav-item" data-nav-target="screen-account-locked">
           <span class="proto-nav-dot" aria-hidden="true"></span>
           Account locked
@@ -6261,6 +6288,7 @@
       'screen-reenroll:error':                'Shown when re-enrollment fails after account recovery. Offers a retry or an option to continue without re-enrolling for now.',
       'screen-password':                      'Shown after choosing Password from the chooser. The user enters their email and password to sign in.',
       'screen-password:error':                'Shown after an incorrect password entry. Displays remaining attempts before the account is temporarily locked.',
+      'screen-password:network-error':        'Shown when the sign-in request fails for connectivity reasons (network offline, timeout, server 5xx). Uses caution styling (amber, not red) and non-blaming copy: "We\u2019re having trouble connecting. Please try again." Both inputs are preserved so Retry (the primary CTA) is one tap. Triggered by the demo sentinel password \u2018neterror\u2019.',
       'screen-account-locked':                'Triggered after too many failed password attempts. The account is locked with a countdown; the user can reset their password instead.',
       'screen-forgot-password':               'Reached by tapping "Forgot password?" from the password screen. The user enters their email; the response is non-confirming for security (it doesn\'t reveal whether the account exists).',
       'screen-forgot-password:rate-limited':   'Shown after too many reset requests from the same account or IP. The form is replaced with a lockout panel showing a countdown timer; the user can return to sign in.',
@@ -7058,6 +7086,7 @@
     // surfaced when the user picks the OTP tile on the chooser.
     let pwAttempts = 0;
     const PW_WRONG_SENTINEL = 'wrongpw';
+    const PW_NETERROR_SENTINEL = 'neterror';
     let enrollOrigin = 'settings'; // 'settings' or 'post-login'
     document.getElementById('pw-submit-btn').addEventListener('click', () => {
       const email = document.getElementById('pw-email').value.trim();
@@ -7068,6 +7097,17 @@
         const errEl = document.getElementById('pw-error-text');
         if (errEl) errEl.textContent = 'Please enter your email and password.';
         screenPassword.setAttribute('data-pw-state', 'error');
+        updateBlurb();
+        return;
+      }
+
+      // Network-error sentinel → non-blaming caution state. Preserves
+      // both inputs so the user can Retry by clicking the primary CTA
+      // again without re-typing. In production this would fire when the
+      // sign-in API request fails (timeout, 5xx, offline). Article rule:
+      // 'Show non-blaming message. Provide Retry. Never clear user input.'
+      if (pw === PW_NETERROR_SENTINEL) {
+        screenPassword.setAttribute('data-pw-state', 'network-error');
         updateBlurb();
         return;
       }
@@ -8022,6 +8062,22 @@
             { screen: 'screen-password',      state: null,      label: 'Password — entry' },
             { screen: 'screen-password',      state: 'error',   label: 'Password — wrong password' },
             { screen: 'screen-account-locked', state: null,     label: 'Account locked' },
+          ],
+        },
+        {
+          // Non-blaming connectivity error. Distinct from wrong-password
+          // because the user did nothing wrong \u2014 amber caution alert
+          // instead of red error alert; both inputs preserved so Retry
+          // is one tap on the same primary CTA. Article citation:
+          // Authgear 2025 login/signup guide, error\u2192recovery table
+          // for 'Network / Server Error on Submit'.
+          id: 'password-network-error', group: 'Password Sign-In',
+          label: 'Network Error \u2192 Retry',
+          figmaUrl: FIGMA + '660-380',
+          steps: [
+            { screen: 'screen-chooser',  state: 'default',       label: 'Chooser \u2014 no passkey' },
+            { screen: 'screen-password', state: null,            label: 'Password \u2014 entry' },
+            { screen: 'screen-password', state: 'network-error', label: 'Password \u2014 network error, inputs preserved for Retry' },
           ],
         },
         {
