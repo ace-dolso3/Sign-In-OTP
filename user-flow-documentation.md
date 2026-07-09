@@ -219,16 +219,15 @@ Screen states are referenced as `screen-id:state` (e.g. `screen-password:error`)
 
 ### 3a · Happy Path — Password Sign-In `86:31`
 
-**Scenario:** A user without passkeys (or who chose password from the chooser) signs in with their email and password, completes MFA, and is offered the chance to set up Face ID.
+**Scenario:** A user without passkeys (or who chose password from the chooser) signs in with their email and password and is offered the chance to set up Face ID.
 
-**Design intent:** Password is the fallback for users not yet on passkeys. The flow is intentionally standard and unsurprising — email + password → MFA code → done. The final step (passkey enrollment offer) is the key nudge: this is the primary vector for migrating existing password users onto passkeys. It appears post-authentication (not as a gate) so it never blocks sign-in — users who skip it still get in.
+**Design intent:** Password is the fallback for users not yet on passkeys. The flow is intentionally standard and unsurprising — email + password → done. The final step (passkey enrollment offer) is the key nudge: this is the primary vector for migrating existing password users onto passkeys. It appears post-authentication (not as a gate) so it never blocks sign-in — users who skip it still get in. MFA is not chained after password; the OTP tile on the chooser is the entry point for one-time-code sign-in.
 
 | Step | Screen | Purpose | Status |
 |------|--------|---------|--------|
 | 1 | `screen-chooser:default` | No passkey on device. User selects Password. | ✅ |
 | 2 | `screen-password` | Email and password entry. Standard credentials form. | ✅ |
-| 3 | `screen-verify:default` | MFA second factor. A one-time code was sent to a registered channel. Required after every password sign-in to prevent credential-stuffing attacks from being sufficient on their own. | ✅ |
-| 4 | `screen-passkey-enroll:prompt` | **Terminal step.** Post-sign-in enrollment offer. "Sign in faster with Face ID" — invites the user to set up a passkey now that they've successfully authenticated. Skippable without penalty. By design no separate signed-in destination follows. | ✅ |
+| 3 | `screen-passkey-enroll:prompt` | **Terminal step.** Post-sign-in enrollment offer. "Sign in faster with Face ID" — invites the user to set up a passkey now that they've successfully authenticated. Skippable without penalty. By design no separate signed-in destination follows. | ✅ |
 
 ---
 
@@ -692,5 +691,5 @@ A backup-email enrollment journey reachable from the Security hub. Mirrors the F
 
 | # | Gap | Fix |
 |---|-----|-----|
-| ~~1~~ | ~~`screen-passkey-enroll:prompt` is only reachable via the Settings "Add Passkey" button — it is not automatically surfaced after a password or OTP sign-in on a device with no passkey~~ | ✅ Fixed — `verify-btn` happy path sets `enrollOrigin = 'post-login'` and navigates to `screen-passkey-enroll:prompt`; the `password-happy`, `otp-happy`, and `cross-device-happy` FLOWS all include enrollment as the final step |
+| ~~1~~ | ~~`screen-passkey-enroll:prompt` is only reachable via the Settings "Add Passkey" button — it is not automatically surfaced after a password or OTP sign-in on a device with no passkey~~ | ✅ Fixed — `pw-submit-btn` happy path (password sign-in) and `verify-btn` happy path (OTP sign-in) both set `enrollOrigin = 'post-login'` and navigate to `screen-passkey-enroll:prompt`; the `password-happy`, `otp-happy`, and `cross-device-happy` FLOWS all include enrollment as the final step |
 | ~~2~~ | ~~`screen-passkey:notfound` — the "SET UP FACE ID" button (`passkey-setup-enroll-btn`) exists on screen but has no click handler routing it to `screen-passkey-enroll:prompt`~~ | ✅ Fixed — handler added; `enrollOrigin = 'post-login'` set so that skipping enrollment routes to the signed-in confirmation rather than Security Settings |

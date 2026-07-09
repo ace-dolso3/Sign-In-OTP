@@ -2,6 +2,25 @@
 
 Portable, self-contained snapshots of the sign-in prototype — one per branch — that a colleague can open in any modern browser (including offline) without a server, Node, or internet connection.
 
+## TL;DR — editing `sign-in.html` and propagating to standalones
+
+When you edit `sign-in.html` on any branch, the two standalone outputs for that branch (`sign-in-<branch>.html` and, on wave2, `sign-in-<branch>-review.html`) need to stay in sync. This happens **automatically on commit** via a local post-commit hook.
+
+**Workflow:**
+
+1. Edit `sign-in.html` on your branch.
+2. **(Optional)** Preview the standalone build against your uncommitted edit:
+   ```bash
+   npm run standalone
+   ```
+   The currently checked-out branch always reads from the working tree, so uncommitted edits show up in the rebuild. Other branches read from their tip commit.
+3. Commit. The post-commit hook detects that `sign-in.html` changed and re-runs `npm run standalone` — both the read-only and (on wave2) the `-review` copy are regenerated for you.
+4. Open `standalone/sign-in-<branch>.html` and (if applicable) `standalone/sign-in-<branch>-review.html` to verify.
+
+**One-time setup per clone:** `npm run install-hooks` (installs the post-commit hook).
+
+**Layered overlays (toasts, modals, OS sheets):** the canonical z-index scheme is documented as a block comment directly above `#flow-nav-bar` in `sign-in.html`. Any new modal, sheet, alert, or global overlay must sit at `≥ 500` so it renders above the flow-nav-bar pill (`z:400`) and its floating title. Product toasts stay at `1000`.
+
 ## Output
 
 Running `npm run standalone` produces the following files in `standalone/` (gitignored):
@@ -133,6 +152,24 @@ Optional: **Import** in the toolbar accepts a previously-exported JSON so a revi
 5. Every comment is upserted into the current branch’s KV bucket. Reviewer dots render in **purple** so they’re instantly distinguishable from your own amber dots.
 
 A completion toast summarises: `Imported N/M from Jane Doe.` If the reviewer’s `sourceHash` doesn’t match your current build, the toast appends `(source drift: reviewed a different build)` — the import still succeeds, but you’ll want to eyeball anything that moved since the snapshot was sent.
+
+### Review banner behavior
+
+Every `-review.html` variant surfaces a yellow **“Review copy”** banner at the top of the viewport. The banner is generated at runtime by the comments IIFE (not baked into the HTML source) and follows these rules:
+
+| Rule | Behavior |
+| --- | --- |
+| **Visibility gate** | Only mounts when `window.__COMMENTS_MODE__ === 'local'`. Owner-side (`api` mode) never renders the banner. |
+| **Placement** | `position: fixed; top: 0; z-index: 240` — sits above the flow-nav pill (400 pill z-index is higher, but the pill is bottom-anchored so they never overlap) and below all modals/toasts (≥ 500). |
+| **Content shift** | When mounted, JS adds `body.has-comments-review-banner` and sets a `--comments-review-banner-h` CSS var to the banner’s measured height. Body gets `box-sizing: border-box; padding-top: var(--comments-review-banner-h)` so the page header slides down beneath the banner — no more content hidden behind the yellow bar. |
+| **Responsive** | A `ResizeObserver` keeps `--comments-review-banner-h` in sync when the banner wraps at narrow widths (or if its text ever changes). Falls back to a `window resize` listener when `ResizeObserver` isn’t available. |
+| **Dismissable** | The banner includes an `×` dismiss button (right-aligned, 28×28 tap target, `pointer-events: auto` — the banner body itself stays `pointer-events: none` so it never intercepts prototype clicks). |
+| **Dismissal persistence** | Stored in `localStorage['comments.reviewBannerDismissed:<SOURCE_HASH>'] = '1'`. Keying by `SOURCE_HASH` means a **new review copy resurfaces the banner** (fresh reviewers still see the notice) while returning reviewers to the same file aren’t nagged on every reload. |
+| **On dismiss** | Banner is removed from the DOM, the body class is stripped, and the CSS var is cleared — content springs back to the top. The Export/Import toolbar buttons and the amber toggle are unaffected; they’re the durable path to save work. |
+| **Accessibility** | Banner is `role="status"`. Dismiss button carries `aria-label="Dismiss review banner"`. Focus ring uses the amber accent (`#F4C430`). |
+| **Reset for testing** | `localStorage.removeItem('comments.reviewBannerDismissed:' + window.__COMMENTS_SOURCE_HASH__)` and reload. |
+
+The banner **does not** replace the toolbar buttons. Export / Import remain the durable path to save reviewer work; the banner is only a persistent reminder that comments live on-device until exported. Dismissing the banner is a one-way action per review copy — reviewers who need the reminder back can clear the localStorage entry above.
 
 ### Sidecar JSON schema (v1)
 

@@ -1977,11 +1977,13 @@
     .device-signout-all-btn:hover { background: rgba(183,28,28,0.04); }
 
     /* ─── Remote Sign-Out Modal ──────────────────────────────────────── */
+    /* z-index 500/510 → above prototype chrome (#flow-nav-bar 400). See
+       the layering-scheme comment above #flow-nav-bar. */
     .signout-modal-backdrop {
       position: fixed;
       inset: 0;
       background: rgba(18,18,18,0.4);
-      z-index: 200;
+      z-index: 500;
     }
     .signout-modal {
       position: fixed;
@@ -1993,7 +1995,7 @@
       background: #fff;
       border-radius: 8px;
       padding: 24px 20px 20px;
-      z-index: 201;
+      z-index: 510;
       box-shadow: 0 8px 32px rgba(18,18,18,0.18);
     }
     .signout-modal-title {
@@ -2185,12 +2187,15 @@
     .enroll-skip-btn:hover { opacity: 0.7; }
 
     /* ── OS Biometric Modal ──────────────────────────────────── */
+    /* z-index 500 → above prototype chrome (#flow-nav-bar 400) so the
+       OS sheet reads as an OS-level overlay. See layering scheme above
+       #flow-nav-bar. */
     #os-biometric-backdrop {
       display: none;
       position: fixed;
       inset: 0;
       background: rgba(0, 0, 0, 0.45);
-      z-index: 200;
+      z-index: 500;
       align-items: flex-end;
       justify-content: center;
     }
@@ -2601,6 +2606,28 @@
     }
 
     /* ── Flow Nav Bar ─────────────────────────────────────────────── */
+    /* ═══════════════════════════════════════════════════════════════
+       Z-index layering scheme (top → bottom)
+       ────────────────────────────────────────
+       1000  #toast-host                    (product toasts — always topmost)
+        510  .signout-modal, .os-modal      (modal foreground cards)
+        500  .*-backdrop (signout, os-
+              biometric, comments-auth)     (modal / OS sheet backdrops)
+        400  #flow-nav-bar + #flow-nav-
+              title (child)                 (prototype control chrome)
+        320  #proto-nav-panel               (demo drawer)
+        300  #proto-nav-toggle, .comments-
+              toast                         (drawer trigger + review toast)
+        250  .comments-toggle-wrap          (review-tool toggle)
+        240  .comments-review-banner        (review-tool banner)
+         65  .comments-popover              (in-screen comment popover)
+         60  .comments-overlay-layer        (in-screen comment dots)
+           1  base positioning contexts
+
+       Rule: any modal, OS sheet, alert, or global overlay MUST sit at
+       ≥ 500 so it renders above the flow-nav-bar pill and its floating
+       title. Toasts stay at 1000 — the topmost feedback layer.
+    ═══════════════════════════════════════════════════════════════ */
     #flow-nav-bar {
       position: fixed;
       bottom: 24px;
@@ -3115,30 +3142,6 @@
       gap: 16px;
       width: 100%;
       text-align: center;
-    }
-
-    /* ─── Password strength bar ─────────────────────────────────── */
-    .pw-strength-bar-wrap { display: flex; flex-direction: column; gap: 4px; width: 100%; }
-    .pw-strength-bar {
-      width: 100%;
-      height: 4px;
-      background: rgba(18,18,18,0.1);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-    .pw-strength-fill {
-      height: 100%;
-      border-radius: 2px;
-      transition: width 0.25s ease, background 0.25s ease;
-      width: 0%;
-    }
-    .pw-strength-fill[data-strength="1"] { width: 33%;  background: #c62828; }
-    .pw-strength-fill[data-strength="2"] { width: 66%;  background: #e6930a; }
-    .pw-strength-fill[data-strength="3"] { width: 100%; background: #2e7d32; }
-    .pw-strength-label {
-      font-size: 12px;
-      letter-spacing: 0.4px;
-      color: rgba(18,18,18,0.5);
     }
 
     /* ─── Account Locked screen ──────────────────────────────────── */
@@ -3743,11 +3746,12 @@
     }
 
     /* Auth modal (replaces window.prompt for token entry) */
+    /* z-index 500 → modal backdrop tier (above #flow-nav-bar 400). */
     .comments-auth-modal {
       position: fixed;
       inset: 0;
       background: rgba(15, 23, 42, 0.55);
-      z-index: 200;
+      z-index: 500;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -3869,7 +3873,12 @@
       box-shadow: 0 0 0 2px #fff;
     }
 
-    /* Persistent "review copy" banner at the top of the viewport in local mode. */
+    /* Persistent "review copy" banner at the top of the viewport in local mode.
+       When mounted, JS also (a) adds `body.has-comments-review-banner` so page
+       content shifts down by --comments-review-banner-h, and (b) keeps that
+       CSS var synced via ResizeObserver so wrapping on narrow viewports doesn't
+       cause the header to disappear beneath the banner. See STANDALONE-BUILD.md
+       § "Review banner behavior" for the full contract. */
     .comments-review-banner {
       position: fixed;
       top: 0;
@@ -3880,14 +3889,21 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
-      padding: 6px 16px;
+      padding: 6px 44px 6px 16px; /* right padding leaves room for dismiss button */
       background: #FFF8E1;
       border-bottom: 1px solid #F4C430;
       color: #6B4E00;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       font-size: 12px;
       line-height: 1.4;
-      pointer-events: none; /* purely informational; buttons live in the toolbar */
+      pointer-events: none; /* text is informational; dismiss button re-enables its own */
+    }
+    /* Shift page content down while the banner is visible.
+       box-sizing: border-box keeps min-height: 100vh honoring the padding,
+       so the page doesn't gain phantom bottom scroll. */
+    body.has-comments-review-banner {
+      box-sizing: border-box;
+      padding-top: var(--comments-review-banner-h, 0px);
     }
     .comments-review-banner-badge {
       display: inline-flex;
@@ -3902,8 +3918,38 @@
       text-transform: uppercase;
     }
     .comments-review-banner-text strong { font-weight: 700; }
+    .comments-review-banner-dismiss {
+      position: absolute;
+      top: 50%;
+      right: 8px;
+      transform: translateY(-50%);
+      pointer-events: auto; /* opt back in from the banner's global pointer-events:none */
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      color: #6B4E00;
+      cursor: pointer;
+      transition: background 0.12s ease;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .comments-review-banner-dismiss:hover,
+    .comments-review-banner-dismiss:focus-visible {
+      background: rgba(107, 78, 0, 0.10);
+    }
+    .comments-review-banner-dismiss:focus-visible {
+      box-shadow: 0 0 0 2px #F4C430;
+    }
+    .comments-review-banner-dismiss svg { display: block; }
     @media (max-width: 480px) {
-      .comments-review-banner { font-size: 11px; padding: 5px 10px; gap: 6px; }
+      .comments-review-banner { font-size: 11px; padding: 5px 40px 5px 10px; gap: 6px; }
+      .comments-review-banner-dismiss { width: 26px; height: 26px; right: 6px; }
       .comments-toolbar-btn { height: 36px; padding: 0 10px; font-size: 12px; margin-left: 6px; }
     }
     /* Distinct badge for imported reviewer comments (Phase 5 uses this on the
@@ -3914,6 +3960,9 @@
     }
 
     /* Toast (action confirmation w/ Undo) */
+    /* z-index 950 → just under #toast-host (1000). Sits above the
+       flow-nav-bar (400) and modal cards (510) so reviewer feedback
+       is never occluded. */
     .comments-toast {
       position: fixed;
       bottom: 24px;
@@ -3929,7 +3978,7 @@
       display: inline-flex;
       align-items: center;
       gap: 12px;
-      z-index: 300;
+      z-index: 950;
       opacity: 0;
       pointer-events: none;
       transition: opacity 160ms ease, transform 160ms ease;
@@ -5134,21 +5183,13 @@
 
           <div class="form-group">
             <div class="fields">
-              <div style="display:flex;flex-direction:column;gap:8px;width:100%;">
-                <div class="text-field">
-                  <input type="password" id="new-pw-1" name="new-pw-1" placeholder=" "
-                    autocomplete="new-password" aria-label="New password" />
-                  <label class="text-field-label" for="new-pw-1">New password</label>
-                  <button class="text-field-clear" type="button" aria-label="Clear password" tabindex="-1">
-                    <svg width="18" height="18" viewBox="0 -960 960 960" fill="#1f1f1f" aria-hidden="true"><path d="m249-207-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z"/></svg>
-                  </button>
-                </div>
-                <div class="pw-strength-bar-wrap">
-                  <div class="pw-strength-bar" role="progressbar" aria-label="Password strength" aria-valuenow="0" aria-valuemin="0" aria-valuemax="3">
-                    <div class="pw-strength-fill" id="pw-strength-fill" data-strength="0"></div>
-                  </div>
-                  <span class="pw-strength-label" id="pw-strength-label"></span>
-                </div>
+              <div class="text-field">
+                <input type="password" id="new-pw-1" name="new-pw-1" placeholder=" "
+                  autocomplete="new-password" aria-label="New password" />
+                <label class="text-field-label" for="new-pw-1">New password</label>
+                <button class="text-field-clear" type="button" aria-label="Clear password" tabindex="-1">
+                  <svg width="18" height="18" viewBox="0 -960 960 960" fill="#1f1f1f" aria-hidden="true"><path d="m249-207-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z"/></svg>
+                </button>
               </div>
               <div class="text-field">
                 <input type="password" id="new-pw-2" name="new-pw-2" placeholder=" "
@@ -6770,6 +6811,10 @@
     // the happy path. Three sentinel attempts in a row escalate to the
     // account-locked screen (LOCKOUT_MS countdown), mirroring the OTP
     // 3-strike pattern from Batch C.
+    //
+    // Happy path routes directly to the post-sign-in passkey enrollment
+    // offer — no OTP/MFA step is chained after password. MFA is only
+    // surfaced when the user picks the OTP tile on the chooser.
     let pwAttempts = 0;
     const PW_WRONG_SENTINEL = 'wrongpw';
     let enrollOrigin = 'settings'; // 'settings' or 'post-login'
@@ -6805,12 +6850,14 @@
         return;
       }
 
-      // Happy path → reset counter and proceed to MFA step
+      // Happy path → reset counter and proceed to the passkey
+      // enrollment offer (terminal step for this flow — no OTP/MFA).
       pwAttempts = 0;
       screenPassword.removeAttribute('data-pw-state');
-      setVerifyState('default');
-      switchScreen(screenPassword, screenOtp, 'forward');
-      currentScreen = screenOtp;
+      enrollOrigin = 'post-login';
+      setEnrollState('prompt');
+      switchScreen(screenPassword, screenEnroll, 'forward');
+      currentScreen = screenEnroll;
     });
 
     // ── Chooser → OTP (legacy tab screen, OTP tab) ────────────
@@ -7574,10 +7621,11 @@
           figmaUrl: FIGMA + '660-380',
           // Terminal step is the post-sign-in enrollment offer — by design
           // there is no separate signed-in / home destination in this prototype.
+          // Password sign-in does NOT chain an OTP/MFA step; MFA is only
+          // used when the user picks the OTP tile on the chooser.
           steps: [
             { screen: 'screen-chooser',        state: 'default', label: 'Chooser — no passkey' },
             { screen: 'screen-password',       state: null,      label: 'Password — entry' },
-            { screen: 'screen-otp',         state: 'default', label: 'MFA — verify code' },
             { screen: 'screen-passkey-enroll', state: 'prompt',  label: 'Signed in — passkey enrollment offer (terminal step)' },
           ],
         },
@@ -7609,7 +7657,6 @@
           steps: [
             { screen: 'screen-chooser',  state: 'default', identifier: 'shopper@example.com', label: 'Chooser — email entered' },
             { screen: 'screen-password', state: null,      label: 'Password — prefilled identifier context' },
-            { screen: 'screen-otp',      state: 'default', label: 'MFA — verify code' },
             { screen: 'screen-passkey-enroll', state: 'prompt', label: 'Signed in — passkey enrollment offer (terminal step)' },
           ],
         },
@@ -8559,20 +8606,7 @@
       currentScreen = screenChooser;
     });
 
-    // ── New Password: strength bar + save ───────────────────────
-    document.getElementById('new-pw-1').addEventListener('input', function () {
-      const pw = this.value;
-      const fill = document.getElementById('pw-strength-fill');
-      const label = document.getElementById('pw-strength-label');
-      let strength = 0;
-      if (pw.length >= 8) strength++;
-      if (/[A-Z]/.test(pw) && /[0-9]/.test(pw)) strength++;
-      if (/[^A-Za-z0-9]/.test(pw)) strength++;
-      fill.setAttribute('data-strength', String(strength));
-      fill.closest('.pw-strength-bar').setAttribute('aria-valuenow', String(strength));
-      const strengthLabels = ['', 'Weak', 'Fair', 'Strong'];
-      label.textContent = pw.length ? strengthLabels[strength] : '';
-    });
+    // ── New Password: save ───────────────────────────────────
     document.getElementById('save-pw-btn').addEventListener('click', () => {
       switchScreen(screenNewPw, screenResetSuccess, 'forward');
       currentScreen = screenResetSuccess;
@@ -9202,13 +9236,52 @@
         const wrap = document.getElementById('comments-toggle-wrap');
         if (!wrap) return;
 
-        const banner = document.createElement('div');
-        banner.className = 'comments-review-banner';
-        banner.setAttribute('role', 'status');
-        banner.innerHTML = ''
-          + '<span class="comments-review-banner-badge">Review copy</span>'
-          + '<span class="comments-review-banner-text">Comments live on your device only. Use <strong>Export</strong> when you\u2019re done to send them back.</span>';
-        document.body.appendChild(banner);
+        // Banner is dismissable and its dismissal persists per SOURCE_HASH,
+        // so a new review copy (different hash) resurfaces it, but reviewers
+        // aren't nagged on every reload of the same file.
+        const dismissKey = 'comments.reviewBannerDismissed:' + SOURCE_HASH;
+        let bannerDismissed = false;
+        try { bannerDismissed = localStorage.getItem(dismissKey) === '1'; } catch (_e) {}
+
+        if (!bannerDismissed) {
+          const banner = document.createElement('div');
+          banner.className = 'comments-review-banner';
+          banner.setAttribute('role', 'status');
+          banner.innerHTML = ''
+            + '<span class="comments-review-banner-badge">Review copy</span>'
+            + '<span class="comments-review-banner-text">Comments live on your device only. Use <strong>Export</strong> when you\u2019re done to send them back.</span>'
+            + '<button type="button" class="comments-review-banner-dismiss" aria-label="Dismiss review banner" title="Dismiss">'
+            +   '<svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true" width="16" height="16">'
+            +     '<path d="M256-200l-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>'
+            +   '</svg>'
+            + '</button>';
+          document.body.appendChild(banner);
+          document.body.classList.add('has-comments-review-banner');
+
+          // Keep --comments-review-banner-h synced with the banner's rendered
+          // height so wrapping on narrow viewports (or later text changes)
+          // never leaves the header hidden underneath the banner.
+          const syncBannerHeight = () => {
+            const h = Math.ceil(banner.getBoundingClientRect().height);
+            document.documentElement.style.setProperty('--comments-review-banner-h', h + 'px');
+          };
+          syncBannerHeight();
+          if (typeof ResizeObserver !== 'undefined') {
+            const ro = new ResizeObserver(syncBannerHeight);
+            ro.observe(banner);
+          } else {
+            window.addEventListener('resize', syncBannerHeight);
+          }
+
+          banner.querySelector('.comments-review-banner-dismiss')
+            .addEventListener('click', (e) => {
+              e.preventDefault(); e.stopPropagation();
+              banner.remove();
+              document.body.classList.remove('has-comments-review-banner');
+              document.documentElement.style.removeProperty('--comments-review-banner-h');
+              try { localStorage.setItem(dismissKey, '1'); } catch (_e) {}
+            });
+        }
 
         const exportBtn = document.createElement('button');
         exportBtn.type = 'button';
