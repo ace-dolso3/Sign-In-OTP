@@ -25,7 +25,7 @@ All screens currently in `sign-in.html`, including their `data-state` values:
 | Screen ID | States | Notes |
 |-----------|--------|-------|
 | `screen-chooser` | `default`, `passkey-first` | Entry point; state driven by passkey detection on device. Both variants present four sign-in methods (Face ID/Passkey, Password, One-Time Code, Scan with Phone). |
-| `screen-passkey` | `idle`, `failed`, `success`, `cross-device`, `cross-device-failed`, `cross-device-no-credential`, `cross-device-transport-error` | Passkey sign-in; multiple error/fallback states plus a `success` terminal state ("You're signed in / Welcome back to Ace Hardware") used by the passkey happy path. The legacy `notfound` state has been removed — no-passkey is now handled by returning the user to the chooser with an inline banner. |
+| `screen-passkey` | `idle`, `failed`, `success`, `cross-device`, `cross-device-failed`, `cross-device-no-credential`, `cross-device-transport-error` | Passkey sign-in; multiple error/fallback states plus a `success` terminal state ("You're signed in / Welcome back to Ace Hardware") used by the passkey happy path. The legacy `notfound` state has been removed — no-passkey is now handled by returning the user to the chooser with an inline banner. **W3.7 note:** the four `cross-device-*` states remain in the code but are currently unreachable — the chooser tile (`#tile-cd-chooser`), the passkey-screen cross-device button (`#passkey-cd-btn`), the Screens-panel Cross-Device group, and the Flows-panel Cross-Device group are all temporarily hidden. Removing the `CROSS-DEVICE TEMPORARILY HIDDEN` CSS block and the `hidden: true` fields on the `cross-device-*` FLOWS entries restores the feature. |
 | `screen-passkey-enroll` | `prompt`, `success`, `error`, `declined`, `already-enrolled` | Post-login enrollment upsell |
 | `screen-verify` | `default`, `cooldown`, `expired`, `locked`, `wrong`, `resent` | OTP / MFA code entry |
 | `screen-password` | `default`, `error` | Password sign-in |
@@ -79,13 +79,14 @@ Left of the card, a **state pill rail** hosts scenario pills scoped per device t
 | **Default** | Current mock — email empty, all 4 method tiles offered. |
 | **Returning identity** | Email pre-filled from cookie. `Not you?` link to reset. All tiles remain visible. |
 
-### Mobile Web tab (3 states)
+### Mobile Web tab (2 states)
 
 | Pill | Chooser behavior |
 |------|------------------|
 | **Default** | Current mock in mobile browser frame. |
 | **Returning identity** | Email pre-filled from prior session. `Not you?` link. All tiles remain visible. |
-| **Cross-device emphasis** | Email pre-filled. `Not you?` link. `Use another device` tile promoted to position 1 with a subtle emphasis ring — for a user who enrolled a passkey on their phone but is signing in on their desktop browser. Face ID tile stays visible (browser can't confirm platform-passkey absence). |
+
+> The former **Cross-device emphasis** Mobile Web pill was removed alongside the cross-device sign-in hide (W3.7). Its rationale was to promote the `Use another device` (QR) tile for users with a passkey on a different device; with the cross-device tile hidden, the pill had no purpose.
 
 ### App tab (5 states)
 
@@ -94,7 +95,7 @@ Left of the card, a **state pill rail** hosts scenario pills scoped per device t
 | **Fresh install** | Email + Continue only. No `OR SIGN IN ANOTHER WAY` divider, no method tiles — nothing else can complete for a first-time user. `Create Account` footer preserved. |
 | **Returning · passkey** | Layers on `passkey-first` base. Identity chip (`shopper@ace.com`) above the CTA. CTA copy swaps to `Sign in as shopper@ace.com`. Divider + tiles hidden — this variant is the "one clear path" case. **App default state.** |
 | **Returning · saved password** | Email pre-filled with `shopper@example.com`. `Not you?` link. All tiles remain as fallback if autofill fails. |
-| **Returning · no credentials** | Email pre-filled. `Not you?` link. Face ID tile **hidden** (no passkey on this device — showing it would be a dead-end). Cross-device promoted to position 1. |
+| **Returning · no credentials** | Email pre-filled. `Not you?` link. Face ID tile **hidden** (no passkey on this device — showing it would be a dead-end). **Password tile promoted to position 1** with an emphasis ring — fastest remaining path for a returning user with no local credentials. (Pre-W3.7 this state promoted the cross-device tile; when cross-device was temporarily hidden, password took over.) |
 | **Multi-identity** | Replaces form + tiles with 2 identity chips (`shopper@ace.com` w/ Face ID glyph, `d.olson@example.com` w/ lock glyph) + `Use a different account` link. Simulates a family/shared device. |
 
 ### Panel context indicator

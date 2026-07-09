@@ -1595,53 +1595,68 @@
        shown. Tiles remain visible so the user can escape to another
        method if autofill fails.
        W3.6 · Slice C · 'returning-identity' (Mobile Web / Desktop)
-       and 'cross-device-emphasis' (Mobile Web) piggyback on the same
-       visual — a pre-filled email with a Not you? escape is state-
-       agnostic. Semantics differ (App promises autofill; Mobile Web
-       only hints identity — the browser can't guarantee autofill will
-       fire) but the chooser layout is identical, so we share the
-       selector rather than duplicating. */
+       piggybacks on the same visual — a pre-filled email with a
+       Not you? escape is state-agnostic. Semantics differ (App
+       promises autofill; Mobile Web only hints identity — the browser
+       can't guarantee autofill will fire) but the chooser layout is
+       identical, so we share the selector rather than duplicating.
+       W3.7 · The former 'cross-device-emphasis' variant was removed
+       when cross-device sign-in was temporarily hidden — see the
+       CROSS-DEVICE TEMPORARILY HIDDEN block below. */
     #screen-chooser[data-chooser-variant="returning-password-saved"] .chooser-not-you-link,
-    #screen-chooser[data-chooser-variant="returning-identity"]       .chooser-not-you-link,
-    #screen-chooser[data-chooser-variant="cross-device-emphasis"]    .chooser-not-you-link {
+    #screen-chooser[data-chooser-variant="returning-identity"]       .chooser-not-you-link {
       display: inline-block;
     }
 
     /* Returning · no credentials: email pre-filled, "Not you?" link
-       shown, Face ID tile hidden (nothing to unlock), cross-device
-       tile promoted to position 1 via flex order. Requires the
-       tiles parent to be flex — .method-tiles already renders as
-       a flex column via existing tile styling; ordering just re-
-       arranges children. */
+       shown, Face ID tile hidden (nothing to unlock), password tile
+       promoted to position 1 via flex order. Requires the tiles
+       parent to be flex — .method-tiles already renders as a flex
+       column via existing tile styling; ordering just re-arranges
+       children.
+       W3.7 · Cross-device was previously the promoted fallback here.
+       When cross-device was temporarily hidden (see CROSS-DEVICE
+       TEMPORARILY HIDDEN block below), password took over as the
+       fastest remaining path for a returning user with no local
+       credentials. */
     #screen-chooser[data-chooser-variant="returning-no-credentials"] .chooser-not-you-link {
       display: inline-block;
     }
     #screen-chooser[data-chooser-variant="returning-no-credentials"] #tile-passkey {
       display: none;
     }
-    #screen-chooser[data-chooser-variant="returning-no-credentials"] #tile-cd-chooser        { order: 1; }
-    #screen-chooser[data-chooser-variant="returning-no-credentials"] #tile-password-chooser  { order: 2; }
+    #screen-chooser[data-chooser-variant="returning-no-credentials"] #tile-password-chooser  { order: 1; }
+    #screen-chooser[data-chooser-variant="returning-no-credentials"] #tile-cd-chooser        { order: 2; }
     #screen-chooser[data-chooser-variant="returning-no-credentials"] #tile-otp-chooser       { order: 3; }
-
-    /* Cross-device emphasis (Mobile Web · Slice C): user has enrolled
-       a passkey on another device (typically their phone) and is now
-       signing in on a browser. Face ID/passkey on THIS browser is
-       unlikely to work, but the cross-device (QR) ceremony brings
-       the phone's passkey to the desktop session — so promote that
-       tile to position 1. Everything else stays in place; we don't
-       hide any method because the browser can't be sure what's
-       available. */
-    #screen-chooser[data-chooser-variant="cross-device-emphasis"] #tile-cd-chooser        { order: 1; }
-    #screen-chooser[data-chooser-variant="cross-device-emphasis"] #tile-passkey            { order: 2; }
-    #screen-chooser[data-chooser-variant="cross-device-emphasis"] #tile-password-chooser   { order: 3; }
-    #screen-chooser[data-chooser-variant="cross-device-emphasis"] #tile-otp-chooser        { order: 4; }
-    /* Give the promoted tile a subtle emphasis ring so it reads as
-       the recommended path without needing a copy change inside
-       the tile itself. */
-    #screen-chooser[data-chooser-variant="cross-device-emphasis"] #tile-cd-chooser {
+    /* Emphasis ring on the promoted tile signals it as the recommended
+       path without needing a copy change inside the tile itself. */
+    #screen-chooser[data-chooser-variant="returning-no-credentials"] #tile-password-chooser {
       border-color: #121212;
       border-width: 2px;
       box-shadow: 0 0 0 3px rgba(18, 18, 18, 0.06);
+    }
+
+    /* ═════════════════════════════════════════════════════════════
+       CROSS-DEVICE TEMPORARILY HIDDEN (W3.7)
+       ──────────────────────────────────────────────────────────
+       The 'Use another device' cross-device passkey experience is
+       feature-flagged OFF via display:none rather than deleted, so
+       it can be revived with one block removal. Hides:
+         • #tile-cd-chooser              chooser method tile
+         • #passkey-cd-btn               passkey-idle screen action
+         • Screens panel Cross-Device section (header + 4 states)
+       Flows panel entries are filtered separately in JS via a
+       hidden:true field on each FLOWS[] item — see the flows
+       list renderer near the bottom of the file.
+
+       The underlying #screen-passkey cross-device states + CSS +
+       downstream flows in FLOWS remain intact and unreachable.
+       Removing this block restores the feature.
+       ═════════════════════════════════════════════════════════════ */
+    #tile-cd-chooser,
+    #passkey-cd-btn,
+    .proto-nav-group-cross-device {
+      display: none !important;
     }
 
     /* Multi-identity: replace form, divider, and tiles with the
@@ -4835,7 +4850,7 @@
       </button>
       <button type="button" class="state-pill" data-tab-scope="app" data-state-value="returning-no-credentials" aria-pressed="false">
         <span class="pill-title">Returning · no credentials</span>
-        <span class="pill-sub">Signed out — cross-device promoted</span>
+        <span class="pill-sub">Signed out — password fallback</span>
       </button>
       <button type="button" class="state-pill" data-tab-scope="app" data-state-value="multi-identity" aria-pressed="false">
         <span class="pill-title">Multi-identity</span>
@@ -4854,10 +4869,11 @@
         <span class="pill-title">Returning identity</span>
         <span class="pill-sub">Email pre-filled from prior session</span>
       </button>
-      <button type="button" class="state-pill" data-tab-scope="mobile-web" data-state-value="cross-device-emphasis" aria-pressed="false">
-        <span class="pill-title">Cross-device emphasis</span>
-        <span class="pill-sub">Passkey enrolled on another device</span>
-      </button>
+      <!-- W3.7 · The 'cross-device-emphasis' Mobile Web pill was
+           removed alongside the cross-device sign-in hide (see CSS
+           block CROSS-DEVICE TEMPORARILY HIDDEN). Reviving it
+           requires restoring both the pill markup here AND the
+           variant CSS rules that promoted #tile-cd-chooser. -->
 
       <!-- Desktop-tab pills (Slice D). Browser credential detection is
            the weakest here — no reliable way to know whether a passkey
@@ -6570,27 +6586,32 @@
         "No Passkey Found" entry in the Flows panel.
       -->
 
-      <!-- ─ Cross-Device Passkey Sign-In ───────────────────── -->
-      <li><p class="proto-nav-section">Cross-Device Passkey Sign-In</p></li>
-      <li>
+      <!-- ─ Cross-Device Passkey Sign-In ─────────────────────
+           W3.7 · Class .proto-nav-group-cross-device tags this
+           whole group (section header + 4 state entries) so the
+           CROSS-DEVICE TEMPORARILY HIDDEN CSS block can toggle it
+           off with a single selector. Remove the display:none rule
+           to bring the group back. -->
+      <li class="proto-nav-group-cross-device"><p class="proto-nav-section">Cross-Device Passkey Sign-In</p></li>
+      <li class="proto-nav-group-cross-device">
         <button class="proto-nav-item" data-nav-target="screen-passkey" data-nav-state="cross-device">
           <span class="proto-nav-dot" aria-hidden="true"></span>
           Cross-device — QR shown
         </button>
       </li>
-      <li>
+      <li class="proto-nav-group-cross-device">
         <button class="proto-nav-item" data-nav-target="screen-passkey" data-nav-state="cross-device-failed">
           <span class="proto-nav-dot" aria-hidden="true"></span>
           Cross-device — QR expired
         </button>
       </li>
-      <li>
+      <li class="proto-nav-group-cross-device">
         <button class="proto-nav-item" data-nav-target="screen-passkey" data-nav-state="cross-device-no-credential">
           <span class="proto-nav-dot" aria-hidden="true"></span>
           Cross-device — no passkey on phone
         </button>
       </li>
-      <li>
+      <li class="proto-nav-group-cross-device">
         <button class="proto-nav-item" data-nav-target="screen-passkey" data-nav-state="cross-device-transport-error">
           <span class="proto-nav-dot" aria-hidden="true"></span>
           Cross-device — Bluetooth error
@@ -7150,7 +7171,7 @@
       'screen-chooser:default':               'Identifier-first sign-in entry. Users enter their email up top; downstream screens reuse it. Method tiles below offer Face ID / passkey, cross-device passkey, password, or one-time code.',
       'screen-chooser:passkey-first':         'Identifier-first sign-in entry when we recognize a passkey on this device. The email field and Continue button are replaced by a single primary “Sign in with Face ID” CTA so the fastest path is unmistakable. Fallback tiles below the divider stay available: cross-device passkey, password, or one-time code.',
       'screen-chooser:default+unknown-email':  'Chooser default state with a banner indicating the submitted email has no account on file. Points at two remediations: try a different email, or use the Create an Account link at the bottom of the chooser. Triggered by submitting the demo sentinel "unknown@example.com".',
-      'screen-passkey:idle':                  'Shown when the passkey ceremony begins. The user can tap “Use Face ID” to authenticate with a saved local passkey, or tap “Use a passkey from another device” to scan a QR code and authenticate via a nearby phone.',
+      'screen-passkey:idle':                  'Shown when the passkey ceremony begins. The user taps “Use Face ID” to authenticate with a saved local passkey. (W3.7 — the “Use a passkey from another device” cross-device option is temporarily hidden; see CROSS-DEVICE TEMPORARILY HIDDEN in the stylesheet.)',
       'screen-passkey:idle-cross-device':       'The same passkey idle screen, shown as the second step of the cross-device happy path. The \u201cUse a passkey from another device\u201d button is the interactive trigger that advances to the QR screen.',
       'screen-passkey:failed':                'Shown when Face ID fails or is canceled by the OS. Offers a retry or a fallback to another sign-in method.',
       // 'screen-passkey:notfound' has been removed. When no credential is
@@ -7717,14 +7738,15 @@
       // add themselves.
       const PASSKEY_FIRST_VARIANTS = new Set(['returning-passkey']);
       // Variants that pre-fill the identifier field with a demo email.
-      // W3.6 · Slice C · adds Mobile Web's 'returning-identity' and
-      // 'cross-device-emphasis' — both simulate a returning user
-      // whose email is already known to the site (via cookie/session).
+      // W3.6 · Slice C · Mobile Web's 'returning-identity' simulates
+      // a returning user whose email is already known to the site
+      // (via cookie/session).
+      // W3.7 · 'cross-device-emphasis' removed when cross-device
+      // sign-in was temporarily hidden.
       const PREFILL_VARIANTS = new Set([
         'returning-password-saved',
         'returning-no-credentials',
         'returning-identity',
-        'cross-device-emphasis',
       ]);
       const PREFILL_EMAIL = 'shopper@example.com';
 
@@ -9132,10 +9154,15 @@
         },
 
         // ── Cross-Device Passkey Sign-In ────────────────────────────────
+        // W3.7 · hidden:true on every entry in this group filters them
+        // out of the Flows list (renderer skips hidden flows AND their
+        // group header when all flows in the group are hidden). Steps
+        // remain intact — removing hidden:true restores each flow.
         {
           id: 'cross-device-happy', group: 'Cross-Device Passkey Sign-In',
           label: 'Happy Path — Cross-Device via QR',
           figmaUrl: FIGMA + '660-292',
+          hidden: true,
           // Terminal step is the post-sign-in enrollment offer — by design
           // there is no separate signed-in / home destination in this prototype.
           // The enrollment screen IS the post-auth surface.
@@ -9150,6 +9177,7 @@
           id: 'cross-device-direct', group: 'Cross-Device Passkey Sign-In',
           label: 'Direct Entry — “Use Another Device” Tile',
           figmaUrl: FIGMA + '677-248',
+          hidden: true,
           steps: [
             { screen: 'screen-chooser', state: 'default',      label: 'Chooser — user taps “Use another device” tile' },
             { screen: 'screen-passkey', state: 'cross-device', label: 'Cross-device — QR shown (skips passkey idle)' },
@@ -9159,6 +9187,7 @@
           id: 'cross-device-qr-expired', group: 'Cross-Device Passkey Sign-In',
           label: 'QR Code Expired',
           figmaUrl: FIGMA + '660-325',
+          hidden: true,
           steps: [
             { screen: 'screen-passkey', state: 'cross-device',        label: 'Cross-device — QR shown' },
             { screen: 'screen-passkey', state: 'cross-device-failed', label: 'Cross-device — QR expired' },
@@ -9168,6 +9197,7 @@
           id: 'cross-device-no-passkey', group: 'Cross-Device Passkey Sign-In',
           label: 'No Passkey on Phone',
           figmaUrl: FIGMA + '660-342',
+          hidden: true,
           steps: [
             { screen: 'screen-passkey', state: 'cross-device',               label: 'Cross-device — QR shown' },
             { screen: 'screen-passkey', state: 'cross-device-no-credential', label: 'Cross-device — no passkey on phone' },
@@ -9177,6 +9207,7 @@
           id: 'cross-device-bluetooth-error', group: 'Cross-Device Passkey Sign-In',
           label: 'Bluetooth / Proximity Error',
           figmaUrl: FIGMA + '660-359',
+          hidden: true,
           steps: [
             { screen: 'screen-passkey', state: 'cross-device',                label: 'Cross-device — QR shown' },
             { screen: 'screen-passkey', state: 'cross-device-transport-error', label: 'Cross-device — Bluetooth error' },
@@ -9186,6 +9217,7 @@
           id: 'cross-device-transport-fork', group: 'Cross-Device Passkey Sign-In',
           label: 'Transport Error Fork',
           figmaUrl: FIGMA + '670-181',
+          hidden: true,
           steps: [
             { screen: 'screen-passkey', state: 'cross-device-transport-error', label: 'Cross-device — Bluetooth error' },
             { screen: 'screen-passkey', state: 'cross-device',                 label: 'Retry — QR shown again' },
@@ -9893,8 +9925,13 @@
       tabFlows.addEventListener('click',   () => activateTab(tabFlows));
 
       // ── Build Flows list ───────────────────────────────────────────
+      // W3.7 · Flows marked hidden:true (currently the Cross-Device
+      // group) are filtered out entirely. Group headers only emit when
+      // the group has at least one non-hidden flow, so a fully-hidden
+      // group leaves no residue in the panel.
+      const visibleFlows = FLOWS.filter(f => !f.hidden);
       let lastGroup = null;
-      FLOWS.forEach(flow => {
+      visibleFlows.forEach(flow => {
         if (flow.group !== lastGroup) {
           lastGroup = flow.group;
           const li = document.createElement('li');
