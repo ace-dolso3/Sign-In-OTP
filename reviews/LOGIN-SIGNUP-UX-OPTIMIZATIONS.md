@@ -157,7 +157,7 @@ Not applicable in wave 2 — `Create an Account` link is `href="#"` ([sign-in.ht
 
 Ordered by impact / cost. Distinct from the biometric backlog — no overlap.
 
-### 3.1 · Add Show/Hide password toggle **[HIGH · SMALL]**
+### 3.1 · Add Show/Hide password toggle **[HIGH · SMALL]** ✅ SHIPPED (`667cb2e`)
 
 - **Article rule:** Authgear §"Signup Flow Details" — *"Provide a Show Password toggle so users can verify their input."* Also cited under accessibility (helps users with motor / cognitive challenges verify what they typed).
 - **Current state:** Password fields (`#pw-password`, `#new-pw-1`, `#new-pw-2`) have only an X clear button. No reveal.
@@ -166,7 +166,7 @@ Ordered by impact / cost. Distinct from the biometric backlog — no overlap.
 - **Cost:** ~20 LOC CSS + ~10 LOC JS.
 - **Secondary win:** Article also says Show-Password lets us drop the Confirm-Password field on reset (§3.4).
 
-### 3.2 · Add lockout duration to password locked screen **[HIGH · TRIVIAL]**
+### 3.2 · Add lockout duration to password locked screen **[HIGH · TRIVIAL]** ✅ SHIPPED (`3473931`)
 
 - **Article rule:** Authgear error→recovery table — *"State duration ('Locked for 5 minutes')."*
 - **Current state:** `screen-account-locked` copy is *"Too many failed sign-in attempts. Please wait before trying again."* — vague. OTP lockout correctly reads *"Try again in 15 minutes."*
@@ -184,7 +184,7 @@ Ordered by impact / cost. Distinct from the biometric backlog — no overlap.
 - **Files:** Chooser markup around [sign-in.html:4039](sign-in.html#L4039), Continue handler.
 - **Cost:** ~40 LOC for the demo state + banner + a new `FLOWS[]` entry (`chooser-unknown-email`).
 
-### 3.4 · Remove Confirm Password field on reset (or gate behind toggle-not-tapped) **[MEDIUM · SMALL]**
+### 3.4 · Remove Confirm Password field on reset (or gate behind toggle-not-tapped) **[MEDIUM · SMALL]** ✅ SHIPPED (`89fc3c5`)
 
 - **Article rule:** Authgear §"Keep It Simple & Essential" — *"Don't make users type information twice. Common offender: Confirm Password field."*
 - **Current state:** `screen-new-password` has both `#new-pw-1` and `#new-pw-2` (Confirm new password).
@@ -192,7 +192,7 @@ Ordered by impact / cost. Distinct from the biometric backlog — no overlap.
 - **Files:** [sign-in.html:5195](sign-in.html#L5195) + reset flow handlers around `save-pw-btn`.
 - **Cost:** ~15 LOC net removal.
 
-### 3.5 · Restore visible focus outlines **[HIGH · SMALL]** *(Critical A11y)*
+### 3.5 · Restore visible focus outlines **[HIGH · SMALL]** *(Critical A11y)* ✅ SHIPPED (`bfa22b8`)
 
 - **Article rule:** Authgear §"Ensuring Accessibility" — *"Implement visible focus states … so users who navigate by keyboard know where they are."* Also WCAG 2.4.7 (Focus Visible), Level AA.
 - **Current state:** [sign-in.html:117-118](sign-in.html#L117):
@@ -216,7 +216,7 @@ Ordered by impact / cost. Distinct from the biometric backlog — no overlap.
 - **Cost:** ~10 LOC change + ~30 min visual QA pass to confirm no ring collisions on the biometric ring / OTP digits / comments popover.
 - **Priority note:** This is the single highest-impact accessibility fix in the file. Everything else on this backlog is layered on top of it.
 
-### 3.6 · Wire `aria-describedby` for field-level errors **[MEDIUM · SMALL]**
+### 3.6 · Wire `aria-describedby` for field-level errors **[MEDIUM · SMALL]** ✅ SHIPPED (`b3dc8ba`)
 
 - **Article rule:** Authgear §"Accessible Error Indicators" — *"Link the error message to the field via `aria-describedby`."*
 - **Current state:** Password wrong-attempt copy (`#pw-error-text`) and OTP wrong-attempt copy (`#wrong-attempt-text`) update dynamically but no `aria-describedby` on `#pw-password` / OTP inputs points at them. Screen readers may not associate the error with the input on refocus.
@@ -314,3 +314,4 @@ If you want to knock these out in batches:
 | Date | Note |
 |---|---|
 | 2026-07-09 | Doc created after reading Authgear (login/signup) + LogRocket (2FA) guides. 11 backlog items graded; sprint plan proposed. No code changes yet — this is a proposal doc, companion to `BIOMETRIC-UX-OPTIMIZATIONS.md`. |
+| 2026-07-09 | Sprint A + B shipped on branch `sign-in-ux-best-practices`: §3.5 focus outlines (`bfa22b8`), §3.6 aria-describedby (`b3dc8ba`), §3.2 lockout duration (`3473931`), §3.1 show/hide password toggle (`667cb2e`), §3.4 drop confirm-password (`89fc3c5`). Remaining backlog: §3.3, §3.7–3.11 plus the settings/security/activity/devices audit gap. |

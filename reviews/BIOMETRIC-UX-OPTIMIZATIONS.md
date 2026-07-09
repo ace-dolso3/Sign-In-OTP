@@ -85,7 +85,7 @@ Ordered by expected impact / cost. Each item lists the article citation, current
 - **Proposal:** After N (2? 3?) "Maybe Later" declines, auto-treat as "Don't ask again" — with a one-time toast: *"We'll stop asking. Enable Face ID from Settings if you change your mind."* Requires a localStorage counter (`enrollDeclineCount`) and a decision threshold.
 - **Cost:** ~20 LOC in the enrollment handlers.
 
-### 3.4 · Add `aria-live` to the biometric status labels **[MEDIUM · TRIVIAL]**
+### 3.4 · Add `aria-live` to the biometric status labels **[MEDIUM · TRIVIAL]** ✅ SHIPPED (`05fee87`)
 
 - **Article rule:** J — "People using screen readers still need to understand what's happening and how to continue."
 - **Current state:** `#biometric-status-label` and `#biometric-status-sub` update on `setBiometricState()` calls but have no `aria-live`, so state transitions (idle → prompting → success/failed) are silent for AT users.
@@ -162,3 +162,4 @@ Documenting things the article prescribes that we already do well, so future rev
 | Date | Note |
 |---|---|
 | 2026-07-09 | Doc created after read of Orbix guide. Ten scoreboard rules, copy audit, 10 backlog items graded. No code changes yet — this is a proposal doc. |
+| 2026-07-09 | §3.4 (`aria-live` on biometric status region) shipped in `05fee87` on branch `sign-in-ux-best-practices`. |
