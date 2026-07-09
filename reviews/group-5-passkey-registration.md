@@ -302,3 +302,22 @@ The URL param triggers the same `error` state regardless of whether the underlyi
 - Figma 5b annotation strip vocabulary drift ("Skip for Now" vs. "Do this later"; terminal "Skipped" state vs. exit-to-chooser)
 - Figma 5d annotation drift (3-CTA prompt described, 2-CTA implemented) — depends on Issue 1 resolution
 - Figma 5a annotation extension to mention OTP origin (currently only references Password)
+
+---
+
+## Biometric UX test checklist (Sprint C addition · 2026-07-09)
+
+Derived from Orbix Studio's 2026 biometric UX guide § "How to test biometric authentication UX", applied to the enrollment ceremony (`screen-passkey-enroll`). Each item should be exercised before shipping.
+
+| # | Test | What to look for | Passing state |
+|---|---|---|---|
+| 1 | **Timing** — walk through `password-happy` / `otp-happy` / `cross-device-happy`. | Enrollment prompt appears as the **terminal step** of every non-passkey happy path, never during signup and never before a successful login. | Confirmed via `FLOWS[]` — all three end on `screen-passkey-enroll[data-enroll-state="prompt"]`. Guardrail comment on `#chooser-passkey-cta` and the Create Account footer (Sprint C · commit `1df8005`) enforces this intent for future signup work. |
+| 2 | **Opt-in, reversible** — from the prompt panel, tap "Skip for now". Then re-visit the enrollment flow. | User is not blocked. `screen-passkey-enroll[data-enroll-state="declined"]` offers **both** "Continue" (Maybe Later) and "Don't ask again". | Verified against `enroll-declined-fork` / `enroll-declined-never` flow definitions. |
+| 3 | **Maybe Later cap** — tap the "Continue" button on the declined panel 3 times in a row (or set `localStorage['ace.enroll.maybeLaterCount']` = 2 and tap once). | On the 3rd tap, the flow escalates to `data-enroll-state="suppressed"` and a caution toast reads "We'll stop asking. Set up Face ID from Account Settings any time." | Sprint C · commit `bee64bd`. |
+| 4 | **Privacy at the moment of decision** — read the enrollment prompt subtext without scrolling. | The subtext contains a plain-language privacy line: "Your device uses Face ID to verify it's you — nothing ever leaves your device." A "Learn more" link opens a toast with the extended explanation. | Sprint C · commit `18894a4` for the Learn more addition. |
+| 5 | **Biometric-fail escape** — trigger `data-enroll-state="error"` (via nav or `?enroll=error`). | User sees a **Try again** primary CTA + **Skip for now** secondary. Both are reachable via keyboard. | Verified against `enroll-biometric-fail` flow definition. |
+| 6 | **Already-enrolled case** — trigger `data-enroll-state="already-enrolled"`. | Copy reassures rather than errors: "A passkey for this account is already saved on this device. You're all set — just use Face ID to sign in." | Verified at [sign-in.html:4474](../sign-in.html#L4474). |
+| 7 | **Screen-reader announcement of enrollment success** — with VoiceOver, run `enroll-happy` end-to-end. | `data-enroll-state="success"` panel is announced; the `Continue shopping` button is the next focusable stop. | Sanity check — the success panel's heading is `h2` and has clear tab order. |
+| 8 | **Suppressed → re-enable path** — from the suppressed confirmation, tap Continue. Verify the user CAN re-enable Face ID from Settings later (per copy). | Copy points at `Account Settings › Sign-in & security`. That path must exist and work in the settings flow group. | Cross-check with group-8-settings-security review. |
+
+Any test that fails → open an issue in this group's Tier A/B/C queue above and cite the checklist row.

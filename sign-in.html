@@ -7730,6 +7730,30 @@
           ],
         },
         {
+          // Demonstrates the article-recommended "limited retries, then
+          // move on" rhythm: one retry after an initial failure keeps
+          // the biometric-idle affordance available, but the fallback
+          // tiles (Password / OTP / cross-device) remain visible on the
+          // failed state throughout — the user never has to hunt for
+          // the escape hatch. Same DOM as passkey-biometric-failed; this
+          // entry exists to make the retry-then-fallback pattern
+          // explicit in the flow deck reviewers step through.
+          // Citation: Orbix Studio 2026 biometric UX guide §"What to do
+          // when biometric login fails": "Let users retry once or twice,
+          // but don't trap them in a loop. Repeated retries feel
+          // frustrating fast and make the app feel unreliable."
+          id: 'passkey-retry-then-fallback', group: 'Passkey Sign-In',
+          label: 'Biometric Retry → Fallback',
+          figmaUrl: FIGMA + '660-238',
+          steps: [
+            { screen: 'screen-passkey',  state: 'idle',   label: 'Passkey prompt — biometric idle' },
+            { screen: 'screen-passkey',  state: 'failed', label: 'First attempt failed — Try again' },
+            { screen: 'screen-passkey',  state: 'idle',   label: 'Retry — biometric idle again' },
+            { screen: 'screen-passkey',  state: 'failed', label: 'Second attempt failed — fallback tiles visible' },
+            { screen: 'screen-password', state: null,     label: 'Password — entry (chose fallback)' },
+          ],
+        },
+        {
           id: 'passkey-failed-fallback-password', group: 'Passkey Sign-In',
           label: 'Biometric Failed → Password Fallback',
           figmaUrl: FIGMA + '677-195',

@@ -196,3 +196,22 @@ Severity legend: **Blocker** = ship-stopping · **Major** = noticeable user/stak
 - `figma-flow-gaps.md`: full read.
 - `Sign In - Claude Design/flow-passkey-paths.jsx`: full read (confirmed stale).
 - `figma-export/screenshots/`: visual reference (no read needed; manifest matched prototype).
+
+---
+
+## Biometric UX test checklist (Sprint C addition · 2026-07-09)
+
+Derived from Orbix Studio's 2026 biometric UX guide § "How to test biometric authentication UX". Each item should be exercised against the current `screen-passkey` states before this group is considered demo-ready.
+
+| # | Test | What to look for | Passing state |
+|---|---|---|---|
+| 1 | **Deliberate biometric fail** — trigger `screen-passkey[data-passkey-state="failed"]` via nav or by using the `?passkey=fail` demo param. | Fallback tiles must be visible **within 2 taps** of the failed state. | `#passkey-fallback-options` shows Password + One-time code tiles peer-styled with the retry CTA. `.passkey-fallback-divider` reads "Or continue with" (not "Having trouble?"). |
+| 2 | **Retry-then-fallback cadence** — walk through the new `passkey-retry-then-fallback` flow (idle → failed → idle → failed → password). | The article's "let users retry once or twice, then move on" pattern is visually explicit; the fallback tiles are exposed on the FIRST failure, not just the second. | Confirmed by inspection of `passkey-failed-fallback-password` (single-fail escape) + `passkey-retry-then-fallback` (double-fail escape) — both codified in `FLOWS[]`. |
+| 3 | **Bad-lighting / sensor-noise resilience** — force `passkey-not-found` (no credential discovered). | Chooser banner reads "No passkey on this device. Sign in with your password or a one-time code below." — plain language, actionable next step, does NOT blame the user or the sensor. | Verified copy at [sign-in.html:4040](../sign-in.html#L4040). |
+| 4 | **Screen-reader traversal of the status region** — with VoiceOver / NVDA on, activate `#passkey-try-btn` and let the ceremony complete or fail. | `#passkey-biometric-hero` should announce "Scanning…", then "You're signed in" or "Face ID couldn't sign you in", automatically. | `aria-live="polite" aria-atomic="true"` on `.biometric-hero` (Sprint A · commit `05fee87`). |
+| 5 | **Keyboard-only navigation** — Tab from chooser into `#chooser-passkey-cta` → passkey screen → `#passkey-try-btn` → fallback tiles. | Focus ring is visible on every stop; the fallback tiles are reachable without a mouse. | 2px `#0057B7` outline at 2px offset via `*:focus-visible` (Sprint A · commit `bfa22b8`). |
+| 6 | **Fallback flow no-hesitation test** — from `screen-passkey[data-passkey-state="failed"]`, tap the Password fallback tile. | User lands on `screen-password` immediately; no intermediate "are you sure?" step. | Verified against the `passkey-failed-fallback-password` flow definition. |
+| 7 | **Recovery after error** — observe your own hesitation after a simulated failure. | Fallback tiles are self-explanatory; you do not have to read the copy twice to know where to click next. | Sanity check — flag any wording that made you pause. |
+| 8 | **Privacy assurance visible at the moment of decision** — inspect the passkey-first chooser subtitle and the passkey screen's idle sub-label. | Both include the "stays on this device" phrasing (not just process explanation). | "We recognize this device. Use Face ID for the fastest sign-in — it stays on this device." + "Your Face ID stays on this device" (Sprint C · commit `18894a4`). |
+
+Any test that fails → open an issue in this group's Tier A queue above and cite the checklist row.
