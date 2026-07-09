@@ -25,6 +25,12 @@
        positive outcomes.
     ───────────────────────────────────────────────────────────── */
     :root {
+      /* Accessible keyboard focus ring — WCAG 2.4.7 (Focus Visible).
+         Deep blue chosen for high contrast against Ace red (#d40029),
+         white, and neutral backgrounds. Applied via *:focus-visible so
+         it appears only on keyboard navigation, not mouse click. */
+      --focus-ring: #0057B7;
+
       --state-neutral-bg: #F3F4F6;
       --state-neutral-fg: #4B5563;
       --state-neutral-border: #D1D5DB;
@@ -113,9 +119,22 @@
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* Remove browser tap highlight and focus outlines globally */
-    * { -webkit-tap-highlight-color: transparent; outline: none; }
-    *:focus-visible { outline: none; }
+    /* Suppress the mobile tap-highlight rectangle everywhere.
+       Mouse `:focus` is intentionally silent (interactive widgets carry
+       their own hover/active affordances). Keyboard `:focus-visible`
+       always shows a ring — WCAG 2.4.7 requires this.
+
+       Inputs opt out of the global ring because each input variant
+       (.text-field / .otp-inputs / .otp-delivery-input / .settings-text-input
+       / .comments-* textareas) already changes border color on :focus
+       as its focus affordance. See `.text-field:focus-within` below for
+       the container-level indicator that pairs with the floating label. */
+    * { -webkit-tap-highlight-color: transparent; }
+    *:focus { outline: none; }
+    *:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 2px;
+    }
 
     body {
       font-family: 'Roboto', sans-serif;
@@ -518,6 +537,15 @@
       line-height: 16px;
       letter-spacing: 0.4px;
       padding: 0 4px;
+    }
+
+    /* Container-level focus indicator for text fields. The inner <input>
+       keeps `outline: none` so we don't double-ring; the container border
+       darkens on any focus (mouse or keyboard) to match .otp-delivery-input
+       and .otp-inputs behavior. Keyboard users additionally get the global
+       :focus-visible ring on the input (see rule above). */
+    .text-field:focus-within {
+      border-color: #1f1f1f;
     }
 
     /* ─── RDS 2.0 clear button ──────────────────────────── */
