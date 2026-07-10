@@ -1555,7 +1555,7 @@
     .chooser-identity-chip,
     .chooser-not-you-link,
     .chooser-inline-pw-form,
-    .cta-label-identity,
+    .cta-label-touchid,
     .cta-biometric-icon { display: none; }
 
     /* CTA biometric icons live inside .chooser-passkey-cta. Only one is
@@ -1693,12 +1693,16 @@
     #screen-chooser[data-chooser-variant="returning-touchid"] .chooser-identity-chip {
       display: inline-flex;
     }
-    #screen-chooser[data-chooser-variant="returning-faceid"] .cta-label-default,
+    /* W3.7.4 · Label copy follows the [Verb] with [Biometric] pattern
+       (matches Chase / BoA / Amazon / 1Password / iOS system sheet).
+       Face ID variant reuses the default label ("Sign in with Face ID")
+       so no swap is needed. Touch ID variant hides default and reveals
+       the touchid label ("Sign in with Touch ID"). Identity is carried
+       separately by the chip above the button. */
     #screen-chooser[data-chooser-variant="returning-touchid"] .cta-label-default {
       display: none;
     }
-    #screen-chooser[data-chooser-variant="returning-faceid"] .cta-label-identity,
-    #screen-chooser[data-chooser-variant="returning-touchid"] .cta-label-identity {
+    #screen-chooser[data-chooser-variant="returning-touchid"] .cta-label-touchid {
       display: inline;
     }
     /* Biometric icon in the CTA — one per variant. */
@@ -5100,21 +5104,27 @@
           <!-- Passkey-first primary CTA · replaces the email form when the
                device is recognized. Triggers the same passkey ceremony as
                #tile-passkey (which is hidden in this state).
-               W3.6 · Two label spans so the variant 'returning-passkey'
-               (App tab) can address the user by identity rather than
-               the generic default copy. CSS toggles the visible span
-               via [data-chooser-variant].
+               W3.7.4 · Button copy follows the [Verb] with [Biometric type]
+               pattern used by every serious consumer sign-in surface
+               (Chase, BoA, 1Password, Amazon, Venmo, Apple's own OS
+               sheet). Identity chip above the button carries the WHO
+               signal; button carries the HOW so the user knows what
+               biometric is about to fire before tapping.
+               Two label spans so the same CTA renders 'Sign in with
+               Face ID' for the standalone passkey-first Screens-nav
+               path AND for the App returning-faceid variant, and
+               swaps to 'Sign in with Touch ID' for returning-touchid.
                W3.7.3 · Two biometric-icon spans layered on top so the
                same CTA renders a Face ID glyph for the returning-faceid
                variant and a fingerprint glyph for returning-touchid.
                Both default hidden; CSS reveals one per variant.
                The standalone passkey-first Screens-nav path (no variant)
-               keeps the icon-less "Sign in with Face ID" default. -->
+               keeps the icon-less default. -->
           <button class="sign-in-btn chooser-passkey-cta" id="chooser-passkey-cta" type="button">
             <svg class="cta-biometric-icon cta-biometric-faceid" width="20" height="20" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M701-701q91 91 91 221t-91 221q-91 91-221 91t-221-91q-91-91-91-221t91-221q91-91 221-91t221 91Zm-43 399q74-74 74-178t-74-178q-74-74-178-74t-178 74q-74 74-74 178t74 178q74 74 178 74t178-74Zm-93-67q38-26 57-70H338q18 44 56.5 70t85.5 26q47 0 85-26ZM349-536q11 11 28 11t28-11q11-11 11-28t-11-28q-11-11-28-11t-28 11q-11 11-11 28t11 28Zm206 0q11 11 28 11t28-11q11-11 11-28t-11-28q-11-11-28-11t-28 11q-11 11-11 28t11 28ZM40-731v-129q0-24.75 17.63-42.38Q75.25-920 100-920h129v60H100v129H40ZM229-40H100q-24.75 0-42.37-17.63Q40-75.25 40-100v-129h60v129h129v60Zm502-4v-60h129v-130h60v130q0 24.75-17.62 42.37Q884.75-44 860-44H731Zm129-687v-129H731v-60h129q24.75 0 42.38 17.62Q920-884.75 920-860v129h-60ZM480-480Z"/></svg>
             <svg class="cta-biometric-icon cta-biometric-touchid" width="20" height="20" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M481-781q106 0 200 45.5T838-604q7 9 4.5 16t-8.5 12q-6 5-14 4.5t-14-8.5q-55-78-141.5-119.5T481-741q-97 0-182 41.5T158-580q-6 9-14 10t-14-4q-7-5-8.5-12.5T126-602q62-85 155.5-132T481-781Zm0 94q135 0 232 90t97 223q0 50-35.5 83.5T688-257q-51 0-87.5-33.5T564-374q0-33-24.5-55.5T481-452q-34 0-58.5 22.5T398-374q0 97 57.5 162T604-121q9 3 12 10t1 15q-2 7-8 12t-15 3q-104-26-170-103.5T358-374q0-50 36-84t87-34q51 0 87 34t36 84q0 33 25 55.5t59 22.5q34 0 58-22.5t24-55.5q0-116-85-195t-203-79q-118 0-203 79t-85 194q0 24 4.5 60t21.5 84q3 9-.5 16T208-205q-8 3-15.5-.5T182-217q-15-39-21.5-77.5T154-374q0-133 96.5-223T481-687Zm0-192q64 0 125 15.5T724-819q9 5 10.5 12t-1.5 14q-3 7-10 11t-17-1q-53-27-109.5-41.5T481-839q-58 0-114 13.5T260-783q-8 5-16 2.5T232-791q-4-8-2-14.5t10-11.5q56-30 117-46t124-16Zm0 289q93 0 160 62.5T708-374q0 9-5.5 14.5T688-354q-8 0-14-5.5t-6-14.5q0-75-55.5-125.5T481-550q-76 0-130.5 50.5T296-374q0 81 28 137.5T406-123q6 6 6 14t-6 14q-6 6-14 6t-14-6q-59-62-90.5-126.5T256-374q0-91 66-153.5T481-590Zm-1 196q9 0 14.5 6t5.5 14q0 75 54 123t126 48q6 0 17-1t23-3q9-2 15.5 2.5T744-191q2 8-3 14t-13 8q-18 5-31.5 5.5t-16.5.5q-89 0-154.5-60T460-374q0-8 5.5-14t14.5-6Z"/></svg>
             <span class="cta-label-default">Sign in with Face ID</span>
-            <span class="cta-label-identity">Sign in as shopper@ace.com</span>
+            <span class="cta-label-touchid">Sign in with Touch ID</span>
           </button>
 
           <!-- W3.7.2 · Inline password form for App state
@@ -7296,8 +7306,8 @@
       // via the updateBlurb() extension. Each describes the state's
       // intended user situation + the layout it produces.
       'screen-chooser:fresh-install':          'App state: fresh install / first-time user. No saved credentials means no method tiles can complete — showing them would be dead-ends. Landing surface collapses to email + Continue only. The Create an Account link at the bottom stays visible; this IS the state it exists for.',
-      'screen-chooser:returning-faceid':       'App state: returning user with Face ID enrolled for this account on this device. Primary path is one-tap Face ID via the hero CTA (identity chip + face glyph + "Sign in as shopper@ace.com"). Password and one-time code fallback tiles are visible below the divider — biometrics fail (mask, sunglasses, sensor smudge), so the escape hatch is always in view, not hidden behind an error state or a menu.',
-      'screen-chooser:returning-touchid':      'App state: returning user with Touch ID enrolled for this account on this device. Same layout as Face ID variant — identity chip + hero CTA + fallback tiles — but the CTA icon swaps to a fingerprint glyph and the pill sub-copy references Touch ID. Applies to iPhone SE / older iPhones / iPads / MacBooks that use fingerprint biometrics rather than Face ID.',
+      'screen-chooser:returning-faceid':       'App state: returning user with Face ID enrolled for this account on this device. Primary path is one-tap Face ID via the hero CTA — identity chip (shopper@ace.com) above a "Sign in with Face ID" button carrying the face glyph. Copy follows the industry-standard [Verb] with [Biometric] pattern (Chase, BoA, 1Password, Amazon, iOS system sheet) so the user knows which biometric is about to fire before tapping. Password and one-time code fallback tiles are visible below the divider — biometrics fail (mask, sunglasses, sensor smudge), so the escape hatch is always in view, not hidden behind an error state or a menu.',
+      'screen-chooser:returning-touchid':      'App state: returning user with Touch ID enrolled for this account on this device. Same layout as Face ID variant — identity chip + hero CTA + fallback tiles — but the CTA icon swaps to a fingerprint glyph and the label swaps to "Sign in with Touch ID". Applies to iPhone SE / older iPhones / iPads / MacBooks that use fingerprint biometrics rather than Face ID.',
       'screen-chooser:returning-email-known':  'App state: returning user whose identity is known but who has no biometric-unlockable credential on this device. Skipping the chooser: the password field is shown INLINE with a Sign in button and a Forgot password? escape. Face ID and one-time code tiles remain below as alternates if the user wants to switch methods; the password tile is hidden (redundant with the inline form).',
       'screen-chooser:returning-identity':     'Mobile Web / Desktop state: browser hints identity via cookie/session but can\'t confirm what credentials will autofill. Email pre-filled, Not you? link inline, and all method tiles remain visible — no unearned certainty about which path will succeed.',
       'screen-passkey:idle':                  'Shown when the passkey ceremony begins. The user taps “Use Face ID” to authenticate with a saved local passkey. (W3.7 — the “Use a passkey from another device” cross-device option is temporarily hidden; see CROSS-DEVICE TEMPORARILY HIDDEN in the stylesheet.)',
