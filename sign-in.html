@@ -1555,8 +1555,9 @@
     .chooser-identity-chip,
     .chooser-not-you-link,
     .chooser-inline-pw-form,
-    .chooser-passkey-suggestion,
+    .chooser-subtitle-welcome-back,
     .cta-label-touchid,
+    .cta-label-passkey,
     .cta-biometric-icon { display: none; }
 
     /* CTA biometric icons live inside .chooser-passkey-cta. Only one is
@@ -1664,56 +1665,17 @@
     }
     .chooser-forgot-pw-link:hover { opacity: 0.8; }
 
-    /* ── Browser passkey suggestion pill (W3.7.5)
-       Shown in the Mobile Web 'passkey-available' variant. Mimics
-       the QuickType / autofill suggestion iOS Safari and Chrome
-       Mobile render above the keyboard when a field with
-       autocomplete="username webauthn" is focused and the origin
-       has a saved passkey. Styling deliberately looks OS-suggestion-
-       ish (dashed border, muted background, monochrome icon) so
-       reviewers can tell it's a browser-surfaced affordance rather
-       than an in-site button. Tappable — treats a tap as if the
-       user picked the passkey suggestion from autofill. */
-    .chooser-passkey-suggestion {
-      /* display:none by default (see .chooser-identity-chip et al above);
-         revealed by [data-chooser-variant="passkey-available"] */
-      align-items: center;
-      justify-content: flex-start;
-      gap: 10px;
-      width: 100%;
-      align-self: stretch;
-      padding: 10px 14px;
-      margin-top: -4px;
-      background: rgba(18, 18, 18, 0.03);
-      border: 1px dashed #9ca3af;
-      border-radius: 8px;
-      font-family: 'Roboto', sans-serif;
-      color: #1f1f1f;
-      cursor: pointer;
-      text-align: left;
-      transition: background 120ms ease, border-color 120ms ease;
-    }
-    .chooser-passkey-suggestion:hover {
-      background: rgba(18, 18, 18, 0.06);
-      border-color: #6b7280;
-    }
-    .chooser-passkey-suggestion-icon {
-      flex-shrink: 0;
-      color: #4b5563;
-    }
-    .chooser-passkey-suggestion-text {
-      font-size: 14px;
-      font-weight: 500;
-      color: #111;
-    }
-    .chooser-passkey-suggestion-hint {
-      margin-left: auto;
-      font-size: 11px;
-      font-weight: 400;
-      color: #6b7280;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
+    /* W3.7.6 · The .chooser-passkey-suggestion pill (dashed-border
+       browser-autofill mock) that briefly lived here has been
+       removed. It competed visually with the Continue button and
+       the tiles below, and rendering an OS-suggestion-styled
+       element inline in the page conflicted with the identifier-
+       first layout. The Mobile Web 'passkey-available' variant
+       now uses the same layout as App Face ID / Touch ID states —
+       identity chip + primary 'Sign in with passkey' CTA using
+       the existing .chooser-passkey-cta button. Cleaner, more
+       consistent, and matches how Chase / Google / GitHub / Amazon
+       render web passkey primary actions. */
 
     /* ── Per-variant chooser rules ── */
 
@@ -1724,37 +1686,47 @@
       display: none;
     }
 
-    /* Returning · Face ID / Touch ID (W3.7.3):
-       Both reuse the passkey-first base layout (data-chooser-state=
+    /* Returning · Face ID / Touch ID (App · W3.7.3) + passkey-available (Mobile Web · W3.7.6):
+       All three reuse the passkey-first base layout (data-chooser-state=
        passkey-first, set by JS) — form hidden, passkey CTA visible.
-       On top of that, both variants show:
+       On top of that, all three show:
          • the identity chip (shopper@ace.com)
-         • an identity-first CTA label ("Sign in as shopper@ace.com")
-         • a biometric icon inside the CTA (face glyph for Face ID,
-           fingerprint glyph for Touch ID)
+         • a biometric icon inside the CTA
+           (face for Face ID, fingerprint for Touch ID, passkey for web)
+         • an appropriate label
+           (default "Sign in with Face ID" / "Sign in with Touch ID"
+            / "Sign in with passkey" for the web-generic case)
          • password + OTP fallback tiles below the divider (the Face ID
            tile stays hidden — it's redundant with the hero CTA)
        Fallback tiles are visible on purpose: biometrics fail (bad
        lighting, mask, dirty sensor, cold hands, etc.), and hiding
-       every alternate path when Face ID button is showing is a well-
-       known UX antipattern. Real apps (Chase, BoA, 1Password, Amazon)
-       all keep an escape hatch visible.
-       W3.7.3 supersedes the earlier W3.6 rules that hid tiles for the
-       returning-passkey variant. */
+       every alternate path when the biometric button is showing is
+       a well-known UX antipattern. Real apps (Chase, BoA, 1Password,
+       Amazon) all keep an escape hatch visible.
+       W3.7.6 · Mobile Web 'passkey-available' now uses this same
+       pattern (was previously a dashed browser-autofill suggestion
+       pill in a different layout — see removed CSS block above).
+       Web-generic 'passkey' label + icon replace Face-ID-specific
+       copy because on web the site doesn't know which authenticator
+       will fire (Face ID, Touch ID, Windows Hello, YubiKey, etc.). */
     #screen-chooser[data-chooser-variant="returning-faceid"] .chooser-identity-chip,
-    #screen-chooser[data-chooser-variant="returning-touchid"] .chooser-identity-chip {
+    #screen-chooser[data-chooser-variant="returning-touchid"] .chooser-identity-chip,
+    #screen-chooser[data-chooser-variant="passkey-available"] .chooser-identity-chip {
       display: inline-flex;
     }
     /* W3.7.4 · Label copy follows the [Verb] with [Biometric] pattern
        (matches Chase / BoA / Amazon / 1Password / iOS system sheet).
        Face ID variant reuses the default label ("Sign in with Face ID")
-       so no swap is needed. Touch ID variant hides default and reveals
-       the touchid label ("Sign in with Touch ID"). Identity is carried
-       separately by the chip above the button. */
-    #screen-chooser[data-chooser-variant="returning-touchid"] .cta-label-default {
+       so no swap is needed. Touch ID and passkey-available variants
+       hide default and reveal their respective labels. */
+    #screen-chooser[data-chooser-variant="returning-touchid"] .cta-label-default,
+    #screen-chooser[data-chooser-variant="passkey-available"] .cta-label-default {
       display: none;
     }
     #screen-chooser[data-chooser-variant="returning-touchid"] .cta-label-touchid {
+      display: inline;
+    }
+    #screen-chooser[data-chooser-variant="passkey-available"] .cta-label-passkey {
       display: inline;
     }
     /* Biometric icon in the CTA — one per variant. */
@@ -1764,38 +1736,40 @@
     #screen-chooser[data-chooser-variant="returning-touchid"] .cta-biometric-touchid {
       display: inline-flex;
     }
-    /* Collapse the passkey-first subtitle for both variants — the
+    #screen-chooser[data-chooser-variant="passkey-available"] .cta-biometric-passkey {
+      display: inline-flex;
+    }
+    /* Collapse the passkey-first subtitle for these variants — the
        identity chip pairs visually with the CTA and the subtitle
        becomes vertical noise. */
     #screen-chooser[data-chooser-variant="returning-faceid"] .chooser-subtitle-passkey-first,
-    #screen-chooser[data-chooser-variant="returning-touchid"] .chooser-subtitle-passkey-first {
+    #screen-chooser[data-chooser-variant="returning-touchid"] .chooser-subtitle-passkey-first,
+    #screen-chooser[data-chooser-variant="passkey-available"] .chooser-subtitle-passkey-first {
       display: none;
     }
+    /* Mobile Web passkey-available also gets a generic 'Welcome back'
+       subtitle — see subtitle rules below. */
 
     /* Returning · identity (Mobile Web / Desktop): email pre-filled,
        "Not you?" link shown. Tiles remain visible so the user can
        escape to another method if autofill fails.
-       W3.7.5 · 'passkey-available' (Mobile Web) piggybacks on the
-       same pre-filled + Not-you visual; adds a browser passkey
-       suggestion pill below the field via its own selector below. */
-    #screen-chooser[data-chooser-variant="returning-identity"] .chooser-not-you-link,
-    #screen-chooser[data-chooser-variant="passkey-available"]  .chooser-not-you-link {
+       W3.7.6 · The 'passkey-available' selector was removed from here
+       because that variant now uses the passkey-first base layout
+       (email form hidden via base rules — Not you? link is inside the
+       form and hidden alongside it). Not you? handling for
+       passkey-available happens differently — see the identity chip
+       (which is the escape route: tap 'Not you?' should reset). */
+    #screen-chooser[data-chooser-variant="returning-identity"] .chooser-not-you-link {
       display: inline-block;
     }
 
-    /* Returning · passkey available (Mobile Web · W3.7.5):
-       Simulates the WebAuthn conditional UI story. Modern mobile
-       browsers surface a passkey suggestion in the autofill dropdown
-       when a field has autocomplete="username webauthn" and the
-       origin has a saved passkey. The site doesn't render the
-       suggestion — the browser does — but this state shows a mock
-       of it so reviewers see what the affordance looks like and can
-       design AROUND it. Email is pre-filled + Not you? visible +
-       all method tiles remain below (browser can't guarantee the
-       passkey suggestion will fire, so the escape hatch stays). */
-    #screen-chooser[data-chooser-variant="passkey-available"] .chooser-passkey-suggestion {
-      display: flex;
-    }
+    /* W3.7.6 · The previous 'passkey-available' block (which revealed
+       a .chooser-passkey-suggestion dashed pill below the email field)
+       has been removed. The variant is now handled by the shared
+       Face ID / Touch ID / passkey block above — identity chip +
+       primary CTA + fallback tiles. See docs for the redesign
+       rationale (dashed-browser-mock pattern was too clever and
+       competed with Continue). */
 
     /* Returning · email known (W3.7.2 · App-tab only):
        We know the identity — greet the user by chip AND show the
@@ -1828,6 +1802,27 @@
     .chooser-subtitle-email-known {
       display: none;
       margin: 0;
+    }
+
+    /* Welcome-back subtitle element — default hidden.
+       W3.7.6 · Used by the returning-* variants where the state-
+       specific subtitle would be misleading:
+         • Mobile Web / Desktop 'returning-identity' — email is
+           pre-filled, so "Enter your email to get started" is wrong.
+         • Mobile Web 'passkey-available' — identity is known + a
+           passkey CTA is primary, so the passkey-first subtitle
+           ("We recognize this device. Use Face ID...") also doesn't
+           fit (web can't promise Face ID specifically).
+       Shown via [data-chooser-variant] selectors below. */
+    .chooser-subtitle-welcome-back {
+      margin: 0;
+    }
+    #screen-chooser[data-chooser-variant="returning-identity"] .chooser-subtitle-default {
+      display: none;
+    }
+    #screen-chooser[data-chooser-variant="returning-identity"] .chooser-subtitle-welcome-back,
+    #screen-chooser[data-chooser-variant="passkey-available"]  .chooser-subtitle-welcome-back {
+      display: block;
     }
 
     /* ═════════════════════════════════════════════════════════════
@@ -5147,6 +5142,11 @@
             <!-- W3.7.2 · Subtitle for App state 'returning-email-known' —
                  identity is known, so greet accordingly. -->
             <p class="chooser-subtitle-email-known">Welcome back — enter your password to continue.</p>
+            <!-- W3.7.6 · Generic welcome-back subtitle for returning
+                 states where a method-specific greeting doesn't apply.
+                 Used by Mobile Web / Desktop 'returning-identity' and
+                 Mobile Web 'passkey-available'. -->
+            <p class="chooser-subtitle-welcome-back">Welcome back</p>
           </div>
 
           <!-- ── W2.1 · Identifier-first form ─────────────────────── -->
@@ -5162,22 +5162,14 @@
                 <svg width="18" height="18" viewBox="0 -960 960 960" fill="#1f1f1f" aria-hidden="true"><path d="m249-207-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z"/></svg>
               </button>
             </div>
-            <!-- W3.7.5 · Browser-surfaced passkey suggestion pill for
-                 the Mobile Web 'passkey-available' variant. Modeled
-                 after the QuickType/autofill suggestion bar iOS Safari
-                 and Chrome Mobile render above the keyboard when a
-                 field has autocomplete="username webauthn" and the
-                 origin has a saved passkey. Dashed border + softer
-                 background signals "this is a browser suggestion, not
-                 a site element" — reviewers can tell it's an OS-level
-                 affordance the site should design AROUND, not one
-                 the site renders. Default hidden; shown only when
-                 [data-chooser-variant="passkey-available"]. -->
-            <button type="button" class="chooser-passkey-suggestion" id="chooser-passkey-suggestion">
-              <svg class="chooser-passkey-suggestion-icon" width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M200-160q-33 0-56.5-23.5T120-240v-32q0-34 17.5-62.5T184-378q62-31 126-46.5T440-440q14 0 28 .5t28 2.5q11 1 17.5 8.5T520-410q2 47 23 88.5t56 70.5q7 5 11 12.5t4 16.5v22q0 17-11.5 28.5T574-160H200Zm240-320q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47Zm300 80q17 0 28.5-11.5T780-440q0-17-11.5-28.5T740-480q-17 0-28.5 11.5T700-440q0 17 11.5 28.5T740-400Zm6 346-40-40q-2-2-6-14v-178q-44-13-72-49.5T600-420q0-58 41-99t99-41q58 0 99 41t41 99q0 45-25.5 80T790-290l36 36q6 6 6 14t-6 14l-32 32q-6 6-6 14t6 14l32 32q6 6 6 14t-6 14l-52 52q-6 6-14 6t-14-6Z"/></svg>
-              <span class="chooser-passkey-suggestion-text">Sign in with saved passkey</span>
-              <span class="chooser-passkey-suggestion-hint">via browser autofill</span>
-            </button>
+            <!-- W3.7.5 · The dashed 'browser autofill' passkey suggestion
+                 pill that briefly lived here has been removed (W3.7.6).
+                 Reason: rendering a mock OS-suggestion inline in the
+                 page conflicted with the primary Continue button and
+                 the tiles below. Mobile Web's 'passkey-available' state
+                 now uses the same layout as the App Face ID / Touch ID
+                 states — identity chip + primary 'Sign in with passkey'
+                 CTA — via the .chooser-passkey-cta button below. -->
             <!-- W3.6 · "Not you?" link — visible in returning-* variants
                  where the email is pre-filled from a prior session.
                  Wired to clear the field and reset the chooser variant
@@ -5220,8 +5212,15 @@
           <button class="sign-in-btn chooser-passkey-cta" id="chooser-passkey-cta" type="button">
             <svg class="cta-biometric-icon cta-biometric-faceid" width="20" height="20" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M701-701q91 91 91 221t-91 221q-91 91-221 91t-221-91q-91-91-91-221t91-221q91-91 221-91t221 91Zm-43 399q74-74 74-178t-74-178q-74-74-178-74t-178 74q-74 74-74 178t74 178q74 74 178 74t178-74Zm-93-67q38-26 57-70H338q18 44 56.5 70t85.5 26q47 0 85-26ZM349-536q11 11 28 11t28-11q11-11 11-28t-11-28q-11-11-28-11t-28 11q-11 11-11 28t11 28Zm206 0q11 11 28 11t28-11q11-11 11-28t-11-28q-11-11-28-11t-28 11q-11 11-11 28t11 28ZM40-731v-129q0-24.75 17.63-42.38Q75.25-920 100-920h129v60H100v129H40ZM229-40H100q-24.75 0-42.37-17.63Q40-75.25 40-100v-129h60v129h129v60Zm502-4v-60h129v-130h60v130q0 24.75-17.62 42.37Q884.75-44 860-44H731Zm129-687v-129H731v-60h129q24.75 0 42.38 17.62Q920-884.75 920-860v129h-60ZM480-480Z"/></svg>
             <svg class="cta-biometric-icon cta-biometric-touchid" width="20" height="20" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M481-781q106 0 200 45.5T838-604q7 9 4.5 16t-8.5 12q-6 5-14 4.5t-14-8.5q-55-78-141.5-119.5T481-741q-97 0-182 41.5T158-580q-6 9-14 10t-14-4q-7-5-8.5-12.5T126-602q62-85 155.5-132T481-781Zm0 94q135 0 232 90t97 223q0 50-35.5 83.5T688-257q-51 0-87.5-33.5T564-374q0-33-24.5-55.5T481-452q-34 0-58.5 22.5T398-374q0 97 57.5 162T604-121q9 3 12 10t1 15q-2 7-8 12t-15 3q-104-26-170-103.5T358-374q0-50 36-84t87-34q51 0 87 34t36 84q0 33 25 55.5t59 22.5q34 0 58-22.5t24-55.5q0-116-85-195t-203-79q-118 0-203 79t-85 194q0 24 4.5 60t21.5 84q3 9-.5 16T208-205q-8 3-15.5-.5T182-217q-15-39-21.5-77.5T154-374q0-133 96.5-223T481-687Zm0-192q64 0 125 15.5T724-819q9 5 10.5 12t-1.5 14q-3 7-10 11t-17-1q-53-27-109.5-41.5T481-839q-58 0-114 13.5T260-783q-8 5-16 2.5T232-791q-4-8-2-14.5t10-11.5q56-30 117-46t124-16Zm0 289q93 0 160 62.5T708-374q0 9-5.5 14.5T688-354q-8 0-14-5.5t-6-14.5q0-75-55.5-125.5T481-550q-76 0-130.5 50.5T296-374q0 81 28 137.5T406-123q6 6 6 14t-6 14q-6 6-14 6t-14-6q-59-62-90.5-126.5T256-374q0-91 66-153.5T481-590Zm-1 196q9 0 14.5 6t5.5 14q0 75 54 123t126 48q6 0 17-1t23-3q9-2 15.5 2.5T744-191q2 8-3 14t-13 8q-18 5-31.5 5.5t-16.5.5q-89 0-154.5-60T460-374q0-8 5.5-14t14.5-6Z"/></svg>
+            <!-- W3.7.6 · Passkey icon for the Mobile Web 'passkey-available'
+                 variant. On web we don't know which biometric the OS will
+                 use (Face ID, Touch ID, Windows Hello, YubiKey, phone-as-
+                 authenticator), so the icon is a generic passkey glyph
+                 and the label reads 'Sign in with passkey'. -->
+            <svg class="cta-biometric-icon cta-biometric-passkey" width="20" height="20" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M200-160q-33 0-56.5-23.5T120-240v-32q0-34 17.5-62.5T184-378q62-31 126-46.5T440-440q14 0 28 .5t28 2.5q11 1 17.5 8.5T520-410q2 47 23 88.5t56 70.5q7 5 11 12.5t4 16.5v22q0 17-11.5 28.5T574-160H200Zm240-320q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47Zm300 80q17 0 28.5-11.5T780-440q0-17-11.5-28.5T740-480q-17 0-28.5 11.5T700-440q0 17 11.5 28.5T740-400Zm6 346-40-40q-2-2-6-14v-178q-44-13-72-49.5T600-420q0-58 41-99t99-41q58 0 99 41t41 99q0 45-25.5 80T790-290l36 36q6 6 6 14t-6 14l-32 32q-6 6-6 14t6 14l32 32q6 6 6 14t-6 14l-52 52q-6 6-14 6t-14-6Z"/></svg>
             <span class="cta-label-default">Sign in with Face ID</span>
             <span class="cta-label-touchid">Sign in with Touch ID</span>
+            <span class="cta-label-passkey">Sign in with passkey</span>
           </button>
 
           <!-- W3.7.2 · Inline password form for App state
@@ -7406,8 +7405,8 @@
       'screen-chooser:returning-faceid':       'App state: returning user with Face ID enrolled for this account on this device. Primary path is one-tap Face ID via the hero CTA — identity chip (shopper@ace.com) above a "Sign in with Face ID" button carrying the face glyph. Copy follows the industry-standard [Verb] with [Biometric] pattern (Chase, BoA, 1Password, Amazon, iOS system sheet) so the user knows which biometric is about to fire before tapping. Password and one-time code fallback tiles are visible below the divider — biometrics fail (mask, sunglasses, sensor smudge), so the escape hatch is always in view, not hidden behind an error state or a menu.',
       'screen-chooser:returning-touchid':      'App state: returning user with Touch ID enrolled for this account on this device. Same layout as Face ID variant — identity chip + hero CTA + fallback tiles — but the CTA icon swaps to a fingerprint glyph and the label swaps to "Sign in with Touch ID". Applies to iPhone SE / older iPhones / iPads / MacBooks that use fingerprint biometrics rather than Face ID.',
       'screen-chooser:returning-email-known':  'App state: returning user whose identity is known but who has no biometric-unlockable credential on this device. Skipping the chooser: the password field is shown INLINE with a Sign in button and a Forgot password? escape. Face ID and one-time code tiles remain below as alternates if the user wants to switch methods; the password tile is hidden (redundant with the inline form).',
-      'screen-chooser:returning-identity':     'Mobile Web / Desktop state: browser hints identity via cookie/session but can\'t confirm what credentials will autofill. Email pre-filled, Not you? link inline, and all method tiles remain visible — no unearned certainty about which path will succeed.',
-      'screen-chooser:passkey-available':      'Mobile Web state: WebAuthn conditional UI scenario. Modern mobile browsers (Safari 16+, Chrome 108+) surface a passkey suggestion in the email field autofill dropdown when the origin has a saved passkey. The site doesn\'t render the suggestion — the browser does — so the pill below the email field mocks what OS-native browser autofill would show. Reviewers see the affordance to design AROUND (not render as a site button). All method tiles remain visible below: the browser suggestion is a shortcut, not a guaranteed path.',
+      'screen-chooser:returning-identity':     'Mobile Web / Desktop state: browser hints identity via cookie/session but can\'t confirm what credentials will autofill. Email pre-filled, Not you? link inline, and all method tiles remain visible — no unearned certainty about which path will succeed. Subtitle greets the returning user with "Welcome back" rather than the default "Enter your email to get started" (which would misrepresent a state where the email is already there).',
+      'screen-chooser:passkey-available':      'Mobile Web state: origin has a saved passkey. The site invokes WebAuthn directly via navigator.credentials.get() — a site-owned primary CTA is the honest way to represent that capability, matching how Google, Chase, GitHub, and PayPal render web passkey primary actions. Layout mirrors the App Face ID / Touch ID pattern: identity chip (shopper@ace.com) above a "Sign in with passkey" CTA carrying a generic passkey glyph (web doesn\'t know the specific biometric — could be Face ID, Touch ID, Windows Hello, YubiKey, or phone-as-authenticator). Password and one-time code fallback tiles remain visible below the divider as escape hatches when the passkey ceremony fails or the user prefers a different method.',
       'screen-passkey:idle':                  'Shown when the passkey ceremony begins. The user taps “Use Face ID” to authenticate with a saved local passkey. (W3.7 — the “Use a passkey from another device” cross-device option is temporarily hidden; see CROSS-DEVICE TEMPORARILY HIDDEN in the stylesheet.)',
       'screen-passkey:idle-cross-device':       'The same passkey idle screen, shown as the second step of the cross-device happy path. The \u201cUse a passkey from another device\u201d button is the interactive trigger that advances to the QR screen.',
       'screen-passkey:failed':                'Shown when Face ID fails or is canceled by the OS. Offers a retry or a fallback to another sign-in method.',
@@ -7998,12 +7997,17 @@
         app:         'returning-faceid',
       };
       // Variants that render on top of the existing passkey-first
-      // chooser layout. W3.7.3 · Both biometric variants share the
-      // passkey-first base (form hidden, passkey CTA visible); the
-      // variant CSS then swaps the CTA icon + label + shows tiles.
+      // chooser layout. W3.7.3 · Face ID / Touch ID share the base
+      // (form hidden, passkey CTA visible); the variant CSS then
+      // swaps the CTA icon + label + shows tiles.
+      // W3.7.6 · Mobile Web 'passkey-available' now uses the same
+      // base — was previously a dashed suggestion pill in a
+      // different layout; removed for a consistent primary-CTA UX
+      // across App and Mobile Web recognized-user states.
       const PASSKEY_FIRST_VARIANTS = new Set([
         'returning-faceid',
         'returning-touchid',
+        'passkey-available',
       ]);
       // Variants that pre-fill the identifier field with a demo email.
       // W3.7.2 · Simplified after the App-tab redesign:
@@ -8525,24 +8529,14 @@
       currentScreen = screenPasskey;
     });
 
-    // W3.7.5 · Chooser · browser passkey suggestion pill →
-    // same behavior as the Face ID tile. Simulates what happens when
-    // the user taps a passkey suggestion in the browser's autofill
-    // dropdown on Mobile Web: the WebAuthn ceremony fires (OS-owned
-    // biometric prompt) and control lands on the passkey screen in
-    // idle state. In production the browser routes this through
-    // navigator.credentials.get() without any site handler at all —
-    // this click just mirrors the outcome so the demo state is
-    // navigable.
-    const chooserPasskeySuggestion = document.getElementById('chooser-passkey-suggestion');
-    if (chooserPasskeySuggestion) {
-      chooserPasskeySuggestion.addEventListener('click', () => {
-        clearChooserBanner();
-        setPasskeyState('idle');
-        switchScreen(currentScreen, screenPasskey, 'forward');
-        currentScreen = screenPasskey;
-      });
-    }
+    // W3.7.6 · The click handler for #chooser-passkey-suggestion has
+    // been removed alongside the dashed-pill markup. The Mobile Web
+    // 'passkey-available' variant now uses the shared
+    // #chooser-passkey-cta button above, so no additional wiring is
+    // needed — the existing CTA handler covers all three passkey-
+    // first variants (returning-faceid, returning-touchid, passkey-
+    // available). Removed pattern: /* passkey-suggestion click →
+    // switchScreen(screenChooser, screenPasskey, 'forward'). */
 
     // ── Chooser → Password screen ─────────────────────────────
     document.getElementById('tile-password-chooser').addEventListener('click', () => {
