@@ -1555,6 +1555,7 @@
     .chooser-identity-chip,
     .chooser-not-you-link,
     .chooser-inline-pw-form,
+    .chooser-passkey-suggestion,
     .cta-label-touchid,
     .cta-biometric-icon { display: none; }
 
@@ -1663,6 +1664,57 @@
     }
     .chooser-forgot-pw-link:hover { opacity: 0.8; }
 
+    /* ── Browser passkey suggestion pill (W3.7.5)
+       Shown in the Mobile Web 'passkey-available' variant. Mimics
+       the QuickType / autofill suggestion iOS Safari and Chrome
+       Mobile render above the keyboard when a field with
+       autocomplete="username webauthn" is focused and the origin
+       has a saved passkey. Styling deliberately looks OS-suggestion-
+       ish (dashed border, muted background, monochrome icon) so
+       reviewers can tell it's a browser-surfaced affordance rather
+       than an in-site button. Tappable — treats a tap as if the
+       user picked the passkey suggestion from autofill. */
+    .chooser-passkey-suggestion {
+      /* display:none by default (see .chooser-identity-chip et al above);
+         revealed by [data-chooser-variant="passkey-available"] */
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+      width: 100%;
+      align-self: stretch;
+      padding: 10px 14px;
+      margin-top: -4px;
+      background: rgba(18, 18, 18, 0.03);
+      border: 1px dashed #9ca3af;
+      border-radius: 8px;
+      font-family: 'Roboto', sans-serif;
+      color: #1f1f1f;
+      cursor: pointer;
+      text-align: left;
+      transition: background 120ms ease, border-color 120ms ease;
+    }
+    .chooser-passkey-suggestion:hover {
+      background: rgba(18, 18, 18, 0.06);
+      border-color: #6b7280;
+    }
+    .chooser-passkey-suggestion-icon {
+      flex-shrink: 0;
+      color: #4b5563;
+    }
+    .chooser-passkey-suggestion-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: #111;
+    }
+    .chooser-passkey-suggestion-hint {
+      margin-left: auto;
+      font-size: 11px;
+      font-weight: 400;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
     /* ── Per-variant chooser rules ── */
 
     /* Fresh install: email + Continue only. No divider, no tiles.
@@ -1722,9 +1774,27 @@
 
     /* Returning · identity (Mobile Web / Desktop): email pre-filled,
        "Not you?" link shown. Tiles remain visible so the user can
-       escape to another method if autofill fails. */
-    #screen-chooser[data-chooser-variant="returning-identity"] .chooser-not-you-link {
+       escape to another method if autofill fails.
+       W3.7.5 · 'passkey-available' (Mobile Web) piggybacks on the
+       same pre-filled + Not-you visual; adds a browser passkey
+       suggestion pill below the field via its own selector below. */
+    #screen-chooser[data-chooser-variant="returning-identity"] .chooser-not-you-link,
+    #screen-chooser[data-chooser-variant="passkey-available"]  .chooser-not-you-link {
       display: inline-block;
+    }
+
+    /* Returning · passkey available (Mobile Web · W3.7.5):
+       Simulates the WebAuthn conditional UI story. Modern mobile
+       browsers surface a passkey suggestion in the autofill dropdown
+       when a field has autocomplete="username webauthn" and the
+       origin has a saved passkey. The site doesn't render the
+       suggestion — the browser does — but this state shows a mock
+       of it so reviewers see what the affordance looks like and can
+       design AROUND it. Email is pre-filled + Not you? visible +
+       all method tiles remain below (browser can't guarantee the
+       passkey suggestion will fire, so the escape hatch stays). */
+    #screen-chooser[data-chooser-variant="passkey-available"] .chooser-passkey-suggestion {
+      display: flex;
     }
 
     /* Returning · email known (W3.7.2 · App-tab only):
@@ -4968,7 +5038,14 @@
       <!-- Mobile Web-tab pills (Slice C). Browser can't reliably poll
            credential inventory (privacy-scoped by the platform), so
            states are coarser than App — we can hint identity via
-           cookie/session, but we can't promise autofill or one-tap. -->
+           cookie/session, but we can't promise autofill or one-tap.
+           W3.7.5 · Added 'passkey-available' to demonstrate the
+           WebAuthn conditional UI story: modern mobile browsers
+           (Safari 16+ / Chrome 108+) surface a passkey suggestion
+           in the email field autofill dropdown when the origin has
+           a saved passkey. The site doesn't render this affordance —
+           the browser does — but the state exists so reviewers see
+           what to design AROUND. -->
       <button type="button" class="state-pill" data-tab-scope="mobile-web" data-state-value="default" aria-pressed="true">
         <span class="pill-title">Default</span>
         <span class="pill-sub">Email empty · all methods offered</span>
@@ -4976,6 +5053,10 @@
       <button type="button" class="state-pill" data-tab-scope="mobile-web" data-state-value="returning-identity" aria-pressed="false">
         <span class="pill-title">Returning identity</span>
         <span class="pill-sub">Email pre-filled from prior session</span>
+      </button>
+      <button type="button" class="state-pill" data-tab-scope="mobile-web" data-state-value="passkey-available" aria-pressed="false">
+        <span class="pill-title">Returning · passkey available</span>
+        <span class="pill-sub">Browser has passkey saved for this origin</span>
       </button>
       <!-- W3.7 · The 'cross-device-emphasis' Mobile Web pill was
            removed alongside the cross-device sign-in hide (see CSS
@@ -5081,6 +5162,22 @@
                 <svg width="18" height="18" viewBox="0 -960 960 960" fill="#1f1f1f" aria-hidden="true"><path d="m249-207-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z"/></svg>
               </button>
             </div>
+            <!-- W3.7.5 · Browser-surfaced passkey suggestion pill for
+                 the Mobile Web 'passkey-available' variant. Modeled
+                 after the QuickType/autofill suggestion bar iOS Safari
+                 and Chrome Mobile render above the keyboard when a
+                 field has autocomplete="username webauthn" and the
+                 origin has a saved passkey. Dashed border + softer
+                 background signals "this is a browser suggestion, not
+                 a site element" — reviewers can tell it's an OS-level
+                 affordance the site should design AROUND, not one
+                 the site renders. Default hidden; shown only when
+                 [data-chooser-variant="passkey-available"]. -->
+            <button type="button" class="chooser-passkey-suggestion" id="chooser-passkey-suggestion">
+              <svg class="chooser-passkey-suggestion-icon" width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M200-160q-33 0-56.5-23.5T120-240v-32q0-34 17.5-62.5T184-378q62-31 126-46.5T440-440q14 0 28 .5t28 2.5q11 1 17.5 8.5T520-410q2 47 23 88.5t56 70.5q7 5 11 12.5t4 16.5v22q0 17-11.5 28.5T574-160H200Zm240-320q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47Zm300 80q17 0 28.5-11.5T780-440q0-17-11.5-28.5T740-480q-17 0-28.5 11.5T700-440q0 17 11.5 28.5T740-400Zm6 346-40-40q-2-2-6-14v-178q-44-13-72-49.5T600-420q0-58 41-99t99-41q58 0 99 41t41 99q0 45-25.5 80T790-290l36 36q6 6 6 14t-6 14l-32 32q-6 6-6 14t6 14l32 32q6 6 6 14t-6 14l-52 52q-6 6-14 6t-14-6Z"/></svg>
+              <span class="chooser-passkey-suggestion-text">Sign in with saved passkey</span>
+              <span class="chooser-passkey-suggestion-hint">via browser autofill</span>
+            </button>
             <!-- W3.6 · "Not you?" link — visible in returning-* variants
                  where the email is pre-filled from a prior session.
                  Wired to clear the field and reset the chooser variant
@@ -7310,6 +7407,7 @@
       'screen-chooser:returning-touchid':      'App state: returning user with Touch ID enrolled for this account on this device. Same layout as Face ID variant — identity chip + hero CTA + fallback tiles — but the CTA icon swaps to a fingerprint glyph and the label swaps to "Sign in with Touch ID". Applies to iPhone SE / older iPhones / iPads / MacBooks that use fingerprint biometrics rather than Face ID.',
       'screen-chooser:returning-email-known':  'App state: returning user whose identity is known but who has no biometric-unlockable credential on this device. Skipping the chooser: the password field is shown INLINE with a Sign in button and a Forgot password? escape. Face ID and one-time code tiles remain below as alternates if the user wants to switch methods; the password tile is hidden (redundant with the inline form).',
       'screen-chooser:returning-identity':     'Mobile Web / Desktop state: browser hints identity via cookie/session but can\'t confirm what credentials will autofill. Email pre-filled, Not you? link inline, and all method tiles remain visible — no unearned certainty about which path will succeed.',
+      'screen-chooser:passkey-available':      'Mobile Web state: WebAuthn conditional UI scenario. Modern mobile browsers (Safari 16+, Chrome 108+) surface a passkey suggestion in the email field autofill dropdown when the origin has a saved passkey. The site doesn\'t render the suggestion — the browser does — so the pill below the email field mocks what OS-native browser autofill would show. Reviewers see the affordance to design AROUND (not render as a site button). All method tiles remain visible below: the browser suggestion is a shortcut, not a guaranteed path.',
       'screen-passkey:idle':                  'Shown when the passkey ceremony begins. The user taps “Use Face ID” to authenticate with a saved local passkey. (W3.7 — the “Use a passkey from another device” cross-device option is temporarily hidden; see CROSS-DEVICE TEMPORARILY HIDDEN in the stylesheet.)',
       'screen-passkey:idle-cross-device':       'The same passkey idle screen, shown as the second step of the cross-device happy path. The \u201cUse a passkey from another device\u201d button is the interactive trigger that advances to the QR screen.',
       'screen-passkey:failed':                'Shown when Face ID fails or is canceled by the OS. Offers a retry or a fallback to another sign-in method.',
@@ -7914,11 +8012,16 @@
       //     shows shopper@ace.com).
       //   • Mobile Web / Desktop 'returning-identity' fills the
       //     visible identifier form.
+      // W3.7.5 · Mobile Web 'passkey-available' pre-fills too — the
+      //     WebAuthn conditional UI scenario models a returning user
+      //     whose identity is known AND whose origin has a saved
+      //     passkey the browser will surface via autofill.
       // (Removed: returning-password-saved, returning-no-credentials,
       // multi-identity — see rail pill removals in Slice B markup.)
       const PREFILL_VARIANTS = new Set([
         'returning-identity',
         'returning-email-known',
+        'passkey-available',
       ]);
       const PREFILL_EMAIL = 'shopper@example.com';
 
@@ -8421,6 +8524,25 @@
       switchScreen(currentScreen, screenPasskey, 'forward');
       currentScreen = screenPasskey;
     });
+
+    // W3.7.5 · Chooser · browser passkey suggestion pill →
+    // same behavior as the Face ID tile. Simulates what happens when
+    // the user taps a passkey suggestion in the browser's autofill
+    // dropdown on Mobile Web: the WebAuthn ceremony fires (OS-owned
+    // biometric prompt) and control lands on the passkey screen in
+    // idle state. In production the browser routes this through
+    // navigator.credentials.get() without any site handler at all —
+    // this click just mirrors the outcome so the demo state is
+    // navigable.
+    const chooserPasskeySuggestion = document.getElementById('chooser-passkey-suggestion');
+    if (chooserPasskeySuggestion) {
+      chooserPasskeySuggestion.addEventListener('click', () => {
+        clearChooserBanner();
+        setPasskeyState('idle');
+        switchScreen(currentScreen, screenPasskey, 'forward');
+        currentScreen = screenPasskey;
+      });
+    }
 
     // ── Chooser → Password screen ─────────────────────────────
     document.getElementById('tile-password-chooser').addEventListener('click', () => {

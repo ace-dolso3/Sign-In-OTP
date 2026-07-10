@@ -79,12 +79,13 @@ Left of the card, a **state pill rail** hosts scenario pills scoped per device t
 | **Default** | Current mock — email empty, all 4 method tiles offered. |
 | **Returning identity** | Email pre-filled from cookie. `Not you?` link to reset. All tiles remain visible. |
 
-### Mobile Web tab (2 states)
+### Mobile Web tab (3 states)
 
 | Pill | Chooser behavior |
 |------|------------------|
 | **Default** | Current mock in mobile browser frame. |
 | **Returning identity** | Email pre-filled from prior session. `Not you?` link. All tiles remain visible. |
+| **Returning · passkey available** | WebAuthn conditional UI scenario. Email pre-filled + `Not you?` link + a **browser-styled passkey suggestion pill** (dashed border, muted background, key glyph) appears below the email field, mocking the QuickType / autofill suggestion iOS Safari and Chrome Mobile render when the origin has a saved passkey. The suggestion is deliberately styled to look OS-native rather than site-designed so reviewers see what to design AROUND, not what to build. All method tiles remain visible below — the browser suggestion is a shortcut, not a guaranteed path. Tapping the pill fires the passkey ceremony (mirrors what happens when the user picks a passkey from browser autofill in production). |
 
 > The former **Cross-device emphasis** Mobile Web pill was removed alongside the cross-device sign-in hide (W3.7). Its rationale was to promote the `Use another device` (QR) tile for users with a passkey on a different device; with the cross-device tile hidden, the pill had no purpose.
 
