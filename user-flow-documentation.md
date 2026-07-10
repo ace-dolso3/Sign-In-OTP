@@ -88,13 +88,16 @@ Left of the card, a **state pill rail** hosts scenario pills scoped per device t
 
 > The former **Cross-device emphasis** Mobile Web pill was removed alongside the cross-device sign-in hide (W3.7). Its rationale was to promote the `Use another device` (QR) tile for users with a passkey on a different device; with the cross-device tile hidden, the pill had no purpose.
 
-### App tab (3 states)
+### App tab (4 states)
 
 | Pill | Chooser behavior |
 |------|------------------|
 | **Fresh install** | Email + Continue only. No `OR SIGN IN ANOTHER WAY` divider, no method tiles — nothing else can complete for a first-time user. `Create Account` footer preserved. |
-| **Returning · passkey** | Layers on `passkey-first` base. Identity chip (`shopper@ace.com`) above the CTA. CTA copy swaps to `Sign in as shopper@ace.com`. Divider + tiles hidden — this variant is the "one clear path" case. **App default state.** |
+| **Returning · Face ID** | Layers on `passkey-first` base. Identity chip (`shopper@ace.com`) above a hero CTA reading "Sign in as shopper@ace.com" with a **Face ID glyph** inside the button. **Password and one-time code fallback tiles remain visible below the divider** — biometrics fail (mask, sunglasses, dirty sensor), so the escape hatch is always in view. Face ID tile itself is hidden (redundant with the hero CTA). **App default state.** |
+| **Returning · Touch ID** | Same layout as `Returning · Face ID` but the hero CTA icon swaps to a **fingerprint glyph**. For iPhone SE / older iPhones / iPads / MacBooks that use fingerprint biometrics instead of face recognition. Same fallback tiles below. |
 | **Returning · email known** | Identity known, no biometric-unlockable credential on device. Skips the chooser entirely: identity chip + **inline password field** + `Sign in` button + `Forgot password?` link. Face ID and one-time code tiles remain below the divider as alternate methods; the password tile is hidden (redundant with the inline form). Terminates at the post-login passkey enrollment offer, matching the standalone password screen's happy path. |
+
+> Design note (W3.7.3): the single `Returning · passkey` pill was split into two peer pills (Face ID / Touch ID) because iPhone / iPad / Mac users may have either biometric depending on device. Both share the identical layout — only the CTA icon changes. Both variants now show password + OTP fallback tiles below the hero CTA, replacing an earlier "one clear path" design that hid tiles entirely. That original design was correctly critiqued as brittle: biometrics fail regularly enough that Chase, Bank of America, 1Password, Amazon, and Airbnb all keep an escape hatch visible on their post-biometric sign-in surfaces. Prototype now matches that pattern.
 
 > Design note (W3.7.2): the previous 5-pill App matrix included `Returning · saved password`, `Returning · no credentials`, and `Multi-identity`. The first two were indistinguishable on the landing screen (both = "email known, no strong credential") and were collapsed into the single `Returning · email known` state above, which replaces the old "chooser with a highlighted-tile" pattern with an inline password form — a stronger native-mobile pattern. `Multi-identity` was dropped as an uncommon scenario for a single-account retail app.
 

@@ -1555,7 +1555,21 @@
     .chooser-identity-chip,
     .chooser-not-you-link,
     .chooser-inline-pw-form,
-    .cta-label-identity { display: none; }
+    .cta-label-identity,
+    .cta-biometric-icon { display: none; }
+
+    /* CTA biometric icons live inside .chooser-passkey-cta. Only one is
+       revealed at a time (per variant); layout uses row-flex + gap so
+       the icon sits to the left of the visible label. */
+    .chooser-passkey-cta {
+      /* Existing rule below adds row-flex on this button when it's the
+         visible CTA — see .chooser-passkey-cta display rule further down.
+         W3.7.3 · Extend to a proper row layout with a small gap so the
+         biometric icon and label align cleanly. */
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
 
     /* ── Identity chip (shown in returning-passkey) ── */
     .chooser-identity-chip {
@@ -1658,26 +1672,47 @@
       display: none;
     }
 
-    /* Returning · passkey: reuses passkey-first base layout (data-chooser-state=
-       passkey-first, set by JS) — form hidden, passkey CTA visible. On top of
-       that, show the identity chip and swap the CTA to identity-specific copy.
-       Also hide tiles below (this variant is the "one clear path" case). */
-    #screen-chooser[data-chooser-variant="returning-passkey"] .chooser-identity-chip {
+    /* Returning · Face ID / Touch ID (W3.7.3):
+       Both reuse the passkey-first base layout (data-chooser-state=
+       passkey-first, set by JS) — form hidden, passkey CTA visible.
+       On top of that, both variants show:
+         • the identity chip (shopper@ace.com)
+         • an identity-first CTA label ("Sign in as shopper@ace.com")
+         • a biometric icon inside the CTA (face glyph for Face ID,
+           fingerprint glyph for Touch ID)
+         • password + OTP fallback tiles below the divider (the Face ID
+           tile stays hidden — it's redundant with the hero CTA)
+       Fallback tiles are visible on purpose: biometrics fail (bad
+       lighting, mask, dirty sensor, cold hands, etc.), and hiding
+       every alternate path when Face ID button is showing is a well-
+       known UX antipattern. Real apps (Chase, BoA, 1Password, Amazon)
+       all keep an escape hatch visible.
+       W3.7.3 supersedes the earlier W3.6 rules that hid tiles for the
+       returning-passkey variant. */
+    #screen-chooser[data-chooser-variant="returning-faceid"] .chooser-identity-chip,
+    #screen-chooser[data-chooser-variant="returning-touchid"] .chooser-identity-chip {
       display: inline-flex;
     }
-    #screen-chooser[data-chooser-variant="returning-passkey"] .cta-label-default {
+    #screen-chooser[data-chooser-variant="returning-faceid"] .cta-label-default,
+    #screen-chooser[data-chooser-variant="returning-touchid"] .cta-label-default {
       display: none;
     }
-    #screen-chooser[data-chooser-variant="returning-passkey"] .cta-label-identity {
+    #screen-chooser[data-chooser-variant="returning-faceid"] .cta-label-identity,
+    #screen-chooser[data-chooser-variant="returning-touchid"] .cta-label-identity {
       display: inline;
     }
-    #screen-chooser[data-chooser-variant="returning-passkey"] .chooser-divider,
-    #screen-chooser[data-chooser-variant="returning-passkey"] .method-tiles {
-      display: none;
+    /* Biometric icon in the CTA — one per variant. */
+    #screen-chooser[data-chooser-variant="returning-faceid"] .cta-biometric-faceid {
+      display: inline-flex;
     }
-    /* Identity chip pairs visually with the CTA; also collapse the
-       passkey-first subtitle to reduce vertical noise. */
-    #screen-chooser[data-chooser-variant="returning-passkey"] .chooser-subtitle-passkey-first {
+    #screen-chooser[data-chooser-variant="returning-touchid"] .cta-biometric-touchid {
+      display: inline-flex;
+    }
+    /* Collapse the passkey-first subtitle for both variants — the
+       identity chip pairs visually with the CTA and the subtitle
+       becomes vertical noise. */
+    #screen-chooser[data-chooser-variant="returning-faceid"] .chooser-subtitle-passkey-first,
+    #screen-chooser[data-chooser-variant="returning-touchid"] .chooser-subtitle-passkey-first {
       display: none;
     }
 
@@ -4894,29 +4929,32 @@
            initStatePills() near the bottom of the file. -->
       <div class="rail-label">Simulate state</div>
 
-      <!-- App-tab pills (Slice B, revised W3.7.2). Default state on App =
-           returning-passkey because that's the state that most clearly
-           shows the payoff of doing this exercise (one-tap Face ID, no
-           email typing).
-           W3.7.2 · Reduced from 5 pills to 3. Dropped:
-             • returning-password-saved  } indistinguishable from
-             • returning-no-credentials  } each other on the landing
-                                          screen → merged into the
-                                          single 'returning-email-known'
-                                          state below, which shows the
-                                          password form INLINE instead
-                                          of a 4-tile chooser (no more
-                                          highlighting-a-tile pattern).
-             • multi-identity            → uncommon for a single-account
-                                           retail app; dropped per
-                                           team feedback. -->
+      <!-- App-tab pills (Slice B, revised W3.7.2, biometric-split W3.7.3).
+           Default state on App = returning-faceid (was returning-passkey)
+           — the state that most clearly shows the payoff of doing this
+           exercise (one-tap Face ID, no email typing).
+           W3.7.3 · The single 'Returning · passkey' pill was split into
+           two peer pills (Face ID / Touch ID) because iPhone / iPad /
+           Mac users may have EITHER biometric depending on device.
+           Both variants share the same layout — identity chip + hero
+           CTA + password/OTP fallback tiles below — but the CTA icon
+           swaps to reflect the actual biometric.
+           W3.7.2 · Reduced from 5 pills to 3 (before the split). Dropped:
+             • returning-password-saved  } merged into
+             • returning-no-credentials  } 'returning-email-known' below
+             • multi-identity            → uncommon for single-account
+                                           retail app; team feedback. -->
       <button type="button" class="state-pill" data-tab-scope="app" data-state-value="fresh-install" aria-pressed="false">
         <span class="pill-title">Fresh install</span>
         <span class="pill-sub">First-time user, no saved credentials</span>
       </button>
-      <button type="button" class="state-pill" data-tab-scope="app" data-state-value="returning-passkey" aria-pressed="true">
-        <span class="pill-title">Returning · passkey</span>
+      <button type="button" class="state-pill" data-tab-scope="app" data-state-value="returning-faceid" aria-pressed="true">
+        <span class="pill-title">Returning · Face ID</span>
         <span class="pill-sub">Device recognized — one-tap Face ID</span>
+      </button>
+      <button type="button" class="state-pill" data-tab-scope="app" data-state-value="returning-touchid" aria-pressed="false">
+        <span class="pill-title">Returning · Touch ID</span>
+        <span class="pill-sub">Device recognized — one-tap Touch ID</span>
       </button>
       <button type="button" class="state-pill" data-tab-scope="app" data-state-value="returning-email-known" aria-pressed="false">
         <span class="pill-title">Returning · email known</span>
@@ -5065,8 +5103,16 @@
                W3.6 · Two label spans so the variant 'returning-passkey'
                (App tab) can address the user by identity rather than
                the generic default copy. CSS toggles the visible span
-               via [data-chooser-variant]. -->
+               via [data-chooser-variant].
+               W3.7.3 · Two biometric-icon spans layered on top so the
+               same CTA renders a Face ID glyph for the returning-faceid
+               variant and a fingerprint glyph for returning-touchid.
+               Both default hidden; CSS reveals one per variant.
+               The standalone passkey-first Screens-nav path (no variant)
+               keeps the icon-less "Sign in with Face ID" default. -->
           <button class="sign-in-btn chooser-passkey-cta" id="chooser-passkey-cta" type="button">
+            <svg class="cta-biometric-icon cta-biometric-faceid" width="20" height="20" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M701-701q91 91 91 221t-91 221q-91 91-221 91t-221-91q-91-91-91-221t91-221q91-91 221-91t221 91Zm-43 399q74-74 74-178t-74-178q-74-74-178-74t-178 74q-74 74-74 178t74 178q74 74 178 74t178-74Zm-93-67q38-26 57-70H338q18 44 56.5 70t85.5 26q47 0 85-26ZM349-536q11 11 28 11t28-11q11-11 11-28t-11-28q-11-11-28-11t-28 11q-11 11-11 28t11 28Zm206 0q11 11 28 11t28-11q11-11 11-28t-11-28q-11-11-28-11t-28 11q-11 11-11 28t11 28ZM40-731v-129q0-24.75 17.63-42.38Q75.25-920 100-920h129v60H100v129H40ZM229-40H100q-24.75 0-42.37-17.63Q40-75.25 40-100v-129h60v129h129v60Zm502-4v-60h129v-130h60v130q0 24.75-17.62 42.37Q884.75-44 860-44H731Zm129-687v-129H731v-60h129q24.75 0 42.38 17.62Q920-884.75 920-860v129h-60ZM480-480Z"/></svg>
+            <svg class="cta-biometric-icon cta-biometric-touchid" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.81 4.47c-.08 0-.16-.02-.23-.06C15.66 3.42 14 3 12.01 3c-1.98 0-3.86.47-5.57 1.41-.24.13-.54.04-.68-.2-.13-.24-.04-.55.2-.68C7.82 2.52 9.86 2 12.01 2c2.13 0 3.99.47 6.03 1.52.25.13.34.43.21.67-.09.18-.26.28-.44.28zM3.5 9.72c-.1 0-.2-.03-.29-.09-.23-.16-.28-.47-.12-.7.99-1.4 2.25-2.5 3.75-3.27C9.98 3.86 14 3.86 17.15 5.66c1.5.77 2.76 1.86 3.75 3.26.16.22.11.54-.12.7-.23.16-.54.11-.7-.12-.9-1.26-2.04-2.25-3.39-2.94-2.87-1.64-6.54-1.64-9.4.01-1.36.68-2.5 1.68-3.4 2.93-.1.14-.24.22-.4.22zm6.25 12.07c-.13 0-.26-.05-.35-.15-.87-.87-1.34-1.43-2.01-2.64-.69-1.23-1.05-2.73-1.05-4.34 0-2.97 2.54-5.39 5.66-5.39s5.66 2.42 5.66 5.39c0 .28-.22.5-.5.5s-.5-.22-.5-.5c0-2.42-2.09-4.39-4.66-4.39s-4.66 1.97-4.66 4.39c0 1.44.32 2.77.93 3.85.64 1.15 1.08 1.64 1.85 2.42.19.2.19.51 0 .71-.11.1-.24.15-.37.15zm7.17-1.85c-1.19 0-2.24-.3-3.1-.89-1.49-1.01-2.38-2.65-2.38-4.39 0-.28.22-.5.5-.5s.5.22.5.5c0 1.41.72 2.74 1.94 3.56.71.48 1.54.71 2.54.71.24 0 .64-.03 1.04-.1.27-.05.53.13.58.41.05.27-.13.53-.41.58-.57.11-1.07.12-1.21.12zM14.91 22c-.09 0-.18-.02-.26-.08-1.28-.77-1.98-1.81-2.61-3.75-.31-.94-.47-1.94-.47-2.94 0-.28.22-.5.5-.5s.5.22.5.5c0 .95.15 1.83.42 2.63.61 1.88 1.24 2.66 2.18 3.22.24.14.32.45.17.68-.09.16-.26.24-.43.24zM21.02 21.16c-.03 0-.06 0-.09-.01-2-.32-3.34-1.14-4.72-2.5-1.79-1.79-2.83-4.32-2.83-6.94 0-2.02 1.71-3.66 3.81-3.66s3.81 1.64 3.81 3.66c0 1.36 1.15 2.47 2.56 2.47.28 0 .5.22.5.5s-.22.5-.5.5c-1.96 0-3.56-1.55-3.56-3.47 0-1.47-1.26-2.66-2.81-2.66s-2.81 1.19-2.81 2.66c0 2.35.93 4.61 2.54 6.23 1.21 1.19 2.38 1.9 4.19 2.19.27.04.46.3.42.57-.05.25-.26.44-.51.44z"/></svg>
             <span class="cta-label-default">Sign in with Face ID</span>
             <span class="cta-label-identity">Sign in as shopper@ace.com</span>
           </button>
@@ -7250,7 +7296,8 @@
       // via the updateBlurb() extension. Each describes the state's
       // intended user situation + the layout it produces.
       'screen-chooser:fresh-install':          'App state: fresh install / first-time user. No saved credentials means no method tiles can complete — showing them would be dead-ends. Landing surface collapses to email + Continue only. The Create an Account link at the bottom stays visible; this IS the state it exists for.',
-      'screen-chooser:returning-passkey':      'App state: returning user with a passkey on this device. The fastest path is one-tap Face ID, so the chooser collapses to a single hero: identity chip (shopper@ace.com) above a "Sign in as shopper@ace.com" primary CTA. No method tiles — a chooser here would be noise when we know the answer.',
+      'screen-chooser:returning-faceid':       'App state: returning user with Face ID enrolled for this account on this device. Primary path is one-tap Face ID via the hero CTA (identity chip + face glyph + "Sign in as shopper@ace.com"). Password and one-time code fallback tiles are visible below the divider — biometrics fail (mask, sunglasses, sensor smudge), so the escape hatch is always in view, not hidden behind an error state or a menu.',
+      'screen-chooser:returning-touchid':      'App state: returning user with Touch ID enrolled for this account on this device. Same layout as Face ID variant — identity chip + hero CTA + fallback tiles — but the CTA icon swaps to a fingerprint glyph and the pill sub-copy references Touch ID. Applies to iPhone SE / older iPhones / iPads / MacBooks that use fingerprint biometrics rather than Face ID.',
       'screen-chooser:returning-email-known':  'App state: returning user whose identity is known but who has no biometric-unlockable credential on this device. Skipping the chooser: the password field is shown INLINE with a Sign in button and a Forgot password? escape. Face ID and one-time code tiles remain below as alternates if the user wants to switch methods; the password tile is hidden (redundant with the inline form).',
       'screen-chooser:returning-identity':     'Mobile Web / Desktop state: browser hints identity via cookie/session but can\'t confirm what credentials will autofill. Email pre-filled, Not you? link inline, and all method tiles remain visible — no unearned certainty about which path will succeed.',
       'screen-passkey:idle':                  'Shown when the passkey ceremony begins. The user taps “Use Face ID” to authenticate with a saved local passkey. (W3.7 — the “Use a passkey from another device” cross-device option is temporarily hidden; see CROSS-DEVICE TEMPORARILY HIDDEN in the stylesheet.)',
@@ -7827,19 +7874,29 @@
     // 'default' variant (which is a no-op — chooser stays as-is).
     (function initStatePills() {
       const STORAGE_PREFIX = 'proto:device-state:';
-      // Default state per tab. App defaults to returning-passkey
-      // because that's the state that most clearly demonstrates the
-      // reason for building the whole device-frame system.
+      // Default state per tab. App defaults to returning-faceid
+      // (was returning-passkey) because that's the state that most
+      // clearly demonstrates the reason for building the whole
+      // device-frame system.
+      // W3.7.3 · The single 'returning-passkey' variant was split into
+      // 'returning-faceid' and 'returning-touchid' peer variants to
+      // account for the two biometric types users may have. Old
+      // localStorage values for 'returning-passkey' are silently
+      // treated as invalid by readStored() → fall through to this
+      // DEFAULTS map. No migration code needed.
       const DEFAULTS = {
         desktop:     'default',
         'mobile-web':'default',
-        app:         'returning-passkey',
+        app:         'returning-faceid',
       };
       // Variants that render on top of the existing passkey-first
-      // chooser layout. Setting this list here keeps the mapping in
-      // one place — future App variants that share the layout just
-      // add themselves.
-      const PASSKEY_FIRST_VARIANTS = new Set(['returning-passkey']);
+      // chooser layout. W3.7.3 · Both biometric variants share the
+      // passkey-first base (form hidden, passkey CTA visible); the
+      // variant CSS then swaps the CTA icon + label + shows tiles.
+      const PASSKEY_FIRST_VARIANTS = new Set([
+        'returning-faceid',
+        'returning-touchid',
+      ]);
       // Variants that pre-fill the identifier field with a demo email.
       // W3.7.2 · Simplified after the App-tab redesign:
       //   • App 'returning-email-known' fills the email field via the
