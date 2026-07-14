@@ -1121,12 +1121,13 @@
       gap: 6px;
       min-width: 180px;
     }
-    /* Rail only relevant to the chooser landing. On every other
-       screen we use visibility (not display) so the grid column
-       preserves layout — card doesn't shift when rail hides. */
-    body:not([data-current-screen="screen-chooser"]) .device-state-rail {
-      visibility: hidden;
-    }
+    /* W3.7.7 · Rail stays visible on ALL screens, not just the
+       chooser. Deep in a flow the pills act as an escape hatch:
+       clicking one re-applies the state AND resets the flow back
+       to the chooser (see initStatePills — pill click handler
+       calls switchScreen back to screen-chooser when needed).
+       Kept the < 640px fallback below (display:none) — narrow
+       viewports collapse the frame concept entirely. */
 
     /* ─── Device frame chrome (shared base) ─── */
     .device-frame {
@@ -8127,6 +8128,15 @@
 
       // Wire pill clicks. Persist per-tab so each tab remembers its
       // own scenario independently.
+      //
+      // W3.7.7 · Escape-hatch semantics. The rail now stays visible on
+      // every screen (see .device-state-rail CSS block). If a reviewer
+      // is deep in a flow (e.g. screen-otp, screen-new-pw) and taps a
+      // different state pill, we treat that as "restart the funnel in
+      // this new state" — apply the state, then navigate back to the
+      // chooser so the newly-selected variant is the visible starting
+      // point. When already on the chooser, this is a no-op besides
+      // the state swap (matches pre-W3.7.7 behavior).
       pills.forEach(pill => {
         pill.addEventListener('click', () => {
           const tab   = pill.dataset.tabScope;
@@ -8134,6 +8144,26 @@
           if (!tab || !state) return;
           try { localStorage.setItem(STORAGE_PREFIX + tab, state); } catch {}
           applyState(tab, state);
+
+          // If we're not already on the chooser, reset the flow to the
+          // top so the state pill acts as a funnel-reset. Follows the
+          // standard caller pattern used elsewhere:
+          //   switchScreen(from, to, dir); currentScreen = to;
+          if (typeof currentScreen !== 'undefined'
+              && currentScreen !== screenChooser
+              && typeof switchScreen === 'function') {
+            switchScreen(currentScreen, screenChooser, 'backward');
+            currentScreen = screenChooser;
+            // Focus the identifier input on landing, matching the
+            // back-button chooser-restore behavior — but only when
+            // the variant actually shows the input (i.e. not the
+            // passkey-first / identity-chip variants).
+            setTimeout(() => {
+              const input = document.getElementById('chooser-email-input');
+              const formVisible = input && input.offsetParent !== null;
+              if (formVisible) { input.focus(); input.select(); }
+            }, 250);
+          }
         });
       });
 
