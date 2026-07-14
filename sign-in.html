@@ -4436,9 +4436,18 @@
     }
 
     /* ─── Comments overlay (prototype review tool, owner-only writes) ─── */
+    /* Toolbar sits inside the outer 72px page header strip (top: 16px
+       vertically centers the 40px pill). On Mobile Web + App device
+       tabs the outer .header is visibility:hidden but its 72px of
+       vertical space is preserved, so the fixed toolbar still lands
+       in that same upper strip and doesn't overlap the in-frame
+       .device-header — see the W3.7 Header relocation block.
+       When the yellow review banner is mounted it sets
+       --comments-review-banner-h on <html>; we add that to `top` so
+       the fixed toolbar shifts down with the rest of the page. */
     .comments-toggle-wrap {
       position: fixed;
-      top: 84px;
+      top: calc(16px + var(--comments-review-banner-h, 0px));
       right: 24px;
       z-index: 250;
       display: inline-flex;
@@ -4526,7 +4535,7 @@
        comment count would be misleading — never show a badge on them. */
     .proto-flow-btn.figma-only .comments-nav-pill { display: none !important; }
     @media (max-width: 480px) {
-      .comments-toggle-wrap { top: 80px; right: 12px; }
+      .comments-toggle-wrap { top: calc(14px + var(--comments-review-banner-h, 0px)); right: 12px; }
       .comments-toggle { width: 36px; height: 36px; }
       .comments-toggle svg { width: 16px; height: 16px; }
     }

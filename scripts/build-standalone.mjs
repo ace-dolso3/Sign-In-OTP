@@ -39,6 +39,7 @@ const BRANCHES = [
   { name: 'faceid-passkey',             gitRef: 'feature/faceid-passkey' },
   { name: 'heuristic-alignment-wave2',  gitRef: 'feature/heuristic-alignment-wave2' },
   { name: 'ux-best-practices',          gitRef: 'sign-in-ux-best-practices' },
+  { name: 'ux',                         gitRef: 'sign-in-ux-best-practices' },
 ];
 
 // ── Load source HTML ──────────────────────────────────────────────
