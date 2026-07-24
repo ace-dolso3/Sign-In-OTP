@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "standalone": "node scripts/build-standalone.mjs",
+    "bake-comments": "node scripts/bake-comments.mjs",
     "install-hooks": "bash scripts/install-hooks.sh"
   }
 }

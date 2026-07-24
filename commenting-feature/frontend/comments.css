@@ -1,0 +1,401 @@
+/* ─── Comments overlay (prototype review tool, owner-only writes) ─── */
+/* Extracted from sign-in.html — see commenting-feature/README.md.
+   Style overrides:
+   - Toggle position: re-declare `.comments-toggle-wrap { top: ...; right: ...; }`
+     in your host stylesheet AFTER this file.
+   - Brand color: the accent (#d40029 / Ace red) appears in several places.
+     Search/replace if you need a different brand color.
+*/
+
+.comments-toggle-wrap {
+  position: fixed;
+  top: 84px;
+  right: 24px;
+  z-index: 250;
+  display: inline-flex;
+}
+.comments-toggle {
+  appearance: none;
+  background: #fff;
+  border: 1px solid #D1D5DB;
+  color: #1F2937;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.06);
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease, transform 120ms ease, box-shadow 120ms ease;
+}
+.comments-toggle:hover {
+  background: #F9FAFB;
+  border-color: #9CA3AF;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.16), 0 1px 2px rgba(0,0,0,0.06);
+}
+.comments-toggle:focus-visible {
+  outline: 2px solid #d40029;
+  outline-offset: 2px;
+}
+.comments-toggle[aria-pressed="true"] {
+  background: #FFC107;
+  border-color: #E0A800;
+  color: #1F2937;
+}
+.comments-toggle[aria-pressed="true"]:hover {
+  background: #E0A800;
+}
+.comments-toggle svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+.comments-count-pill {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: #d40029;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
+  pointer-events: none;
+  box-shadow: 0 0 0 2px #fff;
+}
+/* Per-screen / per-flow count badges inside proto-nav rows (optional —
+   only renders if your host page has matching nav DOM).
+   Red = open comments exist; grey = all addressed (resolved-only). */
+.comments-nav-pill {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 5px;
+  border-radius: 8px;
+  background: #d40029;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 16px;
+  text-align: center;
+  pointer-events: none;
+  box-shadow: 0 0 0 2px rgba(20,20,28,0.95);
+  box-sizing: border-box;
+}
+.comments-nav-pill.is-resolved {
+  background: #6B7280;
+  color: rgba(255,255,255,0.92);
+}
+/* Figma-only flow rows aren't interactive in the prototype, so a
+   comment count would be misleading — never show a badge on them. */
+.proto-flow-btn.figma-only .comments-nav-pill { display: none !important; }
+@media (max-width: 480px) {
+  .comments-toggle-wrap { top: 80px; right: 12px; }
+  .comments-toggle { width: 36px; height: 36px; }
+  .comments-toggle svg { width: 16px; height: 16px; }
+}
+
+/* Body cursor + screen positioning when comment mode is on */
+body.comments-mode-on { cursor: crosshair; }
+body.comments-mode-on input,
+body.comments-mode-on textarea,
+body.comments-mode-on button,
+body.comments-mode-on a,
+body.comments-mode-on label,
+body.comments-mode-on [role="button"] { cursor: crosshair !important; }
+body.comments-mode-on .comments-popover,
+body.comments-mode-on .comments-popover * { cursor: auto !important; }
+body.comments-mode-on .comments-popover button { cursor: pointer !important; }
+
+/* Make every screen a positioning context so dots can anchor inside.
+   Override this selector in your host CSS if your stage isn't
+   #screens-container — must match window.COMMENTS_CONFIG.screenSelector. */
+#screens-container > div { position: relative; }
+
+/* Overlay layer inside each screen — legacy per-screen container.
+   Current build uses a body-level layer; this is kept for forward-compat. */
+.comments-overlay-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+}
+.comments-dot {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #FFC107;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.28);
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #1F2937;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.comments-dot:hover {
+  transform: translate(-50%, -50%) scale(1.12);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.32);
+}
+.comments-dot[data-status="resolved"] {
+  background: #9CA3AF;
+  opacity: 0.55;
+}
+.comments-dot.is-active {
+  outline: 3px solid rgba(212,0,41,0.35);
+  outline-offset: 2px;
+}
+/* Dots are visible only while comment mode is on. */
+body:not(.comments-mode-on) .comments-dot { display: none; }
+
+/* Popover (compose + read) */
+.comments-popover {
+  position: absolute;
+  width: 260px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.22), 0 0 0 1px rgba(0,0,0,0.05);
+  padding: 12px;
+  z-index: 65;
+  pointer-events: auto;
+  transform: translate(-50%, 16px);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #1F2937;
+}
+.comments-popover-meta {
+  font-size: 11px;
+  color: #6B7280;
+  margin: 0 0 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.comments-popover-body {
+  font-size: 13px;
+  line-height: 1.4;
+  color: #1F2937;
+  margin: 0 0 10px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+.comments-popover textarea {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 64px;
+  max-height: 200px;
+  border: 1px solid #D1D5DB;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #1F2937;
+  resize: vertical;
+  outline: none;
+}
+.comments-popover textarea:focus { border-color: #d40029; }
+.comments-popover-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.comments-popover-confirm {
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+  background: #FFF6F6;
+  border: 1px solid #F0B5B7;
+  border-radius: 4px;
+}
+.comments-popover-confirm-label {
+  font-size: 12px;
+  color: #7F1D1D;
+  font-weight: 500;
+  margin-right: auto;
+}
+.comments-popover button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.comments-popover button {
+  appearance: none;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 4px;
+  border: 1px solid #D1D5DB;
+  background: #fff;
+  color: #1F2937;
+  cursor: pointer;
+  line-height: 1.2;
+}
+.comments-popover button:hover { background: #F3F4F6; }
+.comments-popover button.primary {
+  background: #d40029;
+  color: #fff;
+  border-color: #d40029;
+}
+.comments-popover button.primary:hover { background: #b80022; }
+.comments-popover button.danger {
+  color: #C62828;
+  border-color: #F0B5B7;
+}
+.comments-popover button.danger:hover { background: #FFEBEE; }
+.comments-popover-status {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+.comments-popover-status[data-status="open"] {
+  background: #FFF8E1;
+  color: #92660C;
+}
+.comments-popover-status[data-status="resolved"] {
+  background: #E8F5E9;
+  color: #2E7D32;
+}
+.comments-popover-error {
+  font-size: 11px;
+  color: #C62828;
+  margin: 6px 0 0;
+}
+
+/* Auth modal (replaces window.prompt for token entry) */
+.comments-auth-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #1F2937;
+}
+.comments-auth-modal-card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.28);
+  width: 100%;
+  max-width: 380px;
+  padding: 20px;
+  box-sizing: border-box;
+}
+.comments-auth-modal-card h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+.comments-auth-modal-card p {
+  margin: 0 0 12px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #4B5563;
+}
+.comments-auth-modal-card input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #D1D5DB;
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  color: #1F2937;
+  outline: none;
+}
+.comments-auth-modal-card input:focus { border-color: #d40029; }
+.comments-auth-modal-error {
+  font-size: 11px;
+  color: #C62828;
+  margin: 8px 0 0;
+}
+.comments-auth-modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+.comments-auth-modal-actions button {
+  appearance: none;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: 1px solid #D1D5DB;
+  background: #fff;
+  color: #1F2937;
+  cursor: pointer;
+  line-height: 1.2;
+}
+.comments-auth-modal-actions button:hover { background: #F3F4F6; }
+.comments-auth-modal-actions button.primary {
+  background: #d40029;
+  color: #fff;
+  border-color: #d40029;
+}
+.comments-auth-modal-actions button.primary:hover { background: #b80022; }
+.comments-auth-modal-actions button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Toast (action confirmation w/ Undo) */
+.comments-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(8px);
+  background: #1F2937;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.28);
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 300;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+.comments-toast.is-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+.comments-toast button {
+  background: transparent;
+  border: 0;
+  color: #FFC107;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+.comments-toast button:hover { text-decoration: underline; }

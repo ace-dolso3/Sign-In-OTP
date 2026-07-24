@@ -1,0 +1,5 @@
+# Don't commit local env files or installed deps
+.env
+.env.local
+.env*.local
+node_modules/

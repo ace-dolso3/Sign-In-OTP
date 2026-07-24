@@ -1,0 +1,6 @@
+{
+  "_comment": "Optional. Rename to vercel.json at the project root if you need root-path rewrites or other Vercel config. The commenting feature itself does not require this file.",
+  "rewrites": [
+    { "source": "/", "destination": "/index.html" }
+  ]
+}

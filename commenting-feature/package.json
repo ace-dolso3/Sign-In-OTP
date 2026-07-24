@@ -1,0 +1,10 @@
+{
+  "name": "commenting-feature",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Portable click-to-comment overlay for HTML prototypes — Vercel KV backend, owner-only writes, branch-isolated storage.",
+  "type": "module",
+  "dependencies": {
+    "@vercel/kv": "^3.0.0"
+  }
+}

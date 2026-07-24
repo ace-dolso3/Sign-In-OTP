@@ -1026,25 +1026,186 @@
       flex-shrink: 0;
     }
 
-    /* ─── Create Account ──────────────────────────────────── */
-    .create-account {
+    /* ─── Rewards Promotion Card ─────────────────────────── */
+    .rewards-promo {
+      width: 100%;
+      border-radius: 8px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      background: linear-gradient(151deg, #d40029 0%, #a00020 100%);
+      box-sizing: border-box;
+    }
+
+    .rewards-promo-header {
+      display: flex;
+      flex-direction: row;
+      gap: 12px;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    /* Mobile / App: logo on top, text below (column, reversed) */
+    body[data-device-tab="mobile-web"] .rewards-promo-header,
+    body[data-device-tab="app"]        .rewards-promo-header {
+      flex-direction: column-reverse;
+    }
+
+    .rewards-promo-logo {
+      height: 20px;
+      width: auto;
+      flex-shrink: 0;
+    }
+
+    .rewards-promo-header-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .rewards-promo-header-title {
+      font-family: 'Roboto', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 24px;
+      letter-spacing: 0.15px;
+      color: #fff;
+      white-space: nowrap;
+    }
+
+    .rewards-promo-header-sub {
+      font-family: 'Roboto', sans-serif;
       font-size: 14px;
       font-weight: 400;
       line-height: 20px;
       letter-spacing: 0.25px;
-      color: #121212;
-      text-align: center;
+      color: #fff;
+      white-space: nowrap;
+    }
+
+    .rewards-promo-divider {
       width: 100%;
+      height: 1px;
+      background: rgba(255,255,255,0.15);
+      flex-shrink: 0;
     }
 
-    .create-account a {
-      color: #d40029;
-      text-decoration: underline;
-      text-underline-offset: 1px;
+    .rewards-promo-benefits {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .rewards-promo-benefit {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .rewards-promo-benefit-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .rewards-promo-benefit-icon svg {
+      fill: #fff;
+    }
+
+    .rewards-promo-benefit-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .rewards-promo-benefit-title {
+      font-family: 'Roboto', sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      line-height: 16px;
+      letter-spacing: 0.15px;
+      color: #fff;
+    }
+
+    .rewards-promo-benefit-desc {
+      font-family: 'Roboto', sans-serif;
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 16px;
+      letter-spacing: 0.4px;
+      color: #fff;
+      margin-top: 2px;
+    }
+
+    /* ─── Chooser promo footer ──────────────────────────────
+       Rewards promotion + create-account sit at the bottom of the
+       chooser screen inside all device frames. The wrapper reduces
+       the parent's 24px gap to 16px and sets 16px between sections. */
+    .chooser-promo-footer {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: -8px; /* 24px parent gap − 8px = 16px effective */
+    }
+
+    /* ─── Create Account Section ──────────────────────────── */
+    .create-account-section {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 24px;
+      box-sizing: border-box;
+    }
+
+    .create-account-heading {
+      font-family: 'Roboto', sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+      letter-spacing: 0.5px;
+      color: #1f1f1f;
+      text-align: center;
+    }
+
+    .create-account-btn {
+      width: 100%;
+      height: 48px;
+      background: #fff;
+      border: 1px solid #8a8a8a;
+      border-radius: 4px;
+      font-family: 'Roboto', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 1.25px;
+      text-transform: uppercase;
+      color: #1f1f1f;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .create-account a:hover { opacity: 0.8; }
+    .create-account-btn:hover { border-color: rgba(18,18,18,0.4); }
+
+    .create-account-tagline {
+      font-family: 'Roboto', sans-serif;
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 16px;
+      letter-spacing: 0.4px;
+      color: #5c5c5c;
+      text-align: center;
+    }
     /* ─── Responsive: mobile (≤ 420px) ───────────────────────────── */
     @media (max-width: 420px) {
       body {
@@ -1166,16 +1327,15 @@
        per team feedback — it added no value for reviewers assessing
        the actual sign-in surface. */
     body[data-device-tab="desktop"] .device-frame {
-      border: 1px solid #d1d1d1;
-      border-radius: 8px;
+      border: none;
       box-shadow: none;
-      overflow: hidden;
+      background: transparent;
     }
     body[data-device-tab="desktop"] .device-chrome--top,
     body[data-device-tab="desktop"] .device-chrome--bottom { display: none; }
     body[data-device-tab="desktop"] .device-frame .card {
-      border: none;
-      border-radius: 0;
+      border: 1px solid #d1d1d1;
+      border-radius: 8px;
       box-shadow: none;
     }
 
@@ -1547,14 +1707,12 @@
 
        New elements introduced here (all default: display:none):
          .chooser-identity-chip     — single identity above passkey CTA
-         .chooser-not-you-link      — clears the pre-filled email
          .chooser-multi-identity    — 2-account chip list + fallback link
          .cta-label-identity        — alternate copy for passkey CTA
        ═════════════════════════════════════════════════════════════ */
 
     /* All new elements default hidden — variants turn them on. */
     .chooser-identity-chip,
-    .chooser-not-you-link,
     .chooser-inline-pw-form,
     .chooser-subtitle-welcome-back,
     .cta-label-touchid,
@@ -1597,23 +1755,6 @@
     .chooser-identity-chip .identity-email {
       font-weight: 500;
     }
-
-    /* ── "Not you?" link (shown in returning-password-saved, returning-no-credentials) ── */
-    .chooser-not-you-link {
-      align-self: flex-start;
-      background: none;
-      border: none;
-      padding: 0;
-      margin-top: -4px;
-      font-family: 'Roboto', sans-serif;
-      font-size: 13px;
-      font-weight: 500;
-      color: #d40029;
-      cursor: pointer;
-      text-decoration: underline;
-      text-underline-offset: 2px;
-    }
-    .chooser-not-you-link:hover { opacity: 0.8; }
 
     /* ── Inline password form (W3.7.2)
        Shown in App state 'returning-email-known' — user's identity is
@@ -1687,6 +1828,37 @@
       display: none;
     }
 
+    /* Rewards promo: only visible in default state. All other
+       chooser variants hide it — returning users already have
+       an account, so the signup promotion is irrelevant. */
+    #screen-chooser[data-chooser-variant] .rewards-promo {
+      display: none;
+    }
+    #screen-chooser:not([data-chooser-variant]) .rewards-promo,
+    #screen-chooser[data-chooser-variant="default"] .rewards-promo {
+      display: flex;
+    }
+
+    /* Desktop: footer lives outside .card (moved by JS tab-switch).
+       Show only when chooser is the active screen; drive rewards-promo
+       visibility via body[data-device-state] since the footer is no
+       longer a descendant of #screen-chooser on this tab. */
+    body[data-device-tab="desktop"] .device-frame > .chooser-promo-footer {
+      display: none;
+      margin-top: 16px;
+      width: 346px;
+    }
+    body[data-device-tab="desktop"][data-current-screen="screen-chooser"] .device-frame > .chooser-promo-footer {
+      display: flex;
+    }
+    body[data-device-tab="desktop"] .device-frame > .chooser-promo-footer .rewards-promo {
+      display: none;
+    }
+    body[data-device-tab="desktop"][data-device-state="default"] .device-frame > .chooser-promo-footer .rewards-promo,
+    body[data-device-tab="desktop"]:not([data-device-state]) .device-frame > .chooser-promo-footer .rewards-promo {
+      display: flex;
+    }
+
     /* Returning · Face ID / Touch ID (App · W3.7.3) + passkey-available (Mobile Web · W3.7.6):
        All three reuse the passkey-first base layout (data-chooser-state=
        passkey-first, set by JS) — form hidden, passkey CTA visible.
@@ -1712,7 +1884,8 @@
        will fire (Face ID, Touch ID, Windows Hello, YubiKey, etc.). */
     #screen-chooser[data-chooser-variant="returning-faceid"] .chooser-identity-chip,
     #screen-chooser[data-chooser-variant="returning-touchid"] .chooser-identity-chip,
-    #screen-chooser[data-chooser-variant="passkey-available"] .chooser-identity-chip {
+    #screen-chooser[data-chooser-variant="passkey-available"] .chooser-identity-chip,
+    #screen-chooser[data-chooser-variant="passkey-detected"]  .chooser-identity-chip {
       display: inline-flex;
     }
     /* W3.7.4 · Label copy follows the [Verb] with [Biometric] pattern
@@ -1721,13 +1894,15 @@
        so no swap is needed. Touch ID and passkey-available variants
        hide default and reveal their respective labels. */
     #screen-chooser[data-chooser-variant="returning-touchid"] .cta-label-default,
-    #screen-chooser[data-chooser-variant="passkey-available"] .cta-label-default {
+    #screen-chooser[data-chooser-variant="passkey-available"] .cta-label-default,
+    #screen-chooser[data-chooser-variant="passkey-detected"]  .cta-label-default {
       display: none;
     }
     #screen-chooser[data-chooser-variant="returning-touchid"] .cta-label-touchid {
       display: inline;
     }
-    #screen-chooser[data-chooser-variant="passkey-available"] .cta-label-passkey {
+    #screen-chooser[data-chooser-variant="passkey-available"] .cta-label-passkey,
+    #screen-chooser[data-chooser-variant="passkey-detected"]  .cta-label-passkey {
       display: inline;
     }
     /* Biometric icon in the CTA — one per variant. */
@@ -1737,7 +1912,8 @@
     #screen-chooser[data-chooser-variant="returning-touchid"] .cta-biometric-touchid {
       display: inline-flex;
     }
-    #screen-chooser[data-chooser-variant="passkey-available"] .cta-biometric-passkey {
+    #screen-chooser[data-chooser-variant="passkey-available"] .cta-biometric-passkey,
+    #screen-chooser[data-chooser-variant="passkey-detected"]  .cta-biometric-passkey {
       display: inline-flex;
     }
     /* Collapse the passkey-first subtitle for these variants — the
@@ -1745,24 +1921,75 @@
        becomes vertical noise. */
     #screen-chooser[data-chooser-variant="returning-faceid"] .chooser-subtitle-passkey-first,
     #screen-chooser[data-chooser-variant="returning-touchid"] .chooser-subtitle-passkey-first,
-    #screen-chooser[data-chooser-variant="passkey-available"] .chooser-subtitle-passkey-first {
+    #screen-chooser[data-chooser-variant="passkey-available"] .chooser-subtitle-passkey-first,
+    #screen-chooser[data-chooser-variant="passkey-detected"]  .chooser-subtitle-passkey-first {
       display: none;
     }
-    /* Mobile Web passkey-available also gets a generic 'Welcome back'
-       subtitle — see subtitle rules below. */
+    /* Mobile Web passkey-available and Desktop passkey-detected also get
+       a generic 'Welcome back' subtitle — see subtitle rules below. */
 
-    /* Returning · identity (Mobile Web / Desktop): email pre-filled,
-       "Not you?" link shown. Tiles remain visible so the user can
-       escape to another method if autofill fails.
-       W3.7.6 · The 'passkey-available' selector was removed from here
-       because that variant now uses the passkey-first base layout
-       (email form hidden via base rules — Not you? link is inside the
-       form and hidden alongside it). Not you? handling for
-       passkey-available happens differently — see the identity chip
-       (which is the escape route: tap 'Not you?' should reset). */
-    #screen-chooser[data-chooser-variant="returning-identity"] .chooser-not-you-link {
-      display: inline-block;
+    /* ── Method tile: icon + label variants (generic passkey) ───────
+       #tile-passkey defaults to a Face ID glyph + "Face ID or passkey"
+       label. In contexts where the biometric type is unknown (Desktop
+       passkey-detected — the runtime signals a saved passkey but the
+       OS decides which authenticator to invoke), swap to a generic
+       passkey glyph + "Sign in with a passkey" label. Each variant
+       lives as a sibling span/SVG on the tile; base rules hide the
+       generic pair, and per-context rules reveal it. */
+    .tile-icon-passkey-generic,
+    .method-tile-label.method-tile-label-passkey-generic { display: none; }
+
+    /* Desktop tab: suppress the #tile-passkey "Face ID or passkey" and
+       #tile-password-chooser "Password" tiles in the default and
+       returning-identity variants. Rationale:
+         • #tile-passkey: on desktop the copy is factually wrong for
+           most hardware (Face ID doesn't exist on Mac; Windows uses
+           Windows Hello; many desktops have no biometric at all) AND
+           the runtime has no reliable way to verify a passkey exists
+           for this origin. In production the passkey affordance on
+           desktop would live in browser Conditional UI (autofill in
+           the email field), not a designed tile.
+         • #tile-password-chooser: redundant with the identifier-first
+           flow — email + Continue already progresses to a password
+           screen, so a separate "Password" tile duplicates the primary
+           path. Removing it keeps the desktop chooser lean.
+       App and mobile-web variants are intentionally untouched. */
+    body[data-device-tab="desktop"] #screen-chooser[data-chooser-variant="default"] #tile-passkey,
+    body[data-device-tab="desktop"] #screen-chooser[data-chooser-variant="returning-identity"] #tile-passkey,
+    body[data-device-tab="desktop"] #screen-chooser[data-chooser-variant="passkey-detected"] #tile-passkey,
+    body[data-device-tab="desktop"] #screen-chooser[data-chooser-variant="default"] #tile-password-chooser,
+    body[data-device-tab="desktop"] #screen-chooser[data-chooser-variant="returning-identity"] #tile-password-chooser {
+      display: none;
     }
+    /* W3.9.1 · The password tile stays VISIBLE on desktop
+       passkey-detected. Rationale: this variant uses the passkey-first
+       layout (email form hidden), so unlike default / returning-identity
+       there is no identifier-first flow the user can fall through to
+       reach password sign-in. The OS passkey modal's "device password"
+       fallback is the machine login password, not the user's Ace
+       account password — they are different credentials. Mobile Web
+       passkey-available also shows both password + OTP fallback tiles,
+       so keeping the password tile here also preserves the W3.9
+       cross-surface alignment. */
+
+    /* Desktop 'passkey-detected' variant (W3.9 realignment):
+       Adopts Mobile Web 'passkey-available' pattern — identity chip
+       + hero "Sign in with passkey" CTA + fallback tiles. Previously
+       kept the identifier-first form visible with a promoted #tile-
+       passkey below; that split primary action into two competing
+       affordances (Continue vs. passkey tile) and diverged from the
+       Mobile Web variant that shares the same state name. Aligning
+       both surfaces to the same layout removes the divergence, gives
+       desktop the industry-standard passkey UX (Google / Chase / GitHub /
+       PayPal / 1Password), and reuses the existing passkey-first
+       machinery in initStatePills (PASSKEY_FIRST_VARIANTS). The hero
+       CTA click already routes correctly on desktop — the
+       #chooser-passkey-cta handler forks to showOsPasskeyModal when
+       tab=desktop and to the in-page ceremony otherwise. */
+
+    /* Returning · identity (Mobile Web / Desktop): email pre-filled.
+       Tiles remain visible so the user can escape to another method
+       if autofill fails. */
 
     /* W3.7.6 · The previous 'passkey-available' block (which revealed
        a .chooser-passkey-suggestion dashed pill below the email field)
@@ -1822,7 +2049,8 @@
       display: none;
     }
     #screen-chooser[data-chooser-variant="returning-identity"] .chooser-subtitle-welcome-back,
-    #screen-chooser[data-chooser-variant="passkey-available"]  .chooser-subtitle-welcome-back {
+    #screen-chooser[data-chooser-variant="passkey-available"]  .chooser-subtitle-welcome-back,
+    #screen-chooser[data-chooser-variant="passkey-detected"]   .chooser-subtitle-welcome-back {
       display: block;
     }
 
@@ -1991,6 +2219,14 @@
       margin-left: auto;
       flex-shrink: 0;
       opacity: 0.4;
+      /* Match .method-tile-icon: flex container so the inline SVG
+         inside centers to the flex row's true cross-axis midpoint.
+         Without this the SVG sits on the inline baseline, which is
+         1–2px below center of a 56.5px-tall tile row and reads as
+         a subtle misalignment against the icon + label. */
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     /* ─── 2B: Biometric / passkey states ─────────────────── */
@@ -3049,6 +3285,29 @@
     .enroll-hero-icon--error    { background: #FFF3E0; color: #E65100; }
     .enroll-hero-icon--declined { background: #F3F4F6; color: #6B7280; }
 
+    /* Enrollment screen: tab-scoped copy fork.
+       Elements tagged .enroll-tab-app-mw render on App / Mobile Web tabs;
+       .enroll-tab-desktop elements render on the Desktop tab. Only one
+       fork is visible at any time. Rationale: the App / Mobile Web pitch
+       leans on Face ID / Touch ID / Apple-ecosystem language (accurate
+       on those tabs via native APIs), while the Desktop pitch uses
+       generic passkey language — the OS decides at ceremony time
+       whether Touch ID, Windows Hello, YubiKey, or the device password
+       fallback fires, so the site can't honestly promise any one path.
+       display:revert lets inline elements (spans inside button labels)
+       restore to inline, and block elements (h2, p) to block. However,
+       revert resolves against the UA stylesheet, not other author
+       rules — so flex containers (.enroll-hero-icon, .enroll-benefits)
+       lose their flex display and need an explicit override below. */
+    .enroll-tab-desktop { display: none; }
+    body[data-device-tab="desktop"] .enroll-tab-app-mw { display: none; }
+    body[data-device-tab="desktop"] .enroll-tab-desktop { display: revert; }
+    /* Restore flex display for elements that rely on it from their other
+       class rules — revert falls through to UA 'block' for div/ul and
+       loses the flex layout set by .enroll-hero-icon and .enroll-benefits. */
+    body[data-device-tab="desktop"] .enroll-hero-icon.enroll-tab-desktop,
+    body[data-device-tab="desktop"] .enroll-benefits.enroll-tab-desktop { display: flex; }
+
     .enroll-heading {
       font-family: 'Roboto', sans-serif;
       font-size: 22px;
@@ -3245,6 +3504,205 @@
       letter-spacing: 0;
     }
     .os-cancel-btn:hover { background: #f0f0f5; }
+
+    /* ── OS Passkey Modal (Desktop) ──────────────────────────
+       Simulates the browser-level passkey ceremony that real Chrome /
+       Safari / Edge present when a site invokes navigator.credentials.
+       get() with a passkey credential. Deliberately styled to feel like
+       OS chrome (system font, cool neutral surface, small radius, no
+       Ace design tokens) so the reviewer reads it as "the browser is
+       taking over" — not part of the site. Renders centered instead of
+       bottom-sheet because desktop OS modals are typically centered
+       viewport dialogs. z-index 500 matches the biometric backdrop so
+       both sit above prototype chrome. */
+    #os-passkey-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    #os-passkey-backdrop.os-visible {
+      display: flex;
+      animation: osBackdropIn 0.2s ease forwards;
+    }
+    #os-passkey-backdrop.os-hiding {
+      animation: osBackdropOut 0.18s ease forwards;
+    }
+    .os-passkey-modal {
+      width: 420px;
+      max-width: calc(100vw - 32px);
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28),
+                  0 3px 8px rgba(0, 0, 0, 0.10);
+      overflow: hidden;
+      animation: osPasskeyIn 0.22s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+    }
+    #os-passkey-backdrop.os-hiding .os-passkey-modal {
+      animation: osPasskeyOut 0.18s ease forwards;
+    }
+    @keyframes osPasskeyIn  { from { transform: scale(0.96); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes osPasskeyOut { from { transform: scale(1); opacity: 1; } to { transform: scale(0.98); opacity: 0; } }
+
+    .os-passkey-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    }
+    .os-passkey-favicon {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      flex-shrink: 0;
+      background: #d40029;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 700;
+      font-size: 16px;
+      letter-spacing: -0.5px;
+    }
+    .os-passkey-header-text { min-width: 0; flex: 1; }
+    .os-passkey-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #202124;
+      line-height: 1.3;
+    }
+    .os-passkey-account {
+      font-size: 12px;
+      color: rgba(60, 60, 67, 0.65);
+      margin-top: 2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .os-passkey-body { padding: 18px 20px 4px; }
+    .os-passkey-primary {
+      font-size: 14px;
+      font-weight: 500;
+      color: #202124;
+      margin: 0 0 6px;
+      line-height: 1.4;
+    }
+    .os-passkey-primary strong { font-weight: 600; }
+    .os-passkey-secondary {
+      font-size: 12.5px;
+      color: rgba(60, 60, 67, 0.72);
+      margin: 0 0 16px;
+      line-height: 1.45;
+    }
+
+    .os-passkey-field-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(60, 60, 67, 0.85);
+      margin-bottom: 6px;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+    #os-passkey-password {
+      width: 100%;
+      height: 36px;
+      padding: 0 10px;
+      box-sizing: border-box;
+      border: 1px solid #c8c8c8;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+      background: #fff;
+      color: #202124;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    #os-passkey-password:focus {
+      border-color: #1a73e8;
+      box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.18);
+    }
+    #os-passkey-password:disabled {
+      background: #f5f5f7;
+      color: rgba(60, 60, 67, 0.55);
+      cursor: not-allowed;
+    }
+    .os-passkey-error {
+      color: #c62828;
+      font-size: 12px;
+      margin: 8px 0 0;
+      line-height: 1.4;
+    }
+
+    .os-passkey-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 14px 20px 16px;
+      margin-top: 12px;
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+      background: #fafafc;
+    }
+    .os-passkey-btn {
+      height: 34px;
+      padding: 0 18px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-width: 88px;
+      transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+    }
+    .os-passkey-btn--secondary {
+      background: #fff;
+      border-color: #c8c8c8;
+      color: #202124;
+    }
+    .os-passkey-btn--secondary:hover { background: #f5f5f7; border-color: #a8a8a8; }
+    .os-passkey-btn--primary {
+      background: #1a73e8;
+      border-color: #1a73e8;
+      color: #fff;
+    }
+    .os-passkey-btn--primary:hover:not(:disabled) { background: #1666d0; border-color: #1666d0; }
+    .os-passkey-btn--primary:disabled { background: #a5c1e8; border-color: #a5c1e8; cursor: not-allowed; }
+
+    /* Verifying state: spinner appended to submit label via ::after */
+    #os-passkey-backdrop[data-passkey-modal-state="verifying"] .os-passkey-submit-label::after {
+      content: '';
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      margin-left: 8px;
+      border: 2px solid rgba(255, 255, 255, 0.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      vertical-align: -1px;
+      animation: osPasskeySpin 0.7s linear infinite;
+    }
+    @keyframes osPasskeySpin { to { transform: rotate(360deg); } }
+
+    /* Success state: primary CTA turns green with a check glyph */
+    #os-passkey-backdrop[data-passkey-modal-state="success"] .os-passkey-btn--primary {
+      background: #2e7d32;
+      border-color: #2e7d32;
+      opacity: 1;
+    }
+    #os-passkey-backdrop[data-passkey-modal-state="success"] .os-passkey-submit-label { display: none; }
+    .os-passkey-submit-check { display: none; font-weight: 700; }
+    #os-passkey-backdrop[data-passkey-modal-state="success"] .os-passkey-submit-check { display: inline; }
 
     /* ─── Prototype Navigator ────────────────────────────── */
     #proto-nav-toggle {
@@ -5072,15 +5530,25 @@
       <!-- Desktop-tab pills (Slice D). Browser credential detection is
            the weakest here — no reliable way to know whether a passkey
            exists for this origin, and autofill semantics vary widely
-           by browser. So states stay coarse: current mock and a pre-
-           filled-identity variant. -->
+           by browser. Desktop passkey adoption is also genuinely low
+           (retail sites in 2026 see it in the low single digits of
+           returning users). Default and returning-identity states stay
+           lean; a third state, 'passkey-detected', represents the
+           scenario where the browser DID signal a saved passkey (via
+           Conditional UI or a prior WebAuthn registration) — in that
+           case a proper "Sign in with a passkey" tile appears as the
+           primary shortcut, above the OTP fallback. -->
       <button type="button" class="state-pill" data-tab-scope="desktop" data-state-value="default" aria-pressed="true">
         <span class="pill-title">Default</span>
-        <span class="pill-sub">Email empty · all methods offered</span>
+        <span class="pill-sub">Email empty · identifier-first sign-in</span>
       </button>
       <button type="button" class="state-pill" data-tab-scope="desktop" data-state-value="returning-identity" aria-pressed="false">
         <span class="pill-title">Returning identity</span>
         <span class="pill-sub">Email pre-filled from cookie</span>
+      </button>
+      <button type="button" class="state-pill" data-tab-scope="desktop" data-state-value="passkey-detected" aria-pressed="false">
+        <span class="pill-title">Returning · passkey available</span>
+        <span class="pill-sub">Browser signals a saved passkey for this origin</span>
       </button>
     </aside>
 
@@ -5180,13 +5648,6 @@
                  now uses the same layout as the App Face ID / Touch ID
                  states — identity chip + primary 'Sign in with passkey'
                  CTA — via the .chooser-passkey-cta button below. -->
-            <!-- W3.6 · "Not you?" link — visible in returning-* variants
-                 where the email is pre-filled from a prior session.
-                 Wired to clear the field and reset the chooser variant
-                 (see initStatePills). -->
-            <button type="button" class="chooser-not-you-link" id="chooser-not-you-link">
-              Not you?
-            </button>
             <button class="sign-in-btn" id="chooser-continue-btn" type="submit">Continue</button>
           </form>
 
@@ -5268,16 +5729,32 @@
                  (#chooser-passkey-cta) takes over that job. The pill
                  inside is therefore vestigial; leaving the markup in
                  place to avoid a surprise if the passkey-first layout
-                 is ever rolled back. -->
+                 is ever rolled back.
+
+                 Desktop 'passkey-detected' variant reuses this tile with
+                 a swapped icon (generic passkey glyph) and swapped label
+                 ("Sign in with a passkey") since on desktop we don't
+                 know which authenticator will fire (Touch ID, Windows
+                 Hello, YubiKey, or the device password fallback). The
+                 "Recommended for this device" pill is also hidden on
+                 desktop — the claim isn't verifiable from the runtime. -->
             <button class="method-tile method-tile-passkey" id="tile-passkey" role="listitem" type="button"
               aria-label="Sign in with Face ID or a passkey">
               <span class="method-tile-icon" aria-hidden="true">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 -960 960 960" fill="currentColor">
+                <svg class="tile-icon-faceid" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 -960 960 960" fill="currentColor">
                   <path d="M701-701q91 91 91 221t-91 221q-91 91-221 91t-221-91q-91-91-91-221t91-221q91-91 221-91t221 91Zm-43 399q74-74 74-178t-74-178q-74-74-178-74t-178 74q-74 74-74 178t74 178q74 74 178 74t178-74Zm-93-67q38-26 57-70H338q18 44 56.5 70t85.5 26q47 0 85-26ZM349-536q11 11 28 11t28-11q11-11 11-28t-11-28q-11-11-28-11t-28 11q-11 11-11 28t11 28Zm206 0q11 11 28 11t28-11q11-11 11-28t-11-28q-11-11-28-11t-28 11q-11 11-11 28t11 28ZM40-731v-129q0-24.75 17.63-42.38Q75.25-920 100-920h129v60H100v129H40ZM229-40H100q-24.75 0-42.37-17.63Q40-75.25 40-100v-129h60v129h129v60Zm502-4v-60h129v-130h60v130q0 24.75-17.62 42.37Q884.75-44 860-44H731Zm129-687v-129H731v-60h129q24.75 0 42.38 17.62Q920-884.75 920-860v129h-60ZM480-480Z"/>
+                </svg>
+                <!-- Generic passkey glyph — revealed on Desktop
+                     passkey-detected variant. Same path as the passkey
+                     CTA button icon so the tile and hero stay visually
+                     consistent when both are used elsewhere. -->
+                <svg class="tile-icon-passkey-generic" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 -960 960 960" fill="currentColor">
+                  <path d="M200-160q-33 0-56.5-23.5T120-240v-32q0-34 17.5-62.5T184-378q62-31 126-46.5T440-440q14 0 28 .5t28 2.5q11 1 17.5 8.5T520-410q2 47 23 88.5t56 70.5q7 5 11 12.5t4 16.5v22q0 17-11.5 28.5T574-160H200Zm240-320q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47Zm300 80q17 0 28.5-11.5T780-440q0-17-11.5-28.5T740-480q-17 0-28.5 11.5T700-440q0 17 11.5 28.5T740-400Zm6 346-40-40q-2-2-6-14v-178q-44-13-72-49.5T600-420q0-58 41-99t99-41q58 0 99 41t41 99q0 45-25.5 80T790-290l36 36q6 6 6 14t-6 14l-32 32q-6 6-6 14t6 14l32 32q6 6 6 14t-6 14l-52 52q-6 6-14 6t-14-6Z"/>
                 </svg>
               </span>
               <span class="method-tile-content">
-                <span class="method-tile-label">Face ID or passkey</span>
+                <span class="method-tile-label method-tile-label-default">Face ID or passkey</span>
+                <span class="method-tile-label method-tile-label-passkey-generic">Sign in with a passkey</span>
                 <span class="method-tile-pill">Recommended for this device</span>
               </span>
               <span class="method-tile-arrow" aria-hidden="true">
@@ -5357,10 +5834,63 @@
                "Progressive Onboarding": collect only email + password at
                signup, defer enrollment prompts (biometric, notifications,
                profile fields) until after first successful login. -->
-          <div class="divider" role="separator"></div>
-          <p class="create-account">
-            Don't have an account? <a href="#">Create an Account</a>
-          </p>
+
+          <!-- ── Chooser promo footer ──────────────────────────── -->
+          <div class="chooser-promo-footer">
+
+            <!-- Ace Rewards promotion -->
+            <div class="rewards-promo">
+              <div class="rewards-promo-header">
+                <div class="rewards-promo-header-text">
+                  <span class="rewards-promo-header-title">Join Ace Rewards</span>
+                  <span class="rewards-promo-header-sub">Free benefits when you sign up</span>
+                </div>
+                <img class="rewards-promo-logo" src="data:image/png;base64,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"
+                     alt="Ace Rewards — Shop, Earn, Save" />
+              </div>
+              <div class="rewards-promo-divider" role="presentation"></div>
+              <div class="rewards-promo-benefits">
+                <!-- Exclusive Offers -->
+                <div class="rewards-promo-benefit">
+                  <div class="rewards-promo-benefit-icon" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 -960 960 960"><path d="M480-518ZM158-600l322-220 322 220v360q0 33-23.5 56.5T722-160H238q-33 0-56.5-23.5T158-240v-360Zm80 40v320h484v-320L480-740 238-560Zm242 80q22 0 44.5-9.5T568-518l-88-62-88 62q21 19 43.5 28.5T480-480Zm0 80q-42 0-79.5-18T334-462l-16-14v236h324v-236l-16 14q-29 26-66.5 44T480-400Z"/></svg>
+                  </div>
+                  <div class="rewards-promo-benefit-text">
+                    <span class="rewards-promo-benefit-title">Exclusive Offers &amp; Savings</span>
+                    <span class="rewards-promo-benefit-desc">Offers that help you save money</span>
+                  </div>
+                </div>
+                <!-- Fast & free delivery -->
+                <div class="rewards-promo-benefit">
+                  <div class="rewards-promo-benefit-icon" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 -960 960 960"><path d="M240-160q-50 0-85-35t-35-85H40v-440q0-33 23.5-56.5T120-800h560v160h120l120 160v200h-80q0 50-35 85t-85 35q-50 0-85-35t-35-85H360q0 50-35 85t-85 35Zm0-80q17 0 28.5-11.5T280-280q0-17-11.5-28.5T240-320q-17 0-28.5 11.5T200-280q0 17 11.5 28.5T240-240ZM120-360h32q17-18 39-29t49-11q27 0 49 11t39 29h352v-360H120v360Zm600 120q17 0 28.5-11.5T760-280q0-17-11.5-28.5T720-320q-17 0-28.5 11.5T680-280q0 17 11.5 28.5T720-240Zm-40-200h170l-90-120H680v120ZM360-540Z"/></svg>
+                  </div>
+                  <div class="rewards-promo-benefit-text">
+                    <span class="rewards-promo-benefit-title">Fast &amp; free delivery</span>
+                    <span class="rewards-promo-benefit-desc">Orders $50+</span>
+                  </div>
+                </div>
+                <!-- Start Earning -->
+                <div class="rewards-promo-benefit">
+                  <div class="rewards-promo-benefit-icon" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 -960 960 960"><path d="m480-234-142 86 38-162-126-108 166-14 64-154 64 154 166 14-126 108 38 162-142-86Zm0 114 218-132-58-248 194-166-256-22-98-236-98 236-256 22 194 166-58 248 218 132Zm0-340Z"/></svg>
+                  </div>
+                  <div class="rewards-promo-benefit-text">
+                    <span class="rewards-promo-benefit-title">Start Earning Toward Your Next Reward</span>
+                    <span class="rewards-promo-benefit-desc">Get 10 points per dollar on most purchases. 2500 points earns a $5 Reward</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Create account section -->
+            <div class="create-account-section">
+              <p class="create-account-heading">Don't have an account?</p>
+              <button class="create-account-btn" type="button">Create account</button>
+              <p class="create-account-tagline">Join Ace Rewards and start saving today</p>
+            </div>
+
+          </div><!-- /chooser-promo-footer -->
 
         </div><!-- /screen-chooser -->
 
@@ -5548,14 +6078,26 @@
 
           <!-- ① Prompt panel -->
           <div class="enroll-panel-prompt">
-            <div class="enroll-hero-icon enroll-hero-icon--setup" aria-hidden="true">
+            <!-- Hero icon — Face ID glyph for App / Mobile Web; generic
+                 passkey glyph for Desktop (unknown authenticator type). -->
+            <div class="enroll-hero-icon enroll-hero-icon--setup enroll-tab-app-mw" aria-hidden="true">
               <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 -960 960 960" fill="currentColor">
                 <path d="M701-701q91 91 91 221t-91 221q-91 91-221 91t-221-91q-91-91-91-221t91-221q91-91 221-91t221 91Zm-43 399q74-74 74-178t-74-178q-74-74-178-74t-178 74q-74 74-74 178t74 178q74 74 178 74t178-74Zm-93-67q38-26 57-70H338q18 44 56.5 70t85.5 26q47 0 85-26ZM349-536q11 11 28 11t28-11q11-11 11-28t-11-28q-11-11-28-11t-28 11q-11 11-11 28t11 28Zm206 0q11 11 28 11t28-11q11-11 11-28t-11-28q-11-11-28-11t-28 11q-11 11-11 28t11 28ZM480-480Z"/>
               </svg>
             </div>
-            <h2 class="enroll-heading">Sign in faster with Face ID</h2>
-            <p class="enroll-subtext">Skip the password next time. Your device uses Face ID to verify it&#8217;s you &#8212; nothing ever leaves your device. <button type="button" class="enroll-inline-link" id="enroll-privacy-learn-btn">Learn more</button></p>
-            <ul class="enroll-benefits" aria-label="Benefits">
+            <div class="enroll-hero-icon enroll-hero-icon--success enroll-tab-desktop" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 -960 960 960" fill="currentColor">
+                <path d="M200-160q-33 0-56.5-23.5T120-240v-32q0-34 17.5-62.5T184-378q62-31 126-46.5T440-440q14 0 28 .5t28 2.5q11 1 17.5 8.5T520-410q2 47 23 88.5t56 70.5q7 5 11 12.5t4 16.5v22q0 17-11.5 28.5T574-160H200Zm240-320q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47Zm300 80q17 0 28.5-11.5T780-440q0-17-11.5-28.5T740-480q-17 0-28.5 11.5T700-440q0 17 11.5 28.5T740-400Zm6 346-40-40q-2-2-6-14v-178q-44-13-72-49.5T600-420q0-58 41-99t99-41q58 0 99 41t41 99q0 45-25.5 80T790-290l36 36q6 6 6 14t-6 14l-32 32q-6 6-6 14t6 14l32 32q6 6 6 14t-6 14l-52 52q-6 6-14 6t-14-6Z"/>
+              </svg>
+            </div>
+
+            <h2 class="enroll-heading enroll-tab-app-mw">Sign in faster with Face ID</h2>
+            <h2 class="enroll-heading enroll-tab-desktop">Skip the password next time</h2>
+
+            <p class="enroll-subtext enroll-tab-app-mw">Skip the password next time. Your device uses Face ID to verify it&#8217;s you &#8212; nothing ever leaves your device. <button type="button" class="enroll-inline-link">Learn more</button></p>
+            <p class="enroll-subtext enroll-tab-desktop">Set up a passkey and you&#8217;ll sign in with a click, using your device &#8212; no more typing your Ace password. <button type="button" class="enroll-inline-link">Learn more</button></p>
+
+            <ul class="enroll-benefits enroll-tab-app-mw" aria-label="Benefits">
               <li class="enroll-benefit-item">
                 <svg class="enroll-benefit-icon" width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="m421-298 283-283-46-45-237 237-120-120-45 45 165 166Zm59 218q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 31.5-156t86-127Q252-817 325-848.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 82-31.5 155T763-197.5q-54 54.5-127 86T480-80Zm0-60q142 0 241-99.5T820-480q0-142-99-241t-241-99q-141 0-240.5 99T140-480q0 141 99.5 240.5T480-140Zm0-340Z"/></svg>
                 <span>No password to remember</span>
@@ -5569,8 +6111,29 @@
                 <span>Syncs across your Apple devices</span>
               </li>
             </ul>
-            <button class="sign-in-btn" id="enroll-setup-btn" type="button">Set up Face ID sign-in</button>
-            <button class="enroll-skip-btn" id="enroll-skip-btn" type="button">Skip for now</button>
+            <ul class="enroll-benefits enroll-tab-desktop" aria-label="Benefits">
+              <li class="enroll-benefit-item">
+                <svg class="enroll-benefit-icon" width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="m421-298 283-283-46-45-237 237-120-120-45 45 165 166Zm59 218q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 31.5-156t86-127Q252-817 325-848.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 82-31.5 155T763-197.5q-54 54.5-127 86T480-80Zm0-60q142 0 241-99.5T820-480q0-142-99-241t-241-99q-141 0-240.5 99T140-480q0 141 99.5 240.5T480-140Zm0-340Z"/></svg>
+                <span>No password to remember</span>
+              </li>
+              <li class="enroll-benefit-item">
+                <svg class="enroll-benefit-icon" width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="m421-298 283-283-46-45-237 237-120-120-45 45 165 166Zm59 218q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 31.5-156t86-127Q252-817 325-848.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 82-31.5 155T763-197.5q-54 54.5-127 86T480-80Zm0-60q142 0 241-99.5T820-480q0-142-99-241t-241-99q-141 0-240.5 99T140-480q0 141 99.5 240.5T480-140Zm0-340Z"/></svg>
+                <span>Signs you in with Touch ID, Windows Hello, or your device password</span>
+              </li>
+              <li class="enroll-benefit-item">
+                <svg class="enroll-benefit-icon" width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="m421-298 283-283-46-45-237 237-120-120-45 45 165 166Zm59 218q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 31.5-156t86-127Q252-817 325-848.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 82-31.5 155T763-197.5q-54 54.5-127 86T480-80Zm0-60q142 0 241-99.5T820-480q0-142-99-241t-241-99q-141 0-240.5 99T140-480q0 141 99.5 240.5T480-140Zm0-340Z"/></svg>
+                <span>Syncs across your devices when you&#8217;re signed in to your browser</span>
+              </li>
+            </ul>
+
+            <button class="sign-in-btn" id="enroll-setup-btn" type="button">
+              <span class="enroll-tab-app-mw">Set up Face ID sign-in</span>
+              <span class="enroll-tab-desktop">Set up passkey</span>
+            </button>
+            <button class="enroll-skip-btn" id="enroll-skip-btn" type="button">
+              <span class="enroll-tab-app-mw">Skip for now</span>
+              <span class="enroll-tab-desktop">Not now</span>
+            </button>
           </div>
 
           <!-- ② Success panel -->
@@ -5579,8 +6142,10 @@
               <svg width="40" height="40" viewBox="0 -960 960 960" fill="currentColor"><path d="m421-298 283-283-46-45-237 237-120-120-45 45 165 166Zm59 218q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 31.5-156t86-127Q252-817 325-848.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 82-31.5 155T763-197.5q-54 54.5-127 86T480-80Zm0-60q142 0 241-99.5T820-480q0-142-99-241t-241-99q-141 0-240.5 99T140-480q0 141 99.5 240.5T480-140Zm0-340Z"/></svg>
             </div>
             <h2 class="enroll-heading">You&#8217;re all set</h2>
-            <p class="enroll-subtext">Face ID is set up for this account. You&#8217;ll use it to sign in faster next time.</p>
-            <p class="enroll-device-label">Saved to: iPhone (this device)</p>
+            <p class="enroll-subtext enroll-tab-app-mw">Face ID is set up for this account. You&#8217;ll use it to sign in faster next time.</p>
+            <p class="enroll-subtext enroll-tab-desktop">Next time you visit Ace on this device, you can sign in with a passkey. No password needed.</p>
+            <p class="enroll-device-label enroll-tab-app-mw">Saved to: iPhone (this device)</p>
+            <p class="enroll-device-label enroll-tab-desktop">Saved to: this device</p>
             <button class="sign-in-btn" id="enroll-continue-btn" type="button">Continue shopping</button>
           </div>
 
@@ -5590,7 +6155,8 @@
               <svg width="40" height="40" viewBox="0 -960 960 960" fill="currentColor"><path d="M503.5-289.48q9.5-9.48 9.5-23.5t-9.48-23.52q-9.48-9.5-23.5-9.5t-23.52 9.48q-9.5 9.48-9.5 23.5t9.48 23.52q9.48 9.5 23.5 9.5t23.52-9.48ZM453-433h60v-253h-60v253Zm27.27 353q-82.74 0-155.5-31.5Q252-143 197.5-197.5t-86-127.34Q80-397.68 80-480.5t31.5-155.66Q143-709 197.5-763t127.34-85.5Q397.68-880 480.5-880t155.66 31.5Q709-817 763-763t85.5 127Q880-563 880-480.27q0 82.74-31.5 155.5Q817-252 763-197.68q-54 54.31-127 86Q563-80 480.27-80Zm.23-60Q622-140 721-239.5t99-241Q820-622 721.19-721T480-820q-141 0-240.5 98.81T140-480q0 141 99.5 240.5t241 99.5Zm-.5-340Z"/></svg>
             </div>
             <h2 class="enroll-heading">Setup didn&#8217;t complete</h2>
-            <p class="enroll-subtext">Face ID enrollment was cancelled or didn&#8217;t finish. You can set it up anytime from Account Settings.</p>
+            <p class="enroll-subtext enroll-tab-app-mw">Face ID enrollment was cancelled or didn&#8217;t finish. You can set it up anytime from Account Settings.</p>
+            <p class="enroll-subtext enroll-tab-desktop">Passkey enrollment was cancelled or didn&#8217;t finish. You can set it up anytime from Account Settings.</p>
             <button class="sign-in-btn" id="enroll-retry-btn" type="button">Try again</button>
             <button class="enroll-skip-btn" id="enroll-later-btn" type="button">Skip for now</button>
           </div>
@@ -5603,7 +6169,8 @@
               </svg>
             </div>
             <h2 class="enroll-heading">No problem</h2>
-            <p class="enroll-subtext">You can set up Face ID sign-in anytime from <strong>Account Settings &rsaquo; Sign-in &amp; security</strong>.</p>
+            <p class="enroll-subtext enroll-tab-app-mw">You can set up Face ID sign-in anytime from <strong>Account Settings &rsaquo; Sign-in &amp; security</strong>.</p>
+            <p class="enroll-subtext enroll-tab-desktop">You can set up a passkey anytime from <strong>Account Settings &rsaquo; Sign-in &amp; security</strong>.</p>
             <button class="sign-in-btn" id="enroll-decline-later-btn" type="button">Continue</button>
             <button class="enroll-skip-btn" id="enroll-decline-never-btn" type="button">Don&#8217;t ask again</button>
           </div>
@@ -5614,7 +6181,8 @@
               <svg width="40" height="40" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="m421-298 283-283-46-45-237 237-120-120-45 45 165 166Zm59 218q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 31.5-156t86-127Q252-817 325-848.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 82-31.5 155T763-197.5q-54 54.5-127 86T480-80Zm0-60q142 0 241-99.5T820-480q0-142-99-241t-241-99q-141 0-240.5 99T140-480q0 141 99.5 240.5T480-140Zm0-340Z"/></svg>
             </div>
             <h2 class="enroll-heading">Got it, won&#8217;t ask again</h2>
-            <p class="enroll-subtext">You&#8217;re signed in. If you change your mind, you can set up Face ID from <strong>Account Settings &rsaquo; Sign-in &amp; security</strong>.</p>
+            <p class="enroll-subtext enroll-tab-app-mw">You&#8217;re signed in. If you change your mind, you can set up Face ID from <strong>Account Settings &rsaquo; Sign-in &amp; security</strong>.</p>
+            <p class="enroll-subtext enroll-tab-desktop">You&#8217;re signed in. If you change your mind, you can set up a passkey from <strong>Account Settings &rsaquo; Sign-in &amp; security</strong>.</p>
             <button class="sign-in-btn" id="enroll-suppressed-continue-btn" type="button">Continue</button>
           </div>
 
@@ -5625,8 +6193,10 @@
                 <path d="m421-298 283-283-46-45-237 237-120-120-45 45 165 166Zm59 218q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 31.5-156t86-127Q252-817 325-848.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 82-31.5 155T763-197.5q-54 54.5-127 86T480-80Zm0-60q142 0 241-99.5T820-480q0-142-99-241t-241-99q-141 0-240.5 99T140-480q0 141 99.5 240.5T480-140Zm0-340Z"/>
               </svg>
             </div>
-            <h2 class="enroll-heading">Face ID already set up</h2>
-            <p class="enroll-subtext">A passkey for this account is already saved on this device. You&#8217;re all set &#8212; just use Face ID to sign in.</p>
+            <h2 class="enroll-heading enroll-tab-app-mw">Face ID already set up</h2>
+            <h2 class="enroll-heading enroll-tab-desktop">Passkey already set up</h2>
+            <p class="enroll-subtext enroll-tab-app-mw">A passkey for this account is already saved on this device. You&#8217;re all set &#8212; just use Face ID to sign in.</p>
+            <p class="enroll-subtext enroll-tab-desktop">A passkey for this account is already saved on this device. You&#8217;re all set &#8212; just use your passkey to sign in.</p>
             <button class="sign-in-btn" id="enroll-already-continue-btn" type="button">Got it</button>
           </div>
 
@@ -7135,6 +7705,40 @@
     </div>
   </div>
 
+  <!-- ─── OS Passkey Modal (Desktop) ─────────────────────────
+       Simulates the browser-level passkey ceremony (navigator.credentials
+       .get()) that Chrome / Safari / Edge render as a centered system
+       dialog. Deliberately styled as OS chrome, not Ace card. Reached
+       from #tile-passkey and #chooser-passkey-cta when tab=desktop —
+       replaces the in-page #screen-passkey ceremony for desktop only.
+       Falls back to device-password entry (Chrome's alternative to
+       biometric on desktops without Touch ID / Windows Hello). -->
+  <div id="os-passkey-backdrop" role="dialog" aria-modal="true" aria-labelledby="os-passkey-title" data-passkey-modal-state="prompting">
+    <div class="os-passkey-modal" role="document">
+      <header class="os-passkey-header">
+        <div class="os-passkey-favicon" aria-hidden="true">A</div>
+        <div class="os-passkey-header-text">
+          <div class="os-passkey-title" id="os-passkey-title">Sign in to acehardware.com</div>
+          <div class="os-passkey-account" data-os-passkey-account>shopper@example.com</div>
+        </div>
+      </header>
+      <form class="os-passkey-body" id="os-passkey-form" novalidate>
+        <p class="os-passkey-primary">Use your passkey for <strong data-os-passkey-account>shopper@example.com</strong></p>
+        <p class="os-passkey-secondary">Enter your device password to authorize this sign-in.</p>
+        <label class="os-passkey-field-label" for="os-passkey-password">Device password</label>
+        <input type="password" id="os-passkey-password" autocomplete="new-password" aria-describedby="os-passkey-error" />
+        <p class="os-passkey-error" id="os-passkey-error" hidden role="alert">Password incorrect. Try again.</p>
+      </form>
+      <footer class="os-passkey-footer">
+        <button type="button" class="os-passkey-btn os-passkey-btn--secondary" id="os-passkey-cancel">Cancel</button>
+        <button type="submit" form="os-passkey-form" class="os-passkey-btn os-passkey-btn--primary" id="os-passkey-submit" disabled>
+          <span class="os-passkey-submit-label">Sign in</span>
+          <span class="os-passkey-submit-check" aria-hidden="true">✓ Signed in</span>
+        </button>
+      </footer>
+    </div>
+  </div>
+
   <!-- ─── Flow Navigation Bar ────────────────────────────────── -->
   <div id="flow-nav-bar" hidden role="navigation" aria-label="Flow step navigation">
     <button id="flow-prev" class="flow-nav-arrow" aria-label="Previous step" disabled>
@@ -7405,9 +8009,10 @@
 
     // ── Screen description blurbs ──────────────────────────────
     const SCREEN_BLURBS = {
-      'screen-chooser:default':               'Identifier-first sign-in entry. Users enter their email up top; downstream screens reuse it. Method tiles below offer Face ID / passkey, password, or one-time code.',
+      'screen-chooser:default':               'Mobile Web state: identifier-first sign-in entry. Users enter their email up top; downstream screens reuse it. Method tiles below offer Face ID / passkey, password, or one-time code as alternate paths. Also the generic fallback for chooser navigation when no specific variant is active.',
+      'screen-chooser:default@desktop':       'Desktop state: identifier-first sign-in entry. Email + Continue is the primary path — the password screen is revealed after Continue. The Face ID / passkey tile is deliberately absent (the copy would be factually wrong on most desktop hardware — Face ID doesn\'t exist on Mac, Windows uses Windows Hello, many desktops have no biometric at all — and the runtime can\'t verify a passkey exists for this origin before the identifier is submitted). The Password tile is also absent, redundant with the identifier-first flow. Only the one-time-code fallback remains for users who can\'t remember their password. In production the desktop passkey affordance would live in browser autofill (Conditional UI), not a designed tile.',
       'screen-chooser:passkey-first':         'Identifier-first sign-in entry when we recognize a passkey on this device. The email field and Continue button are replaced by a single primary “Sign in with Face ID” CTA so the fastest path is unmistakable. Fallback tiles below the divider stay available: password or one-time code.',
-      'screen-chooser:default+unknown-email':  'Chooser default state with a banner indicating the submitted email has no account on file. Points at two remediations: try a different email, or use the Create an Account link at the bottom of the chooser. Triggered by submitting the demo sentinel "unknown@example.com".',
+      'screen-chooser:default+unknown-email':  'Chooser default state with a banner indicating the submitted email has no account on file. Points at two remediations: try a different email, or use the Create Account button at the bottom of the chooser. Triggered by submitting the demo sentinel "unknown@example.com".',
       // W3.7.2 · Per-App-tab-pill blurbs. Keyed on data-chooser-variant
       // via the updateBlurb() extension. Each describes the state's
       // intended user situation + the layout it produces.
@@ -7415,9 +8020,13 @@
       'screen-chooser:returning-faceid':       'App state: returning user with Face ID enrolled for this account on this device. Primary path is one-tap Face ID via the hero CTA — identity chip (shopper@ace.com) above a "Sign in with Face ID" button carrying the face glyph. Copy follows the industry-standard [Verb] with [Biometric] pattern (Chase, BoA, 1Password, Amazon, iOS system sheet) so the user knows which biometric is about to fire before tapping. Password and one-time code fallback tiles are visible below the divider — biometrics fail (mask, sunglasses, sensor smudge), so the escape hatch is always in view, not hidden behind an error state or a menu.',
       'screen-chooser:returning-touchid':      'App state: returning user with Touch ID enrolled for this account on this device. Same layout as Face ID variant — identity chip + hero CTA + fallback tiles — but the CTA icon swaps to a fingerprint glyph and the label swaps to "Sign in with Touch ID". Applies to iPhone SE / older iPhones / iPads / MacBooks that use fingerprint biometrics rather than Face ID.',
       'screen-chooser:returning-email-known':  'App state: returning user whose identity is known but who has no biometric-unlockable credential on this device. Skipping the chooser: the password field is shown INLINE with a Sign in button and a Forgot password? escape. Face ID and one-time code tiles remain below as alternates if the user wants to switch methods; the password tile is hidden (redundant with the inline form).',
-      'screen-chooser:returning-identity':     'Mobile Web / Desktop state: browser hints identity via cookie/session but can\'t confirm what credentials will autofill. Email pre-filled, Not you? link inline, and all method tiles remain visible — no unearned certainty about which path will succeed. Subtitle greets the returning user with "Welcome back" rather than the default "Enter your email to get started" (which would misrepresent a state where the email is already there).',
+      'screen-chooser:returning-identity':     'Mobile Web state: browser hints identity via cookie/session but can\'t confirm what credentials will autofill. Email is pre-filled and all method tiles remain visible — no unearned certainty about which path will succeed. Subtitle greets the returning user with "Welcome back" rather than the default "Enter your email to get started" (which would misrepresent a state where the email is already there).',
+      'screen-chooser:returning-identity@desktop': 'Desktop state: browser hints identity via cookie; email pre-filled. Same lean tile set as Default — only the one-time-code fallback is visible. Password remains accessible via Continue (identifier-first flow). If the browser DID additionally signal that a passkey exists for this origin, the flow would upgrade to the passkey-detected variant (below) with a "Sign in with a passkey" tile promoted to the top of the tile list.',
+      'screen-chooser:passkey-detected@desktop': 'Desktop state (W3.9 realignment): browser signals a saved passkey for this origin. Adopts the same passkey-first layout as Mobile Web \'passkey-available\' — identity chip (shopper@example.com) above a hero "Sign in with passkey" CTA with a generic passkey glyph. Copy stays generic because on desktop the OS decides at ceremony time which authenticator fires (Touch ID / Windows Hello / device-password / YubiKey). Password and one-time code fallback tiles remain below the divider as escape hatches when the passkey ceremony fails or the user prefers a different method — matching the Mobile Web fallback set. Previously this variant kept the identifier-first form visible with a promoted #tile-passkey below — that split the primary action into two competing affordances (Continue vs. tile). Aligning to Mobile Web removes the divergence, gives desktop the industry-standard passkey UX (Google / Chase / GitHub / PayPal / 1Password), and honors the state\'s own premise: if we truly recognize the user AND know a passkey exists, we should commit to it.',
       'screen-chooser:passkey-available':      'Mobile Web state: origin has a saved passkey. The site invokes WebAuthn directly via navigator.credentials.get() — a site-owned primary CTA is the honest way to represent that capability, matching how Google, Chase, GitHub, and PayPal render web passkey primary actions. Layout mirrors the App Face ID / Touch ID pattern: identity chip (shopper@ace.com) above a "Sign in with passkey" CTA carrying a generic passkey glyph (web doesn\'t know the specific biometric — could be Face ID, Touch ID, Windows Hello, YubiKey, or phone-as-authenticator). Password and one-time code fallback tiles remain visible below the divider as escape hatches when the passkey ceremony fails or the user prefers a different method.',
       'screen-passkey:idle':                  'Shown when the passkey ceremony begins. The user taps “Use Face ID” to authenticate with a saved local passkey. (W3.7 — the “Use a passkey from another device” cross-device option is temporarily hidden; see CROSS-DEVICE TEMPORARILY HIDDEN in the stylesheet.)',
+      'screen-passkey:idle@desktop':          'Desktop passkey ceremony — idle. On desktop the site\'s screen is a brief waiting state: the OS owns the actual credential-verification surface (Touch ID prompt on Mac, Windows Hello popup, or a device-password dialog for hardware without biometrics). The site copy stays generic ("Sign in with a passkey" / "Your device will confirm it\'s you") because we don\'t know at render time which authenticator the OS will invoke. The prototype simulates the OS surface with the same os-modal used in the App tab — in production this would be the real navigator.credentials.get() flow.',
+      'screen-passkey:success@desktop':       'Desktop passkey ceremony — success. Terminal step: the biometric ring turns green and "You\'re signed in / Welcome back to Ace Hardware" renders. Same behavior as the App tab; only the pre-success copy differs by tab (see idle@desktop). No separate signed-in home destination by design.',
       'screen-passkey:idle-cross-device':       'The same passkey idle screen, shown as the second step of the cross-device happy path. The \u201cUse a passkey from another device\u201d button is the interactive trigger that advances to the QR screen.',
       'screen-passkey:failed':                'Shown when Face ID fails or is canceled by the OS. Offers a retry or a fallback to another sign-in method.',
       // 'screen-passkey:notfound' has been removed. When no credential is
@@ -7430,7 +8039,9 @@
       'screen-passkey:hardware-unavailable':  'Shown when the device reports no biometric capability — no Face ID hardware, biometrics disabled at the OS level, or a physical accessibility need that prevents biometric use. The biometric hero and Try button are hidden (nothing to try); the fallback tiles (Password / One-time code) are surfaced so the user has an immediate path forward.',
       'screen-passkey:success':               'Terminal step of the passkey happy path. The biometric ring turns green and the screen reads “You’re signed in / Welcome back to Ace Hardware.” There is no separate signed-in / home destination by design — this confirmation is the end of the prototype journey.',
       'screen-passkey-enroll:prompt':         'Appears after a successful sign-in when no passkey exists yet. Invites the user to set up Face ID for faster future logins.',
+      'screen-passkey-enroll:prompt@desktop': 'Desktop post-sign-in enrollment pitch. Different framing from the App / Mobile Web version: retail desktop users respond to "faster next time" more than "more secure" — speed is the compelling promise, security is a hygiene expectation. Copy leans generic ("passkey", "your device") because on desktop the OS decides which authenticator fires (Touch ID, Windows Hello, or the device-password fallback). Benefits list highlights the password-fallback path so users without biometric hardware understand they\'re included. "Set up passkey" primary; "Not now" secondary (declined → same downstream states as App).',
       'screen-passkey-enroll:success':        'Confirms the passkey was created successfully. The user can now sign in with Face ID on this device.',
+      'screen-passkey-enroll:success@desktop': 'Desktop enrollment success. Confirms the passkey was created; on subsequent visits the Desktop "Returning · passkey available" chooser variant would fire and surface the "Sign in with a passkey" tile as the primary shortcut. Device-label copy is intentionally generic ("Saved to: this device") because the site can\'t reliably distinguish a Mac from a Windows PC from a Chromebook via WebAuthn alone.',
       'screen-passkey-enroll:error':          'Shown when passkey enrollment fails or the OS biometric step is canceled. Offers a retry or an option to skip for now.',
       'screen-passkey-enroll:declined':         'Shown after the user taps “Not now” on the enrollment prompt. Offers two distinct exits: “Maybe Later” (snooze — will prompt again next sign-in) or “Don’t ask again” (permanent suppress). Navigates back to the post-auth destination.',
       'screen-passkey-enroll:suppressed':       'Confirmation screen shown after the user taps "Don\'t ask again" on the declined screen. Acknowledges the preference was saved and provides a single CTA to continue to the app. Face ID can still be set up from Account Settings at any time.',
@@ -7502,7 +8113,16 @@
       if (id === 'screen-forgot-password')   state = screenForgotPw.getAttribute('data-forgotpw-state') || null;
       if (id === 'screen-password')          state = screenPassword.getAttribute('data-pw-state') || null;
       const key = state ? `${id}:${state}` : id;
-      el.textContent = SCREEN_BLURBS[key] || SCREEN_BLURBS[id] || '';
+      // Tab-scoped override lookup — lets a blurb speak specifically
+      // to the current device tab when behavior diverges (e.g. Desktop
+      // vs. Mobile Web chooser). Falls back to the generic key, then
+      // to the screen-level fallback. See SCREEN_BLURBS header.
+      const tab = document.body.dataset.deviceTab;
+      const tabKey = tab ? `${key}@${tab}` : null;
+      el.textContent = (tabKey && SCREEN_BLURBS[tabKey])
+                    || SCREEN_BLURBS[key]
+                    || SCREEN_BLURBS[id]
+                    || '';
     }
 
     // ── Screen transition ──────────────────────────────────────
@@ -7945,6 +8565,19 @@
           const isActive = b.dataset.deviceTab === tab;
           b.setAttribute('aria-pressed', isActive ? 'true' : 'false');
         });
+        // Move promo footer: outside card for desktop (below the
+        // white bordered card), inside #screen-chooser for mobile/app
+        // (part of the scrollable card content).
+        const footer = document.querySelector('.chooser-promo-footer');
+        if (footer) {
+          if (tab === 'desktop') {
+            const card = document.querySelector('.card');
+            if (card) card.after(footer);
+          } else {
+            const chooser = document.getElementById('screen-chooser');
+            if (chooser) chooser.appendChild(footer);
+          }
+        }
       }
 
       // Initial boot: restore last tab + seed current-screen attr.
@@ -8004,7 +8637,7 @@
       const DEFAULTS = {
         desktop:     'default',
         'mobile-web':'default',
-        app:         'returning-faceid',
+        app:         'returning-touchid',
       };
       // Variants that render on top of the existing passkey-first
       // chooser layout. W3.7.3 · Face ID / Touch ID share the base
@@ -8018,6 +8651,7 @@
         'returning-faceid',
         'returning-touchid',
         'passkey-available',
+        'passkey-detected',
       ]);
       // Variants that pre-fill the identifier field with a demo email.
       // W3.7.2 · Simplified after the App-tab redesign:
@@ -8036,12 +8670,12 @@
         'returning-identity',
         'returning-email-known',
         'passkey-available',
+        'passkey-detected',
       ]);
       const PREFILL_EMAIL = 'shopper@example.com';
 
       const chooser    = document.getElementById('screen-chooser');
       const emailInput = document.getElementById('chooser-email-input');
-      const notYouLink = document.getElementById('chooser-not-you-link');
       const pills      = document.querySelectorAll('.state-pill');
       const tabButtons = document.querySelectorAll('.device-tab-btn');
       // W3.6 · Slice D · Optional context chip in the Demo panel.
@@ -8186,20 +8820,6 @@
         });
       });
 
-      // "Not you?" — clear the pre-filled email and drop back to the
-      // fresh-install variant (App tab) or default (elsewhere). This
-      // simulates the user rejecting the recognized identity.
-      if (notYouLink) {
-        notYouLink.addEventListener('click', () => {
-          const tab = document.body.dataset.deviceTab || 'desktop';
-          const target = tab === 'app' ? 'fresh-install' : 'default';
-          const valid = pillsForTab(tab);
-          const finalState = valid.includes(target) ? target : (DEFAULTS[tab] || 'default');
-          try { localStorage.setItem(STORAGE_PREFIX + tab, finalState); } catch {}
-          applyState(tab, finalState);
-        });
-      }
-
       // Initial activation for whatever tab initDeviceTabs restored.
       activate(document.body.dataset.deviceTab || 'desktop');
     })();
@@ -8299,6 +8919,32 @@
       });
     })();
 
+    // ── Biometric copy helper ─────────────────────────────────
+    // Returns tab-aware {label, sub, btn} copy for the four passkey
+    // screen states. Desktop uses generic "passkey" language because
+    // the site can't know which authenticator the OS will invoke
+    // (Touch ID, Windows Hello, YubiKey, etc.). App/Mobile Web uses
+    // Face ID copy (the only biometric available on the prototype's
+    // primary target device).
+    function getBiometricCopy(state) {
+      const isDesktop = document.body.dataset.deviceTab === 'desktop';
+      const COPY = {
+        idle: isDesktop
+          ? { label: 'Sign in with a passkey',   sub: 'Your passkey stays on this device',  btn: 'Sign in with passkey' }
+          : { label: 'Use Face ID to sign in',    sub: 'Your Face ID stays on this device',  btn: 'Use Face ID' },
+        prompting: isDesktop
+          ? { label: 'Authenticating…',           sub: 'Complete the prompt on your device', btn: 'Authenticating…' }
+          : { label: 'Hold still…',               sub: 'Scanning your face',                 btn: 'Scanning…' },
+        failed: isDesktop
+          ? { label: 'Could not verify',          sub: 'Tap below to try again.',            btn: 'Try again' }
+          : { label: 'Face ID failed',            sub: 'Tap below to try again.',            btn: 'Try again' },
+        success: isDesktop
+          ? { label: 'Passkey verified',          sub: 'Signing you in…',                    btn: 'Signing in…' }
+          : { label: 'Face ID verified',          sub: 'Signing you in…',                    btn: 'Signing in…' },
+      };
+      return COPY[state] || COPY.idle;
+    }
+
     // ── Biometric state helper ────────────────────────────────
     function setBiometricState(state, label, sub) {
       const ring = document.getElementById('biometric-ring');
@@ -8368,17 +9014,20 @@
       // Batch A · only run the live countdown while the QR is on screen
       if (state !== 'cross-device') stopQrExpiryCountdown();
       switch (state) {
-        case 'idle':
-          setBiometricState('idle', 'Use Face ID to sign in', 'Your Face ID stays on this device');
+        case 'idle': {
+          const c = getBiometricCopy('idle');
+          setBiometricState('idle', c.label, c.sub);
           tryBtn.disabled = false;
-          tryBtn.textContent = 'Use Face ID';
+          tryBtn.textContent = c.btn;
           break;
-        case 'failed':
-          setBiometricState('error', "Face ID couldn’t sign you in",
-            'Your account is still secure — try again or use a different method.');
+        }
+        case 'failed': {
+          const c = getBiometricCopy('failed');
+          setBiometricState('error', c.label, c.sub);
           tryBtn.disabled = false;
-          tryBtn.textContent = 'Try again';
+          tryBtn.textContent = c.btn;
           break;
+        }
         // NOTE: the 'notfound' state has been removed. When no credential
         // is discovered, the runtime now returns the user to the chooser
         // with a "No passkey on this device" banner instead of morphing
@@ -8400,14 +9049,16 @@
           // fallback tiles are shown. No action to take on this screen —
           // the user picks a fallback tile (Password / OTP) to continue.
           break;
-        case 'success':
+        case 'success': {
           // Happy path landing: green ring, friendly confirmation,
           // action buttons hidden via CSS so the user isn't tempted
           // to re-trigger an already-successful ceremony.
-          setBiometricState('success', 'You\u2019re signed in', 'Welcome back to Ace Hardware');
+          const c = getBiometricCopy('success');
+          setBiometricState('success', c.label, c.sub);
           tryBtn.disabled = true;
-          tryBtn.textContent = 'Use Face ID';
+          tryBtn.textContent = c.btn;
           break;
+        }
       }
       updateBlurb();
     }
@@ -8553,8 +9204,23 @@
     // ── Chooser → Passkey ─────────────────────────────────────
     document.getElementById('tile-passkey').addEventListener('click', () => {
       clearChooserBanner();
+      // Desktop — the OS-level passkey ceremony is a system dialog, not
+      // an in-page screen. Simulate it with the OS passkey modal that
+      // overlays the chooser. On success, route to the same signed-in
+      // landing screen used by the biometric flow (screen-passkey /
+      // state=success), which reads as "Welcome back".
+      if (document.body.dataset.deviceTab === 'desktop') {
+        showOsPasskeyModal({
+          onSuccess: () => {
+            setPasskeyState('success');
+            switchScreen(screenChooser, screenPasskey, 'forward');
+            currentScreen = screenPasskey;
+          },
+        });
+        return;
+      }
       setPasskeyState('idle');
-      switchScreen(currentScreen, screenPasskey, 'forward');
+      switchScreen(screenChooser, screenPasskey, 'forward');
       currentScreen = screenPasskey;
     });
 
@@ -8563,8 +9229,22 @@
     // is recognized. See the matching CSS in the chooser-state block.
     document.getElementById('chooser-passkey-cta').addEventListener('click', () => {
       clearChooserBanner();
+      // Same desktop fork as #tile-passkey — defensive; in practice the
+      // passkey-first hero CTA layout isn't reachable on desktop, but if
+      // a future variant surfaces this button on desktop it will now do
+      // the right thing.
+      if (document.body.dataset.deviceTab === 'desktop') {
+        showOsPasskeyModal({
+          onSuccess: () => {
+            setPasskeyState('success');
+            switchScreen(screenChooser, screenPasskey, 'forward');
+            currentScreen = screenPasskey;
+          },
+        });
+        return;
+      }
       setPasskeyState('idle');
-      switchScreen(currentScreen, screenPasskey, 'forward');
+      switchScreen(screenChooser, screenPasskey, 'forward');
       currentScreen = screenPasskey;
     });
 
@@ -8580,7 +9260,7 @@
     // ── Chooser → Password screen ─────────────────────────────
     document.getElementById('tile-password-chooser').addEventListener('click', () => {
       clearChooserBanner();
-      switchScreen(currentScreen, screenPassword, 'forward');
+      switchScreen(screenChooser, screenPassword, 'forward');
       currentScreen = screenPassword;
     });
 
@@ -8699,7 +9379,7 @@
     document.getElementById('tile-otp-chooser').addEventListener('click', () => {
       clearChooserBanner();
       setOtpRequestState();
-      switchScreen(currentScreen, screenOtp, 'forward');
+      switchScreen(screenChooser, screenOtp, 'forward');
       currentScreen = screenOtp;
     });
 
@@ -8707,7 +9387,7 @@
     function goToCrossDevice() {
       clearChooserBanner();
       setPasskeyState('cross-device');
-      switchScreen(currentScreen, screenPasskey, 'forward');
+      switchScreen(screenChooser, screenPasskey, 'forward');
       currentScreen = screenPasskey;
     }
     document.getElementById('tile-cd-chooser').addEventListener('click', goToCrossDevice);
@@ -8799,6 +9479,114 @@
       hideOsModal(() => { setPasskeyState('idle'); });
     });
 
+    // ── OS Passkey Modal (Desktop) ─────────────────────────────
+    // Simulates the browser-level passkey ceremony that fires when
+    // navigator.credentials.get() is invoked on Desktop. Renders a
+    // system-styled modal over whatever screen is active (the chooser
+    // in practice, since Desktop passkey entry starts there). The
+    // "wrong" sentinel drives the failed state for demo purposes;
+    // any other non-empty value succeeds. On success, the caller's
+    // onSuccess callback runs after the modal fades — that's where
+    // routing to the signed-in landing / enrollment offer happens.
+    const osPasskeyBackdrop   = document.getElementById('os-passkey-backdrop');
+    const osPasskeyForm       = document.getElementById('os-passkey-form');
+    const osPasskeyPassword   = document.getElementById('os-passkey-password');
+    const osPasskeyError      = document.getElementById('os-passkey-error');
+    const osPasskeySubmit     = document.getElementById('os-passkey-submit');
+    const osPasskeyCancelBtn  = document.getElementById('os-passkey-cancel');
+    const osPasskeyAccountEls = osPasskeyBackdrop.querySelectorAll('[data-os-passkey-account]');
+    const OS_PASSKEY_WRONG_SENTINEL = 'wrong';
+    let osPasskeyKeyHandler = null;
+    let osPasskeyOnSuccess  = null;
+
+    function setOsPasskeyModalState(state) {
+      osPasskeyBackdrop.setAttribute('data-passkey-modal-state', state);
+    }
+
+    function showOsPasskeyModal(opts) {
+      const options = opts || {};
+      const account = options.account
+        || signInIdentifier
+        || (document.getElementById('chooser-email-input') || {}).value
+        || 'shopper@example.com';
+      osPasskeyAccountEls.forEach(el => { el.textContent = account; });
+      osPasskeyPassword.value = '';
+      osPasskeyPassword.disabled = false;
+      osPasskeyError.setAttribute('hidden', '');
+      osPasskeySubmit.disabled = true;
+      osPasskeyOnSuccess = typeof options.onSuccess === 'function' ? options.onSuccess : null;
+      setOsPasskeyModalState('prompting');
+      osPasskeyBackdrop.classList.remove('os-hiding');
+      osPasskeyBackdrop.classList.add('os-visible');
+      // Escape closes the modal (matches real browser prompt behavior).
+      // Real Chrome / Safari do NOT dismiss on backdrop click, so we
+      // don't wire that either — only Cancel + Escape close.
+      osPasskeyKeyHandler = (e) => {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          hideOsPasskeyModal('cancelled');
+        }
+      };
+      document.addEventListener('keydown', osPasskeyKeyHandler);
+      // Small delay so the animation has started before focus triggers
+      // any assistive-tech announcement of the field.
+      setTimeout(() => { osPasskeyPassword.focus(); }, 120);
+    }
+
+    function hideOsPasskeyModal(result) {
+      if (osPasskeyKeyHandler) {
+        document.removeEventListener('keydown', osPasskeyKeyHandler);
+        osPasskeyKeyHandler = null;
+      }
+      const onSuccess = osPasskeyOnSuccess;
+      osPasskeyOnSuccess = null;
+      osPasskeyBackdrop.classList.add('os-hiding');
+      setTimeout(() => {
+        osPasskeyBackdrop.classList.remove('os-visible', 'os-hiding');
+        if (result === 'success' && typeof onSuccess === 'function') {
+          onSuccess();
+        }
+      }, 200);
+    }
+
+    osPasskeyPassword.addEventListener('input', () => {
+      osPasskeySubmit.disabled = !osPasskeyPassword.value.trim();
+      if (!osPasskeyError.hasAttribute('hidden')) {
+        osPasskeyError.setAttribute('hidden', '');
+      }
+    });
+
+    osPasskeyForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const password = osPasskeyPassword.value.trim();
+      if (!password) return;
+      setOsPasskeyModalState('verifying');
+      osPasskeyPassword.disabled = true;
+      osPasskeySubmit.disabled = true;
+      osPasskeyError.setAttribute('hidden', '');
+      // ~800ms matches the perceived duration of a real Touch ID / device
+      // password verification on macOS.
+      setTimeout(() => {
+        if (password.toLowerCase() === OS_PASSKEY_WRONG_SENTINEL) {
+          setOsPasskeyModalState('prompting');
+          osPasskeyPassword.disabled = false;
+          osPasskeyPassword.value = '';
+          osPasskeyError.removeAttribute('hidden');
+          osPasskeySubmit.disabled = true;
+          osPasskeyPassword.focus();
+        } else {
+          setOsPasskeyModalState('success');
+          // Brief pause so the reviewer sees the green success state
+          // before the modal fades and control returns to the caller.
+          setTimeout(() => hideOsPasskeyModal('success'), 500);
+        }
+      }, 800);
+    });
+
+    osPasskeyCancelBtn.addEventListener('click', () => {
+      hideOsPasskeyModal('cancelled');
+    });
+
     // QR cancel → back to chooser (the new origin for cross-device sign-in)
     document.getElementById('passkey-qr-cancel').addEventListener('click', () => {
       setPasskeyState('idle');
@@ -8833,7 +9621,10 @@
 
       // idle or failed → run biometric simulation
       tryBtn.disabled = true;
-      setBiometricState('prompting', 'Scanning…', 'Hold still while Face ID authenticates you');
+      {
+        const c = getBiometricCopy('prompting');
+        setBiometricState('prompting', c.label, c.sub);
+      }
       showOsModal();
 
       setTimeout(() => {
@@ -9043,13 +9834,20 @@
     // §"Biometric · Security concerns" recommends "educate users with learn
     // more links." Kept as a toast rather than a modal so the demo stays
     // lightweight; production should link to a real support article.
+    //
+    // Class-based query (rather than ID) because both the App/MW subtext
+    // and the Desktop subtext contain a Learn more button — only one is
+    // ever visible per tab, but both live in the DOM.
     (() => {
-      const btn = document.getElementById('enroll-privacy-learn-btn');
-      if (!btn) return;
-      btn.addEventListener('click', () => {
-        showToast({
-          message: 'Your Face ID data never leaves your phone. Ace only receives a pass or fail signal from your device — we never see your face scan.',
-          kind: 'info',
+      const btns = document.querySelectorAll('.enroll-inline-link');
+      if (!btns.length) return;
+      btns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const isDesktop = document.body.dataset.deviceTab === 'desktop';
+          const message = isDesktop
+            ? 'Your passkey stays on your device. Ace only receives a pass or fail signal from the OS — we never see your device password or biometric data.'
+            : 'Your Face ID data never leaves your phone. Ace only receives a pass or fail signal from your device — we never see your face scan.';
+          showToast({ message, kind: 'info' });
         });
       });
     })();
@@ -9884,6 +10682,109 @@
           ],
         },
 
+        // ── Desktop · Passkey ─────────────────────────────────
+        //
+        // The desktop passkey story diverges from the App / Mobile Web
+        // version in two important places: (1) enrollment leads with
+        // "faster next time" rather than security, because retail
+        // desktop users respond to speed over hygiene; (2) the returning
+        // sign-in surface uses a promoted tile ("Sign in with a passkey")
+        // rather than a hero CTA, since the identifier-first flow is
+        // preserved and passkey adoption is opt-in per user.
+        //
+        // Every step in these flows sets tab: 'desktop' so the visible
+        // chrome + copy fork onto the desktop variants (enroll-tab-
+        // desktop, getBiometricCopy('desktop'), etc.). Reviewers can
+        // step through without manually switching device tabs.
+        {
+          id: 'desktop-passkey-enroll', group: 'Desktop · Passkey',
+          label: 'Happy Path — Post-Sign-In Enrollment',
+          figmaUrl: null,
+          // Terminal step is the enrollment success state — the user is
+          // signed in and a passkey has been saved. No separate signed-in
+          // destination by design; matches the enroll-happy pattern from
+          // the App tab's registration flows.
+          steps: [
+            { screen: 'screen-chooser',        state: 'default', tab: 'desktop', identifier: '',                    label: 'Chooser — Desktop default state' },
+            { screen: 'screen-password',       state: null,      tab: 'desktop', identifier: 'shopper@example.com', label: 'Password entry — after Continue' },
+            { screen: 'screen-passkey-enroll', state: 'prompt',  tab: 'desktop',                                    label: 'Pitch — "Skip the password next time"' },
+            { screen: 'screen-passkey-enroll', state: 'success', tab: 'desktop',                                    label: 'Passkey saved — "You\'re all set" (terminal step)' },
+          ],
+        },
+        {
+          id: 'desktop-passkey-return', group: 'Desktop · Passkey',
+          label: 'Sign In with Saved Passkey (OS Prompt)',
+          figmaUrl: null,
+          // Simulates a returning user whose browser has signaled a
+          // saved passkey for this origin (WebAuthn Conditional-UI probe
+          // or a prior registration on this device). The chooser uses
+          // the 'passkey-detected' variant — identifier-first layout
+          // preserved, passkey tile promoted with generic copy.
+          //
+          // On Desktop the ceremony is NOT an in-page screen — it's a
+          // browser-level system dialog. This flow drives that dialog
+          // via osModalState on each step: 'prompting' → 'verifying' →
+          // 'success'. After the modal fades, control lands on
+          // screen-passkey / state=success ("Welcome back") — the same
+          // signed-in landing used by the biometric flow.
+          steps: [
+            { screen: 'screen-chooser', state: 'passkey-detected', tab: 'desktop', identifier: 'shopper@example.com',                                 label: 'Chooser — passkey tile promoted' },
+            { screen: 'screen-chooser', state: 'passkey-detected', tab: 'desktop', identifier: 'shopper@example.com', osModalState: 'prompting',      label: 'OS prompt — enter device password' },
+            { screen: 'screen-chooser', state: 'passkey-detected', tab: 'desktop', identifier: 'shopper@example.com', osModalState: 'verifying',      label: 'OS prompt — verifying credential' },
+            { screen: 'screen-passkey', state: 'success',           tab: 'desktop',                                                                    label: 'Signed in — "Welcome back" (terminal step)' },
+          ],
+        },
+        {
+          id: 'desktop-passkey-return-wrong-password', group: 'Desktop · Passkey',
+          label: 'OS Prompt — Wrong Password, Then Success',
+          figmaUrl: null,
+          // Demonstrates the failed-then-recovered path. Real desktop
+          // passkey prompts don't lock the user out on wrong device-
+          // password entry — they just clear the field and let them
+          // retry. This flow shows one failed attempt inline in the
+          // modal, then a successful retry.
+          steps: [
+            { screen: 'screen-chooser', state: 'passkey-detected', tab: 'desktop', identifier: 'shopper@example.com',                                 label: 'Chooser — passkey tile promoted' },
+            { screen: 'screen-chooser', state: 'passkey-detected', tab: 'desktop', identifier: 'shopper@example.com', osModalState: 'prompting',      label: 'OS prompt — first attempt' },
+            { screen: 'screen-chooser', state: 'passkey-detected', tab: 'desktop', identifier: 'shopper@example.com', osModalState: 'failed',         label: 'Wrong password — inline error, field cleared' },
+            { screen: 'screen-chooser', state: 'passkey-detected', tab: 'desktop', identifier: 'shopper@example.com', osModalState: 'verifying',      label: 'Retry — verifying' },
+            { screen: 'screen-passkey', state: 'success',           tab: 'desktop',                                                                    label: 'Signed in — "Welcome back" (terminal step)' },
+          ],
+        },
+        {
+          id: 'desktop-passkey-return-cancel', group: 'Desktop · Passkey',
+          label: 'OS Prompt — User Cancels',
+          figmaUrl: null,
+          // Cancelling the OS ceremony is a normal, silent action —
+          // real browsers don't surface a banner or error when the user
+          // dismisses. The user simply lands back on the chooser with
+          // the tile still available. This flow terminates on the
+          // chooser to demonstrate the "you can just try again" model.
+          steps: [
+            { screen: 'screen-chooser', state: 'passkey-detected', tab: 'desktop', identifier: 'shopper@example.com',                                 label: 'Chooser — passkey tile promoted' },
+            { screen: 'screen-chooser', state: 'passkey-detected', tab: 'desktop', identifier: 'shopper@example.com', osModalState: 'prompting',      label: 'OS prompt — presented' },
+            { screen: 'screen-chooser', state: 'passkey-detected', tab: 'desktop', identifier: 'shopper@example.com',                                 label: 'User cancels — back to chooser (terminal step)' },
+          ],
+        },
+        {
+          id: 'desktop-passkey-enroll-declined', group: 'Desktop · Passkey',
+          label: 'Enrollment — User Declines ("Not now")',
+          figmaUrl: null,
+          // Users who decline the pitch land on the declined panel with
+          // two exits: "Continue" (snooze; pitch may reappear on future
+          // sign-ins) or "Don\'t ask again" (suppress). This flow stops
+          // at the declined confirmation so reviewers see the honest
+          // "we\'ll respect your choice" moment. The desktop copy fork
+          // adjusts the supporting text to reference "a passkey" rather
+          // than "Face ID."
+          steps: [
+            { screen: 'screen-chooser',        state: 'default',  tab: 'desktop', identifier: '',                    label: 'Chooser — Desktop default' },
+            { screen: 'screen-password',       state: null,       tab: 'desktop', identifier: 'shopper@example.com', label: 'Password entry — after Continue' },
+            { screen: 'screen-passkey-enroll', state: 'prompt',   tab: 'desktop',                                    label: 'Pitch — user reads the offer' },
+            { screen: 'screen-passkey-enroll', state: 'declined', tab: 'desktop',                                    label: 'User taps "Not now" — respected (terminal step)' },
+          ],
+        },
+
         // ── Password Reset ───────────────────────────────────────────────
         {
           id: 'reset-happy', group: 'Password Reset',
@@ -10047,6 +10948,20 @@
         const state  = step.state || null;
         if (!target) return;
 
+        // Optional per-step device tab. Some flows (Desktop · Passkey)
+        // need to land on a specific tab for the screen copy and layout
+        // to render correctly. Sets body[data-device-tab] and mirrors
+        // the tab-button aria-pressed for visual consistency. Does NOT
+        // persist to localStorage — flow playback is transient; the
+        // user's own tab preference (via clicking a device tab) still
+        // wins across sessions.
+        if (step.tab) {
+          document.body.dataset.deviceTab = step.tab;
+          document.querySelectorAll('.device-tab-btn').forEach(b => {
+            b.setAttribute('aria-pressed', b.dataset.deviceTab === step.tab ? 'true' : 'false');
+          });
+        }
+
         // Optional per-step identifier seed for identifier-first realism.
         if (step.identifier !== undefined) {
           setSignInIdentifier(step.identifier || '');
@@ -10055,8 +10970,9 @@
         // Reset passkey ring when leaving or entering passkey screen
         if (currentScreen === screenPasskey || target === screenPasskey) {
           const tryBtn = document.getElementById('passkey-try-btn');
-          if (tryBtn) { tryBtn.disabled = false; tryBtn.textContent = 'Use Face ID'; }
-          setBiometricState('idle', 'Use Face ID to sign in', 'Your Face ID stays on this device');
+          const c = getBiometricCopy('idle');
+          if (tryBtn) { tryBtn.disabled = false; tryBtn.textContent = c.btn; }
+          setBiometricState('idle', c.label, c.sub);
         }
 
         // Direct show/hide (no slide animation for flow step navigation)
@@ -10077,9 +10993,20 @@
         if (target === screenEnroll)   setEnrollState(state    || 'prompt');
         if (target === screenSettings) setSettingsState(state  || 'list');
         if (target === screenChooser) {
-          setChooserState(state || 'default');
+          // Match state-pill click semantics: set BOTH chooser-variant
+          // (drives per-scenario CSS \u2014 e.g. Desktop passkey-detected
+          // tile promotion, mobile-web passkey-available hero CTA) and
+          // chooser-state (default | passkey-first layout mode). Without
+          // the variant, flows that reference tab-specific variants
+          // (like Desktop 'passkey-detected') would only get the base
+          // layout, not the variant-scoped CSS reveals.
+          const chooserState = state || 'default';
+          const isPasskeyFirst = ['returning-faceid', 'returning-touchid', 'passkey-available'].includes(chooserState);
+          screenChooser.setAttribute('data-chooser-variant', chooserState);
+          screenChooser.setAttribute('data-chooser-state', isPasskeyFirst ? 'passkey-first' : 'default');
           // Optional informational banner (e.g. "No passkey on this device")
           setChooserBanner(step.banner || null);
+          updateBlurb();
         }
         if (target === screenReenroll) setReenrollState(state  || 'prompt');
         if (target === screenRecovery) {
@@ -10115,6 +11042,47 @@
         if (target === screenPassword) {
           if (state) screenPassword.setAttribute('data-pw-state', state);
           else screenPassword.removeAttribute('data-pw-state');
+        }
+
+        // ── OS passkey modal (Desktop) ───────────────────────
+        // Steps declaring osModalState render the OS-level passkey
+        // ceremony over whatever screen is active (chooser in practice).
+        // States: 'prompting' (blank field, focused), 'verifying'
+        // (spinner on submit), 'failed' (inline error, field cleared),
+        // 'success' (green check). If a step omits osModalState and the
+        // modal is currently open, close it — flow transitions imply
+        // the OS ceremony ended.
+        if (step.osModalState) {
+          const modalAlreadyOpen = osPasskeyBackdrop.classList.contains('os-visible');
+          if (!modalAlreadyOpen) {
+            // Show without an onSuccess callback — flow playback drives
+            // step transitions manually, so nothing should auto-route
+            // when the modal is dismissed by the runner.
+            showOsPasskeyModal({});
+          }
+          setOsPasskeyModalState(step.osModalState);
+          if (step.osModalState === 'prompting') {
+            osPasskeyPassword.disabled = false;
+            osPasskeyPassword.value = '';
+            osPasskeyError.setAttribute('hidden', '');
+            osPasskeySubmit.disabled = true;
+          } else if (step.osModalState === 'verifying') {
+            osPasskeyPassword.disabled = true;
+            osPasskeyPassword.value = '••••••••';
+            osPasskeySubmit.disabled = true;
+            osPasskeyError.setAttribute('hidden', '');
+          } else if (step.osModalState === 'failed') {
+            osPasskeyPassword.disabled = false;
+            osPasskeyPassword.value = '';
+            osPasskeyError.removeAttribute('hidden');
+            osPasskeySubmit.disabled = true;
+          } else if (step.osModalState === 'success') {
+            osPasskeyPassword.disabled = true;
+            osPasskeySubmit.disabled = true;
+            osPasskeyError.setAttribute('hidden', '');
+          }
+        } else if (osPasskeyBackdrop.classList.contains('os-visible')) {
+          hideOsPasskeyModal('flow-transition');
         }
 
         updateActiveItem();
@@ -10241,8 +11209,9 @@
           // Reset passkey ring if leaving or entering passkey screen
           if (currentScreen === screenPasskey || target === screenPasskey) {
             const tryBtn = document.getElementById('passkey-try-btn');
-            if (tryBtn) { tryBtn.disabled = false; tryBtn.textContent = 'Use Face ID'; }
-            setBiometricState('idle', 'Use Face ID to sign in', 'Your Face ID stays on this device');
+            const c = getBiometricCopy('idle');
+            if (tryBtn) { tryBtn.disabled = false; tryBtn.textContent = c.btn; }
+            setBiometricState('idle', c.label, c.sub);
           }
 
           // Show target directly (no slide animation for nav jumps)
@@ -10335,14 +11304,18 @@
         btn.disabled    = figmaOnly;
         btn.innerHTML   = `<span class="proto-flow-dot" aria-hidden="true"></span>${flow.label}` +
           (figmaOnly ? ' <span class="proto-flow-figma-badge">Figma only</span>' : '');
-        const link = document.createElement('a');
-        link.className  = 'proto-flow-figma-link';
-        link.href       = flow.figmaUrl;
-        link.target     = '_blank';
-        link.rel        = 'noopener';
-        link.textContent = flow.figmaUrl.replace('https://www.figma.com/design/', 'figma.com/…');
-        li.appendChild(btn);
-        li.appendChild(link);
+        if (flow.figmaUrl) {
+          const link = document.createElement('a');
+          link.className  = 'proto-flow-figma-link';
+          link.href       = flow.figmaUrl;
+          link.target     = '_blank';
+          link.rel        = 'noopener';
+          link.textContent = flow.figmaUrl.replace('https://www.figma.com/design/', 'figma.com/…');
+          li.appendChild(btn);
+          li.appendChild(link);
+        } else {
+          li.appendChild(btn);
+        }
         flowsList.appendChild(li);
       });
 
@@ -11044,11 +12017,20 @@
       }, 250);
     });
 
+    /* ─── Embedded comments data ────────────────────────────────────────
+       Comments baked directly into the HTML so they persist across
+       browsers, file transfers, and localStorage clears.  Run
+       window.__comments.bake() in the console to update this blob,
+       or use:  npm run bake-comments <exported.json>
+    ─────────────────────────────────────────────────────────────────── */
+    window.__EMBEDDED_COMMENTS__ = [];
+    // %%EMBEDDED_COMMENTS_END%%
+
     /* ─── Comments overlay (prototype review tool) ─────────────────────
-       All comments live in this browser’s localStorage — no server,
-       no auth, no network. Reviewers Export a JSON sidecar and send it
-       back; the owner Imports it here to merge everyone’s feedback
-       into a single view.
+       Comments are loaded from __EMBEDDED_COMMENTS__ (baked into this
+       file) merged with localStorage additions. Reviewers Export a
+       JSON sidecar and send it back; the owner Imports it or bakes it
+       into the HTML for permanent persistence.
        This block is fully self-contained — it does NOT modify
        switchScreen, goToFlowStep, FLOWS, or proto-nav listeners.
     ─────────────────────────────────────────────────────────────────── */
@@ -11064,6 +12046,7 @@
       const BRANCH_NAME = (typeof window !== 'undefined' && window.__COMMENTS_BRANCH__) || 'local';
 
       const LS_DATA = 'comments.data';         // JSON blob of comments
+      const LS_DELETED = 'comments.deleted';   // JSON array of deleted embedded-comment ids
       const LS_REVIEWER = 'comments.reviewer'; // reviewer identity: { name }
       const SCREEN_SELECTOR = '#screens-container > div';
       const STAGE_SELECTOR = '#screens-container';
@@ -11175,9 +12158,33 @@
         return promptForReviewer();
       }
 
-      // Storage API — all reads/writes go through localStorage.
+      // ── Deleted-ID tracking (for embedded comments) ────────
+      function readDeletedIds() {
+        try {
+          const raw = localStorage.getItem(LS_DELETED);
+          if (!raw) return new Set();
+          const parsed = JSON.parse(raw);
+          return new Set(Array.isArray(parsed) ? parsed : []);
+        } catch (_) { return new Set(); }
+      }
+      function writeDeletedIds(ids) {
+        try { localStorage.setItem(LS_DELETED, JSON.stringify([...ids])); }
+        catch (_) {}
+      }
+
+      // Storage API — merges embedded + localStorage, minus deletions.
       function apiLoad() {
-        comments = readLocalData();
+        const embedded = (typeof window !== 'undefined' && Array.isArray(window.__EMBEDDED_COMMENTS__))
+          ? window.__EMBEDDED_COMMENTS__ : [];
+        const local = readLocalData();
+        const deleted = readDeletedIds();
+        // Merge: embedded as baseline, localStorage upserts on top
+        const byId = new Map();
+        for (const c of embedded) { if (c && c.id) byId.set(c.id, c); }
+        for (const c of local) { if (c && c.id) byId.set(c.id, c); }
+        // Remove any comments the user explicitly deleted
+        for (const id of deleted) byId.delete(id);
+        comments = Array.from(byId.values());
         return comments;
       }
       async function apiCreate(payload) {
@@ -11213,6 +12220,10 @@
       function apiDelete(id) {
         const arr = readLocalData().filter((c) => c.id !== id);
         writeLocalData(arr);
+        // Track deletion so embedded comments stay removed after reload
+        const deleted = readDeletedIds();
+        deleted.add(id);
+        writeDeletedIds(deleted);
         markUnsaved();
       }
 
@@ -12131,6 +13142,28 @@
         init();
       }
 
+      // ── Bake: serialize current comments for embedding ───
+      function bakeComments() {
+        const arr = comments.slice();
+        if (arr.length === 0) {
+          console.log('[comments] No comments to bake.');
+          return;
+        }
+        const json = JSON.stringify(arr, null, 2);
+        const snippet = 'window.__EMBEDDED_COMMENTS__ = ' + json + ';';
+        // Copy to clipboard if available
+        if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+          navigator.clipboard.writeText(snippet).then(
+            () => console.log('[comments] Bake snippet copied to clipboard (' + arr.length + ' comments). Paste into sign-in.html replacing the empty array, or run: npm run bake-comments <export.json>'),
+            () => console.log(snippet)
+          );
+        } else {
+          console.log(snippet);
+        }
+        showToast('Bake: ' + arr.length + ' comment' + (arr.length === 1 ? '' : 's') + ' copied to clipboard.');
+        return snippet;
+      }
+
       // Expose tiny debug API for the owner (no writes, just visibility)
       window.__comments = {
         branch: BRANCH_NAME,
@@ -12143,8 +13176,10 @@
         import: pickImportFile,
         reviewer: getReviewer,
         setReviewer,
+        bake: bakeComments,
         clearAll: () => {
           writeLocalData([]);
+          try { localStorage.removeItem(LS_DELETED); } catch (_) {}
           comments = [];
           renderDots();
           markSaved();
